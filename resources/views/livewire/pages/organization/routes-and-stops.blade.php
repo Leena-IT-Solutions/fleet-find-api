@@ -823,8 +823,7 @@ new class extends Component
                         this.gmap = new google.maps.Map(mapContainer, {
                             center: { lat: centerLat, lng: centerLng },
                             zoom: this.defaultZoom,
-                            mapTypeId: google.maps.MapTypeId.ROADMAP,
-                            mapId: 'DEMO_MAP_ID'
+                            mapTypeId: google.maps.MapTypeId.ROADMAP
                         });
 
                         this.plotStopsGoogle(validStops, isNewStopAdded);
@@ -952,11 +951,9 @@ new class extends Component
                     }
                 },
 
-                async plotStopsGoogle(validStops, isNewStopAdded) {
+                plotStopsGoogle(validStops, isNewStopAdded) {
                     let pathCoordinates = [];
                     let bounds = new google.maps.LatLngBounds();
-
-                    const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
 
                     validStops.forEach((stop, index) => {
                         let lat = parseFloat(stop.latitude);
@@ -965,28 +962,14 @@ new class extends Component
                         pathCoordinates.push(position);
                         bounds.extend(position);
 
-                        const markerElement = document.createElement('div');
-                        markerElement.innerText = String(index + 1);
-                        
-                        // Inline styles to bypass Shadow DOM styling limits
-                        markerElement.style.width = '28px';
-                        markerElement.style.height = '28px';
-                        markerElement.style.backgroundColor = '#4f46e5';
-                        markerElement.style.color = '#ffffff';
-                        markerElement.style.borderRadius = '50%';
-                        markerElement.style.border = '2px solid #ffffff';
-                        markerElement.style.display = 'flex';
-                        markerElement.style.alignItems = 'center';
-                        markerElement.style.justifyContent = 'center';
-                        markerElement.style.fontWeight = 'bold';
-                        markerElement.style.fontSize = '12px';
-                        markerElement.style.fontFamily = 'sans-serif';
-                        markerElement.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
-
-                        let marker = new AdvancedMarkerElement({
+                        let marker = new google.maps.Marker({
                             position,
                             map: this.gmap,
-                            content: markerElement,
+                            label: {
+                                text: String(index + 1),
+                                color: 'white',
+                                fontWeight: 'bold'
+                            },
                             title: stop.name
                         });
 
@@ -994,8 +977,8 @@ new class extends Component
                             content: `<b>${index + 1}. ${stop.name}</b><br><span class='text-[10px] text-slate-500'>${lat}, ${lng}</span>`
                         });
 
-                        marker.addListener('gmp-click', () => {
-                            infoWindow.open({ map: this.gmap, anchor: marker });
+                        marker.addListener('click', () => {
+                            infoWindow.open(this.gmap, marker);
                         });
 
                         this.googleMarkers.push(marker);
@@ -1033,7 +1016,7 @@ new class extends Component
                                 let infoWindow = new google.maps.InfoWindow({
                                     content: `<b>${lastIndex + 1}. ${lastStop.name}</b><br><span class='text-[10px] text-slate-500'>${lastLat}, ${lastLng}</span>`
                                 });
-                                infoWindow.open({ map: this.gmap, anchor: lastMarker });
+                                infoWindow.open(this.gmap, lastMarker);
                             }
                         }
                     }
