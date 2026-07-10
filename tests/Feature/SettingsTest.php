@@ -43,8 +43,6 @@ class SettingsTest extends TestCase
             ->set('googleMapsApiKey', 'new_google_key')
             ->set('mapboxAccessToken', 'new_mapbox_token')
             ->set('mapTileUrl', 'https://{s}.tile.custom.org/{z}/{x}/{y}.png')
-            ->set('mapDefaultLat', '20.1234')
-            ->set('mapDefaultLng', '74.8765')
             ->set('mapDefaultZoom', 12)
             ->set('mapProvider', 'google_maps')
             ->call('saveSettings')
@@ -64,8 +62,6 @@ class SettingsTest extends TestCase
         $this->assertEquals('new_google_key', Setting::get('google_maps_api_key'));
         $this->assertEquals('new_mapbox_token', Setting::get('mapbox_access_token'));
         $this->assertEquals('https://{s}.tile.custom.org/{z}/{x}/{y}.png', Setting::get('map_tile_url'));
-        $this->assertEquals('20.1234', Setting::get('map_default_lat'));
-        $this->assertEquals('74.8765', Setting::get('map_default_lng'));
         $this->assertEquals('12', Setting::get('map_default_zoom'));
         $this->assertEquals('google_maps', Setting::get('map_provider'));
 
@@ -83,14 +79,10 @@ class SettingsTest extends TestCase
 
         Volt::actingAs($admin)
             ->test('pages.settings.index')
-            ->set('mapDefaultLat', '100') // Out of bounds (>90)
-            ->set('mapDefaultLng', '-200') // Out of bounds (<-180)
             ->set('mapDefaultZoom', '25') // Out of bounds (>20)
             ->set('mapProvider', 'invalid_provider') // Invalid option
             ->call('saveSettings')
             ->assertHasErrors([
-                'mapDefaultLat' => 'between',
-                'mapDefaultLng' => 'between',
                 'mapDefaultZoom' => 'between',
                 'mapProvider' => 'in',
             ]);

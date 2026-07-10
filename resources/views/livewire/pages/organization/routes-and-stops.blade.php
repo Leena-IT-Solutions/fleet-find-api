@@ -54,8 +54,8 @@ new class extends Component
     {
         $this->loadOrganization();
         $this->mapTileUrl = Setting::get('map_tile_url', 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
-        $this->mapDefaultLat = Setting::get('map_default_lat', '19.18');
-        $this->mapDefaultLng = Setting::get('map_default_lng', '73.21');
+        $this->mapDefaultLat = '19.18';
+        $this->mapDefaultLng = '73.21';
         $this->mapDefaultZoom = (int)Setting::get('map_default_zoom', 14);
         $this->mapProvider = Setting::get('map_provider', 'leaflet');
         $this->googleMapsApiKey = Setting::get('google_maps_api_key', '');
@@ -462,7 +462,19 @@ new class extends Component
                                         <span class="text-xs text-slate-500 font-medium">Map Active</span>
                                     </div>
                                 </div>
-                                <div id="map" class="h-[300px] w-full z-0 bg-slate-100" wire:ignore></div>
+                                <div class="relative w-full rounded-b-2xl overflow-hidden shadow-inner">
+                                    <div id="map" class="h-[300px] w-full z-0 bg-slate-100" wire:ignore></div>
+                                    <!-- Floating Locate Me Button -->
+                                    <button type="button" 
+                                            x-on:click="locateMe()"
+                                            class="absolute bottom-3 right-3 z-[1000] p-2.5 bg-white hover:bg-slate-50 text-slate-700 hover:text-indigo-650 rounded-xl shadow-md border border-slate-200 flex items-center justify-center transition-all duration-200"
+                                            title="{{ __('Center to Current Location') }}">
+                                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
 
                             <div class="bg-white border border-slate-200/80 shadow-sm rounded-2xl p-5 flex flex-col gap-4">
@@ -861,6 +873,23 @@ new class extends Component
                             }
                         }, 200);
                     }
+
+                    // Asynchronously check and center on device location if no stops exist
+                    if (validStops.length === 0 && !isNewStopAdded) {
+                        if (navigator.geolocation) {
+                            navigator.geolocation.getCurrentPosition(
+                                (position) => {
+                                    let lat = position.coords.latitude;
+                                    let lng = position.coords.longitude;
+                                    this.centerMapOn(lat, lng, 14);
+                                },
+                                (error) => {
+                                    console.warn("Geolocation permission denied or timed out:", error);
+                                },
+                                { enableHighAccuracy: true, timeout: 4000 }
+                            );
+                        }
+                    }
                 },
 
                 plotStopsLeaflet(validStops, isNewStopAdded) {
@@ -984,6 +1013,33 @@ new class extends Component
                                 infoWindow.open(this.gmap, lastMarker);
                             }
                         }
+                    }
+                },
+
+                centerMapOn(lat, lng, zoom) {
+                    if (this.provider === 'google_maps' && this.gmap) {
+                        this.gmap.setCenter({ lat, lng });
+                        if (zoom) this.gmap.setZoom(zoom);
+                    } else if (this.map) {
+                        this.map.setView([lat, lng], zoom || this.map.getZoom());
+                    }
+                },
+
+                locateMe() {
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(
+                            (position) => {
+                                let lat = position.coords.latitude;
+                                let lng = position.coords.longitude;
+                                this.centerMapOn(lat, lng, 15);
+                            },
+                            (error) => {
+                                alert("Unable to retrieve location. Please check browser permissions.");
+                            },
+                            { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+                        );
+                    } else {
+                        alert("Geolocation is not supported by your browser.");
                     }
                 }
             }));
