@@ -23,5 +23,13 @@ class UserSeeder extends Seeder
         );
 
         $user->syncRoles(['Admin', 'Organization', 'Driver', 'Attendant', 'Parent']);
+
+        // Seed some children for the parent
+        \App\Models\Child::firstOrCreate(
+            ['parent_id' => $user->id, 'name' => 'Aarav Rathod']
+        );
+        \App\Models\Child::firstOrCreate(
+            ['parent_id' => $user->id, 'name' => 'Kiara Rathod']
+        );
     }
 }

@@ -92,6 +92,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the children associated with the user (parent).
+     */
+    public function children()
+    {
+        return $this->hasMany(Child::class, 'parent_id');
+    }
+
+    /**
      * Boot the model events.
      */
     protected static function booted(): void
