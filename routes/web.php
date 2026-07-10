@@ -36,6 +36,7 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('organization/access-control', 'pages.organization.access-control')->name('organization.access-control');
     Volt::route('organization/vehicles', 'pages.organization.vehicles')->name('organization.vehicles');
     Volt::route('organization/routes', 'pages.organization.routes-and-stops')->name('organization.routes');
+    Volt::route('organization/trips', 'pages.organization.trips')->name('organization.trips');
     Route::view('organization/profile-settings', 'organization-profile')->name('organization.profile-settings');
 });
 

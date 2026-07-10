@@ -46,4 +46,19 @@ class Organization extends Model
     {
         return $this->hasMany(Route::class);
     }
+
+    public function trips()
+    {
+        return $this->hasMany(Trip::class);
+    }
+
+    public function drivers()
+    {
+        return $this->hasMany(Driver::class);
+    }
+
+    public function attendants()
+    {
+        return $this->hasMany(Attendant::class);
+    }
 }

@@ -107,6 +107,16 @@ class User extends Authenticatable
         return $this->belongsToMany(Organization::class, 'organization_user')->withPivot('access')->withTimestamps();
     }
 
+    public function driver()
+    {
+        return $this->hasOne(Driver::class);
+    }
+
+    public function attendant()
+    {
+        return $this->hasOne(Attendant::class);
+    }
+
     /**
      * Boot the model events.
      */
