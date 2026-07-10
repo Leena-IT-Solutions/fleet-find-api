@@ -351,5 +351,17 @@ class RoutesAndStopsTest extends TestCase
         // Orders should swap back
         $this->assertEquals(1, $stop1->sequence_order);
         $this->assertEquals(2, $stop2->sequence_order);
+
+        // Test Drag and Drop Reordering: fromIndex 1 (Stop 2) toIndex 0 (Stop 1)
+        Volt::actingAs($user)
+            ->test('pages.organization.routes-and-stops')
+            ->set('selectedRouteId', $route->id)
+            ->call('reorderStops', 1, 0);
+
+        $stop1->refresh();
+        $stop2->refresh();
+
+        $this->assertEquals(2, $stop1->sequence_order);
+        $this->assertEquals(1, $stop2->sequence_order);
     }
 }

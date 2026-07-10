@@ -344,6 +344,30 @@ new class extends Component
         $this->dispatch('stops-updated', stops: $route->stops()->get()->toArray());
     }
 
+    public function reorderStops(int $fromIndex, int $toIndex): void
+    {
+        if (!$this->selectedRouteId || $fromIndex === $toIndex) {
+            return;
+        }
+
+        $route = Route::findOrFail($this->selectedRouteId);
+        $stops = $route->stops()->get();
+
+        $stopsArray = $stops->all();
+        $draggedStop = array_splice($stopsArray, $fromIndex, 1)[0] ?? null;
+
+        if ($draggedStop) {
+            array_splice($stopsArray, $toIndex, 0, [$draggedStop]);
+
+            $order = 1;
+            foreach ($stopsArray as $stopItem) {
+                $stopItem->update(['sequence_order' => $order++]);
+            }
+        }
+
+        $this->dispatch('stops-updated', stops: $route->stops()->get()->toArray());
+    }
+
     public function with()
     {
         if (!$this->organization) {
@@ -588,11 +612,29 @@ new class extends Component
                                                     <th class="py-3 px-4 text-end w-28">Actions</th>
                                                 </tr>
                                             </thead>
-                                            <tbody class="divide-y divide-slate-100">
+                                            <tbody class="divide-y divide-slate-100" x-data="{ draggedIndex: null, dragOverIndex: null }">
                                                 @foreach ($stops as $index => $stop)
-                                                    <tr class="hover:bg-slate-50/50 text-slate-700">
+                                                    <tr class="hover:bg-slate-50/50 text-slate-700 transition-all duration-150 border-t border-slate-100"
+                                                        draggable="true"
+                                                        x-on:dragstart="draggedIndex = {{ $index }}; $event.dataTransfer.effectAllowed = 'move';"
+                                                        x-on:dragover.prevent
+                                                        x-on:dragenter="dragOverIndex = {{ $index }}"
+                                                        x-on:dragleave="if (dragOverIndex === {{ $index }}) dragOverIndex = null"
+                                                        x-on:dragend="draggedIndex = null; dragOverIndex = null"
+                                                        x-on:drop="dragOverIndex = null; $wire.reorderStops(draggedIndex, {{ $index }})"
+                                                        :class="{ 
+                                                            'opacity-40 bg-slate-50': draggedIndex === {{ $index }},
+                                                            'border-t-2 border-t-indigo-600': dragOverIndex === {{ $index }} && draggedIndex > {{ $index }},
+                                                            'border-b-2 border-b-indigo-600': dragOverIndex === {{ $index }} && draggedIndex < {{ $index }}
+                                                        }">
                                                         <td class="py-3 px-4">
                                                             <div class="flex items-center gap-2">
+                                                                <!-- Drag Handle Grip -->
+                                                                <span class="text-slate-350 cursor-grab active:cursor-grabbing hover:text-slate-500 transition duration-150 p-0.5" title="{{ __('Drag to reorder') }}">
+                                                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 9h8M8 15h8" />
+                                                                    </svg>
+                                                                </span>
                                                                 <div class="w-7 h-7 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded-full flex items-center justify-center font-bold text-xs shadow-sm">
                                                                     {{ $index + 1 }}
                                                                 </div>
