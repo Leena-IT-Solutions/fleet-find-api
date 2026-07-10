@@ -35,9 +35,10 @@
                 {{ $slot }}
             @else
                 <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0">
-                    <div>
-                        <a href="/" wire:navigate>
+                    <div class="flex flex-col items-center">
+                        <a href="/" wire:navigate class="flex flex-col items-center gap-2">
                             <x-application-logo class="w-16 h-16 rounded-xl shadow-lg border border-slate-800" />
+                            <span class="text-2xl font-bold tracking-tight bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">FleetFind</span>
                         </a>
                     </div>
 
