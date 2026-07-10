@@ -41,4 +41,9 @@ class Organization extends Model
     {
         return $this->hasMany(Vehicle::class);
     }
+
+    public function routes()
+    {
+        return $this->hasMany(Route::class);
+    }
 }
