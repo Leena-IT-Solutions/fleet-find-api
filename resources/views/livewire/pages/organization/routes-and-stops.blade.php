@@ -638,32 +638,6 @@ new class extends Component
                                                                 <div class="w-7 h-7 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded-full flex items-center justify-center font-bold text-xs shadow-sm">
                                                                     {{ $index + 1 }}
                                                                 </div>
-                                                                <div class="flex flex-col gap-0.5">
-                                                                    @if ($index > 0)
-                                                                        <button wire:click="moveStopUp({{ $stop->id }})" 
-                                                                                type="button"
-                                                                                class="text-slate-400 hover:text-indigo-600 transition duration-150 p-0.5 hover:bg-slate-100 rounded" 
-                                                                                title="{{ __('Move Up') }}">
-                                                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
-                                                                            </svg>
-                                                                        </button>
-                                                                    @else
-                                                                        <div class="w-4 h-4"></div>
-                                                                    @endif
-                                                                    @if ($index < count($stops) - 1)
-                                                                        <button wire:click="moveStopDown({{ $stop->id }})" 
-                                                                                type="button"
-                                                                                class="text-slate-400 hover:text-indigo-600 transition duration-150 p-0.5 hover:bg-slate-100 rounded" 
-                                                                                title="{{ __('Move Down') }}">
-                                                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                                                                            </svg>
-                                                                        </button>
-                                                                    @else
-                                                                        <div class="w-4 h-4"></div>
-                                                                    @endif
-                                                                </div>
                                                             </div>
                                                         </td>
                                                         <td class="py-3 px-4 font-semibold text-slate-800">
