@@ -18,11 +18,18 @@ class Organization extends Model
         'latitude',
         'longitude',
         'logo',
+        'display_driver_phone',
+        'display_attendant_phone',
+        'share_location_by',
+        'enrollment_end_date',
     ];
 
     protected $casts = [
         'latitude' => 'decimal:8',
         'longitude' => 'decimal:8',
+        'display_driver_phone' => 'boolean',
+        'display_attendant_phone' => 'boolean',
+        'enrollment_end_date' => 'date',
     ];
 
     public function users()

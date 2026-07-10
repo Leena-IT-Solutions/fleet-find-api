@@ -21,6 +21,10 @@ return new class extends Migration
             $table->decimal('latitude', 10, 8)->nullable();
             $table->decimal('longitude', 11, 8)->nullable();
             $table->string('logo')->nullable();
+            $table->boolean('display_driver_phone')->default(true);
+            $table->boolean('display_attendant_phone')->default(true);
+            $table->string('share_location_by')->default('driver'); // 'driver' or 'attendant'
+            $table->date('enrollment_end_date')->nullable();
             $table->timestamps();
         });
 

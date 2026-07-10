@@ -32,6 +32,7 @@ Route::middleware(['auth', 'web-roles'])->group(function () {
 Route::middleware(['auth'])->group(function () {
     Volt::route('organization/dashboard', 'pages.organization.dashboard')->name('organization.dashboard');
     Volt::route('organization/organizations', 'pages.organization.organizations')->name('organization.organizations');
+    Volt::route('organization/entity-info', 'pages.organization.entity-info')->name('organization.entity-info');
     Route::view('organization/profile-settings', 'organization-profile')->name('organization.profile-settings');
 });
 
