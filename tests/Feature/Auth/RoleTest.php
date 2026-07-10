@@ -73,6 +73,19 @@ class RoleTest extends TestCase
         $response->assertSee('Welcome to the Admin Portal');
     }
 
+    public function test_user_with_both_roles_sees_go_to_organization_portal_button_on_admin_dashboard(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole('Admin');
+        $user->assignRole('Organization');
+
+        $response = $this->actingAs($user)->get('/dashboard');
+
+        $response->assertStatus(200);
+        $response->assertSee('Admin Dashboard');
+        $response->assertSee('Go to Organization Portal');
+    }
+
     public function test_organization_can_access_dashboard_and_see_organization_panel(): void
     {
         $user = User::factory()->create();

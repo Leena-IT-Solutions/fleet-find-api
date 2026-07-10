@@ -43,4 +43,15 @@ class OrganizationDashboardTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Organization Dashboard');
     }
+
+    public function test_user_with_both_roles_can_access_organization_dashboard_and_sees_go_to_admin_portal_button(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole('Admin');
+        $user->assignRole('Organization');
+
+        $response = $this->actingAs($user)->get(route('organization.dashboard'));
+        $response->assertStatus(200);
+        $response->assertSee('Go to Admin Portal');
+    }
 }
