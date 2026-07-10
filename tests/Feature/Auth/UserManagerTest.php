@@ -127,4 +127,32 @@ class UserManagerTest extends TestCase
 
         $this->assertNull($user->fresh());
     }
+
+    public function test_admin_can_create_new_user(): void
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('Admin');
+
+        Volt::actingAs($admin)
+            ->test('pages.users.index')
+            ->call('openAddModal')
+            ->set('newName', 'New User')
+            ->set('newEmail', 'newuser@example.com')
+            ->set('newMobile', '9876543210')
+            ->set('newPassword', 'password123')
+            ->set('newRoles', ['Driver'])
+            ->call('createUser')
+            ->assertHasNoErrors()
+            ->assertSet('showAddModal', false);
+
+        $this->assertDatabaseHas('users', [
+            'name' => 'New User',
+            'email' => 'newuser@example.com',
+            'mobile' => '9876543210',
+        ]);
+
+        $newUser = User::where('email', 'newuser@example.com')->first();
+        $this->assertTrue($newUser->hasRole('Parent'));
+        $this->assertTrue($newUser->hasRole('Driver'));
+    }
 }

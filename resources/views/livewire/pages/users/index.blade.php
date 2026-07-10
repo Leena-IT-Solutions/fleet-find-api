@@ -19,8 +19,16 @@ new class extends Component
     public $selectedRole = '';
 
     // Modal control states
+    public $showAddModal = false;
     public $showEditModal = false;
     public $showDeleteModal = false;
+
+    // Form inputs for adding
+    public $newName = '';
+    public $newEmail = '';
+    public $newMobile = '';
+    public $newPassword = '';
+    public $newRoles = [];
 
     // Form inputs for editing
     public $editingUserId = null;
@@ -51,6 +59,46 @@ new class extends Component
     {
         $this->reset(['search', 'selectedRole']);
         $this->resetPage();
+    }
+
+    // Add User Modal Actions
+    public function openAddModal(): void
+    {
+        $this->reset(['newName', 'newEmail', 'newMobile', 'newPassword', 'newRoles']);
+        $this->showAddModal = true;
+        $this->dispatch('open-modal', 'add-user-modal');
+    }
+
+    public function closeAddModal(): void
+    {
+        $this->showAddModal = false;
+        $this->dispatch('close-modal', 'add-user-modal');
+        $this->reset(['newName', 'newEmail', 'newMobile', 'newPassword', 'newRoles']);
+        $this->resetErrorBag();
+    }
+
+    public function createUser(): void
+    {
+        $this->validate([
+            'newName' => ['required', 'string', 'max:255'],
+            'newEmail' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
+            'newMobile' => ['nullable', 'string', 'max:20', 'unique:users,mobile'],
+            'newPassword' => ['required', 'string', 'min:8'],
+            'newRoles' => ['array'],
+        ]);
+
+        $user = User::create([
+            'name' => $this->newName,
+            'email' => $this->newEmail,
+            'mobile' => $this->newMobile,
+            'password' => Illuminate\Support\Facades\Hash::make($this->newPassword),
+        ]);
+
+        // Sync roles (User model will auto-enforce keeping the Parent role)
+        $user->syncRoles($this->newRoles);
+
+        $this->closeAddModal();
+        session()->flash('success', 'User created successfully.');
     }
 
     // Modal Actions
@@ -212,16 +260,26 @@ new class extends Component
                 </div>
             </div>
 
-            <!-- Reset Filters -->
-            @if(!empty($search) || !empty($selectedRole))
-                <button wire:click="resetFilters" 
-                        class="w-full md:w-auto px-4 py-2 bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-600 hover:text-slate-900 rounded-lg text-sm font-medium transition duration-150 flex items-center justify-center gap-2">
-                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+            <!-- Actions (Reset & Add User) -->
+            <div class="w-full md:w-auto flex items-center gap-3 shrink-0">
+                @if(!empty($search) || !empty($selectedRole))
+                    <button wire:click="resetFilters" 
+                            class="w-full md:w-auto px-4 py-2 bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-600 hover:text-slate-900 rounded-lg text-sm font-medium transition duration-150 flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                        </svg>
+                        <span>Clear Filters</span>
+                    </button>
+                @endif
+
+                <button wire:click="openAddModal" 
+                        class="w-full md:w-auto px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold transition duration-150 flex items-center justify-center gap-2 shadow-sm focus:outline-none">
+                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>
-                    <span>Clear Filters</span>
+                    <span>Add User</span>
                 </button>
-            @endif
+            </div>
         </div>
 
         <!-- Full-Width User Cards List -->
@@ -343,6 +401,90 @@ new class extends Component
             </div>
         @endif
     </div>
+
+    <!-- Add User Modal -->
+    <x-modal name="add-user-modal" :show="$showAddModal" focusable>
+        <form wire:submit.prevent="createUser" class="p-6">
+            <h2 class="text-lg font-medium text-slate-900">
+                {{ __('Add New User') }}
+            </h2>
+
+            <p class="mt-1 text-sm text-slate-500">
+                {{ __('Create a new user profile with personal details, contact number, password, and system roles.') }}
+            </p>
+
+            <div class="mt-6 flex flex-col gap-4">
+                <!-- Name -->
+                <div>
+                    <x-input-label for="newName" value="{{ __('Name') }}" />
+                    <x-text-input id="newName" type="text" class="mt-1 block w-full" wire:model="newName" required />
+                    <x-input-error :messages="$errors->get('newName')" class="mt-2" />
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <x-input-label for="newEmail" value="{{ __('Email') }}" />
+                    <x-text-input id="newEmail" type="email" class="mt-1 block w-full" wire:model="newEmail" required />
+                    <x-input-error :messages="$errors->get('newEmail')" class="mt-2" />
+                </div>
+
+                <!-- Mobile -->
+                <div>
+                    <x-input-label for="newMobile" value="{{ __('Mobile') }}" />
+                    <x-text-input id="newMobile" type="text" class="mt-1 block w-full" wire:model="newMobile" />
+                    <x-input-error :messages="$errors->get('newMobile')" class="mt-2" />
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <x-input-label for="newPassword" value="{{ __('Password') }}" />
+                    <x-text-input id="newPassword" type="password" class="mt-1 block w-full" wire:model="newPassword" required />
+                    <x-input-error :messages="$errors->get('newPassword')" class="mt-2" />
+                </div>
+
+                <!-- Roles Checkboxes -->
+                <div>
+                    <x-input-label value="{{ __('Assigned System Roles') }}" />
+                    
+                    <div class="grid grid-cols-2 gap-3 mt-2">
+                        @foreach($roles as $role)
+                            @php
+                                $isParent = strtolower($role->name) === 'parent';
+                            @endphp
+                            <label class="inline-flex items-center gap-2 p-2 border border-slate-100 rounded-lg hover:bg-slate-50 cursor-pointer text-sm text-slate-700">
+                                @if($isParent)
+                                    <!-- Parent role is checked and disabled (can't uncheck) -->
+                                    <input type="checkbox" 
+                                           checked 
+                                           disabled 
+                                           class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500/20 cursor-not-allowed">
+                                    <input type="hidden" wire:model="newRoles" value="Parent">
+                                @else
+                                    <input type="checkbox" 
+                                           value="{{ $role->name }}" 
+                                           wire:model="newRoles" 
+                                           class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500/20">
+                                @endif
+                                <span>{{ $role->name }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                    <x-input-error :messages="$errors->get('newRoles')" class="mt-2" />
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="mt-6 flex justify-end gap-3">
+                <x-secondary-button wire:click="closeAddModal" type="button">
+                    {{ __('Cancel') }}
+                </x-secondary-button>
+
+                <x-primary-button>
+                    {{ __('Create User') }}
+                </x-primary-button>
+            </div>
+        </form>
+    </x-modal>
 
     <!-- Edit User Modal -->
     <x-modal name="edit-user-modal" :show="$showEditModal" focusable>
