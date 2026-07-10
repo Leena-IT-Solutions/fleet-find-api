@@ -1,15 +1,12 @@
 <?php
 
 use Livewire\Volt\Component;
-use Livewire\WithPagination;
 use App\Models\User;
 use App\Models\Role;
 use Illuminate\Validation\Rule;
 
 new class extends Component
 {
-    use WithPagination;
-
     public function rendering($view)
     {
         $view->layout('layouts.app');
@@ -17,6 +14,7 @@ new class extends Component
 
     public $search = '';
     public $selectedRole = '';
+    public $perPage = 10;
 
     // Modal control states
     public $showAddModal = false;
@@ -47,18 +45,22 @@ new class extends Component
 
     public function updatingSearch(): void
     {
-        $this->resetPage();
+        $this->perPage = 10;
     }
 
     public function updatingSelectedRole(): void
     {
-        $this->resetPage();
+        $this->perPage = 10;
     }
 
     public function resetFilters(): void
     {
-        $this->reset(['search', 'selectedRole']);
-        $this->resetPage();
+        $this->reset(['search', 'selectedRole', 'perPage']);
+    }
+
+    public function loadMore(): void
+    {
+        $this->perPage += 10;
     }
 
     // Add User Modal Actions
@@ -198,8 +200,12 @@ new class extends Component
             });
         }
 
+        $totalCount = $query->count();
+        $users = $query->latest()->take($this->perPage)->get();
+
         return [
-            'users' => $query->latest()->paginate(10),
+            'users' => $users,
+            'hasMore' => $totalCount > $this->perPage,
             'roles' => Role::all(),
         ];
     }
@@ -395,10 +401,18 @@ new class extends Component
                 @endforeach
             </div>
 
-            <!-- Pagination Links -->
-            <div class="mt-4">
-                {{ $users->links() }}
-            </div>
+            <!-- Load More Button -->
+            @if($hasMore)
+                <div class="flex justify-center mt-6">
+                    <button wire:click="loadMore" 
+                            class="px-6 py-2.5 bg-white border border-slate-200 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-lg text-sm font-semibold transition duration-150 flex items-center gap-2 shadow-sm focus:outline-none">
+                        <span>Load More</span>
+                        <svg class="w-4 h-4 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </button>
+                </div>
+            @endif
         @endif
     </div>
 

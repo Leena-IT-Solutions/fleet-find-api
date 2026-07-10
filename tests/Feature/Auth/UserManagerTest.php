@@ -155,4 +155,21 @@ class UserManagerTest extends TestCase
         $this->assertTrue($newUser->hasRole('Parent'));
         $this->assertTrue($newUser->hasRole('Driver'));
     }
+
+    public function test_user_manager_load_more_pagination(): void
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('Admin');
+
+        // Create 15 extra users
+        User::factory()->count(15)->create();
+
+        Volt::actingAs($admin)
+            ->test('pages.users.index')
+            ->assertSet('perPage', 10)
+            ->assertViewHas('hasMore', true)
+            ->call('loadMore')
+            ->assertSet('perPage', 20)
+            ->assertViewHas('hasMore', false);
+    }
 }
