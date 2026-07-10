@@ -36,4 +36,9 @@ class Organization extends Model
     {
         return $this->belongsToMany(User::class, 'organization_user')->withPivot('access')->withTimestamps();
     }
+
+    public function vehicles()
+    {
+        return $this->hasMany(Vehicle::class);
+    }
 }
