@@ -402,8 +402,8 @@ new class extends Component
                              <!-- Leaflet Map Panel -->
                               <div class="bg-white border border-slate-200/80 shadow-sm rounded-2xl overflow-hidden" 
                                    x-data="routeMap({{ $organization->latitude ?? 'null' }}, {{ $organization->longitude ?? 'null' }}, '{{ $mapTileUrl }}', {{ $mapDefaultZoom }}, {{ $mapDefaultLat }}, {{ $mapDefaultLng }}, '{{ $mapProvider }}', '{{ $googleMapsApiKey }}', '{{ $mapboxAccessToken }}')"
-                                   x-on:route-selected.window="stops = $event.detail.stops; initMap();"
-                                   x-on:stops-updated.window="stops = $event.detail.stops; initMap();">
+                                   x-on:route-selected.window="stops = $event.detail.stops; previousStopsCount = stops.length; initMap();"
+                                   x-on:stops-updated.window="let isNew = $event.detail.stops.length > previousStopsCount; stops = $event.detail.stops; initMap(isNew); previousStopsCount = stops.length;">
                                  
                                  <!-- Hidden element to safely pass stops data -->
                                  <script id="initial-stops-data" type="application/json">@json($stops->toArray())</script>
@@ -654,6 +654,7 @@ new class extends Component
                 polyline: null,
                 googlePolyline: null,
                 stops: [],
+                previousStopsCount: 0,
                 provider: provider || 'leaflet',
                 googleMapsApiKey: googleMapsApiKey || '',
                 mapboxAccessToken: mapboxAccessToken || '',
@@ -665,10 +666,11 @@ new class extends Component
                 init() {
                     let initialStopsElement = document.getElementById('initial-stops-data');
                     this.stops = initialStopsElement ? JSON.parse(initialStopsElement.textContent) : [];
+                    this.previousStopsCount = this.stops.length;
                     this.initMap();
                 },
 
-                initMap() {
+                initMap(isNewStopAdded) {
                     let mapContainer = document.getElementById('map');
                     if (!mapContainer) return;
 
@@ -706,7 +708,7 @@ new class extends Component
 
                     if (this.provider === 'google_maps') {
                         if (typeof google === 'undefined' || typeof google.maps === 'undefined') {
-                            setTimeout(() => this.initMap(), 100);
+                            setTimeout(() => this.initMap(isNewStopAdded), 100);
                             return;
                         }
 
@@ -716,7 +718,7 @@ new class extends Component
                             mapTypeId: google.maps.MapTypeId.ROADMAP
                         });
 
-                        this.plotStopsGoogle(validStops);
+                        this.plotStopsGoogle(validStops, isNewStopAdded);
 
                         this.gmap.addListener('click', (e) => {
                             let lat = e.latLng.lat().toFixed(8);
@@ -728,7 +730,7 @@ new class extends Component
                     } else {
                         // Leaflet (OSM or Mapbox tile)
                         if (typeof L === 'undefined') {
-                            setTimeout(() => this.initMap(), 100);
+                            setTimeout(() => this.initMap(isNewStopAdded), 100);
                             return;
                         }
 
@@ -747,7 +749,7 @@ new class extends Component
                             attribution: attribution
                         }).addTo(this.map);
 
-                        this.plotStopsLeaflet(validStops);
+                        this.plotStopsLeaflet(validStops, isNewStopAdded);
 
                         this.map.on('click', (e) => {
                             let lat = e.latlng.lat.toFixed(8);
@@ -765,7 +767,7 @@ new class extends Component
                     }
                 },
 
-                plotStopsLeaflet(validStops) {
+                plotStopsLeaflet(validStops, isNewStopAdded) {
                     let coordinates = [];
 
                     validStops.forEach((stop, index) => {
@@ -797,11 +799,28 @@ new class extends Component
                             dashArray: '8, 8'
                         }).addTo(this.map);
 
-                        this.map.fitBounds(this.polyline.getBounds(), { padding: [40, 40] });
+                        if (!isNewStopAdded) {
+                            this.map.fitBounds(this.polyline.getBounds(), { padding: [40, 40] });
+                        }
+                    }
+
+                    // Auto-focus and open popup if a new stop was added
+                    if (validStops.length > 0) {
+                        let lastIndex = validStops.length - 1;
+                        let lastStop = validStops[lastIndex];
+                        let lastLat = parseFloat(lastStop.latitude);
+                        let lastLng = parseFloat(lastStop.longitude);
+
+                        if (isNewStopAdded || validStops.length === 1) {
+                            this.map.setView([lastLat, lastLng], 16);
+                            if (this.markers[lastIndex]) {
+                                this.markers[lastIndex].openPopup();
+                            }
+                        }
                     }
                 },
 
-                plotStopsGoogle(validStops) {
+                plotStopsGoogle(validStops, isNewStopAdded) {
                     let pathCoordinates = [];
                     let bounds = new google.maps.LatLngBounds();
 
@@ -844,7 +863,31 @@ new class extends Component
                         });
 
                         this.googlePolyline.setMap(this.gmap);
-                        this.gmap.fitBounds(bounds);
+                        
+                        if (!isNewStopAdded) {
+                            this.gmap.fitBounds(bounds);
+                        }
+                    }
+
+                    // Auto-focus and open info window if a new stop was added
+                    if (validStops.length > 0) {
+                        let lastIndex = validStops.length - 1;
+                        let lastStop = validStops[lastIndex];
+                        let lastLat = parseFloat(lastStop.latitude);
+                        let lastLng = parseFloat(lastStop.longitude);
+                        let position = { lat: lastLat, lng: lastLng };
+
+                        if (isNewStopAdded || validStops.length === 1) {
+                            this.gmap.setCenter(position);
+                            this.gmap.setZoom(16);
+                            let lastMarker = this.googleMarkers[lastIndex];
+                            if (lastMarker) {
+                                let infoWindow = new google.maps.InfoWindow({
+                                    content: `<b>${lastIndex + 1}. ${lastStop.name}</b><br><span class='text-[10px] text-slate-500'>${lastLat}, ${lastLng}</span>`
+                                });
+                                infoWindow.open(this.gmap, lastMarker);
+                            }
+                        }
                     }
                 }
             }));
