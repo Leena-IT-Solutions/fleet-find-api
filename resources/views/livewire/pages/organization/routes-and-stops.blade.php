@@ -976,7 +976,7 @@ new class extends Component
                         });
 
                         marker.addListener('gmp-click', () => {
-                            infoWindow.open(this.gmap, marker);
+                            infoWindow.open({ map: this.gmap, anchor: marker });
                         });
 
                         this.googleMarkers.push(marker);
@@ -1014,7 +1014,7 @@ new class extends Component
                                 let infoWindow = new google.maps.InfoWindow({
                                     content: `<b>${lastIndex + 1}. ${lastStop.name}</b><br><span class='text-[10px] text-slate-500'>${lastLat}, ${lastLng}</span>`
                                 });
-                                infoWindow.open(this.gmap, lastMarker);
+                                infoWindow.open({ map: this.gmap, anchor: lastMarker });
                             }
                         }
                     }
