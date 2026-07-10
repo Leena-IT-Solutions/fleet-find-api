@@ -333,7 +333,7 @@ new class extends Component
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     @if ($mapProvider === 'google_maps' && $googleMapsApiKey)
-        <script src="https://maps.googleapis.com/maps/api/js?key={{ $googleMapsApiKey }}&v=weekly" defer></script>
+        <script src="https://maps.googleapis.com/maps/api/js?key={{ $googleMapsApiKey }}&v=weekly&loading=async" defer></script>
     @endif
 
     <div class="flex flex-col gap-6">
@@ -747,8 +747,9 @@ new class extends Component
     @endif
 
     <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('routeMap', (orgLat, orgLng, tileUrl, defaultZoom, mapFallbackLat, mapFallbackLng, provider, googleMapsApiKey, mapboxAccessToken) => ({
+        function registerRouteMap() {
+            if (window.Alpine && !window.Alpine.data('routeMap')) {
+                Alpine.data('routeMap', (orgLat, orgLng, tileUrl, defaultZoom, mapFallbackLat, mapFallbackLng, provider, googleMapsApiKey, mapboxAccessToken) => ({
                 map: null,
                 gmap: null,
                 markers: [],
@@ -817,7 +818,8 @@ new class extends Component
                         this.gmap = new google.maps.Map(mapContainer, {
                             center: { lat: centerLat, lng: centerLng },
                             zoom: this.defaultZoom,
-                            mapTypeId: google.maps.MapTypeId.ROADMAP
+                            mapTypeId: google.maps.MapTypeId.ROADMAP,
+                            mapId: 'DEMO_MAP_ID'
                         });
 
                         this.plotStopsGoogle(validStops, isNewStopAdded);
@@ -945,9 +947,11 @@ new class extends Component
                     }
                 },
 
-                plotStopsGoogle(validStops, isNewStopAdded) {
+                async plotStopsGoogle(validStops, isNewStopAdded) {
                     let pathCoordinates = [];
                     let bounds = new google.maps.LatLngBounds();
+
+                    const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
 
                     validStops.forEach((stop, index) => {
                         let lat = parseFloat(stop.latitude);
@@ -956,14 +960,14 @@ new class extends Component
                         pathCoordinates.push(position);
                         bounds.extend(position);
 
-                        let marker = new google.maps.Marker({
+                        const markerElement = document.createElement('div');
+                        markerElement.className = 'w-7 h-7 bg-indigo-600 text-white rounded-full border-2 border-white flex items-center justify-center font-bold text-xs shadow-md';
+                        markerElement.innerText = String(index + 1);
+
+                        let marker = new AdvancedMarkerElement({
                             position,
                             map: this.gmap,
-                            label: {
-                                text: String(index + 1),
-                                color: 'white',
-                                fontWeight: 'bold'
-                            },
+                            content: markerElement,
                             title: stop.name
                         });
 
@@ -971,7 +975,7 @@ new class extends Component
                             content: `<b>${index + 1}. ${stop.name}</b><br><span class='text-[10px] text-slate-500'>${lat}, ${lng}</span>`
                         });
 
-                        marker.addListener('click', () => {
+                        marker.addListener('gmp-click', () => {
                             infoWindow.open(this.gmap, marker);
                         });
 
@@ -1043,7 +1047,14 @@ new class extends Component
                     }
                 }
             }));
-        });
+            }
+        }
+
+        if (window.Alpine) {
+            registerRouteMap();
+        } else {
+            document.addEventListener('alpine:init', registerRouteMap);
+        }
     </script>
     </div>
 </div>
