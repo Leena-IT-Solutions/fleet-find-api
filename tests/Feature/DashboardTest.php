@@ -71,4 +71,18 @@ class DashboardTest extends TestCase
             ->assertSet('viewType', 'daily')
             ->assertSet('offset', 0);
     }
+
+    public function test_git_updater_component_renders_and_updates(): void
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('Admin');
+
+        \Livewire\Volt\Volt::actingAs($admin)
+            ->test('pages.dashboard.git-updater')
+            ->assertSet('isUpdating', false)
+            ->assertSee('System Actions')
+            ->call('updateSite')
+            ->assertSet('isUpdating', false)
+            ->assertSee('Starting update process...');
+    }
 }
