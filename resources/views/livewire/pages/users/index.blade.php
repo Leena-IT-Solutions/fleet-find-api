@@ -259,7 +259,12 @@ new class extends Component
                                 <div class="min-w-0 flex-1">
                                     <h3 class="font-semibold text-base text-slate-800 truncate" title="{{ $u->name }}">{{ $u->name }}</h3>
                                     <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-0.5 text-xs text-slate-400">
-                                        <span class="truncate block max-w-[180px] sm:max-w-none" title="{{ $u->email }}">{{ $u->email }}</span>
+                                        <span class="flex items-center gap-1.5 text-slate-400 min-w-0">
+                                            <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                                            </svg>
+                                            <span class="truncate block max-w-[180px] sm:max-w-none" title="{{ $u->email }}">{{ $u->email }}</span>
+                                        </span>
                                         @if($u->mobile)
                                             <span class="text-slate-200 hidden sm:inline">|</span>
                                             <span class="flex items-center gap-1 shrink-0">
