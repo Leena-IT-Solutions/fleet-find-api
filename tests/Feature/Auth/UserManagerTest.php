@@ -23,7 +23,7 @@ class UserManagerTest extends TestCase
         $parent = User::factory()->create(); // Default has Parent role
 
         $this->actingAs($admin)->get(route('users.index'))->assertStatus(200);
-        $this->actingAs($org)->get(route('users.index'))->assertStatus(200);
+        $this->actingAs($org)->get(route('users.index'))->assertRedirect(route('organization.dashboard'));
         $this->actingAs($parent)->get(route('users.index'))->assertRedirect(route('organization.dashboard'));
     }
 

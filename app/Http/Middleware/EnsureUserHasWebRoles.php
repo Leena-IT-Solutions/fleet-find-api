@@ -15,7 +15,7 @@ class EnsureUserHasWebRoles
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->user() && ($request->user()->hasRole('Admin') || $request->user()->hasRole('Organization'))) {
+        if ($request->user() && $request->user()->hasRole('Admin')) {
             return $next($request);
         }
 
@@ -23,6 +23,6 @@ class EnsureUserHasWebRoles
             return redirect()->route('organization.dashboard');
         }
 
-        abort(403, 'Unauthorized. Only Admins and Organizations are permitted to access this area.');
+        abort(403, 'Unauthorized. Only Admins are permitted to access this area.');
     }
 }

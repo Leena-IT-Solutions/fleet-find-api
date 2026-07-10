@@ -24,7 +24,7 @@ class SettingsTest extends TestCase
         $org->assignRole('Organization');
 
         // Verify only Admin can access
-        $this->actingAs($org)->get(route('settings.index'))->assertStatus(403);
+        $this->actingAs($org)->get(route('settings.index'))->assertRedirect(route('organization.dashboard'));
         $this->actingAs($admin)->get(route('settings.index'))->assertStatus(200);
 
         // Test saving settings

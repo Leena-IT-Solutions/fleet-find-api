@@ -78,7 +78,7 @@ class RoleTest extends TestCase
         $user = User::factory()->create();
         $user->assignRole('Organization');
 
-        $response = $this->actingAs($user)->get('/dashboard');
+        $response = $this->actingAs($user)->get('/organization/dashboard');
 
         $response->assertStatus(200);
         $response->assertSee('Organization Dashboard');
