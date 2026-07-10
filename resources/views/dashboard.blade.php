@@ -91,5 +91,8 @@
                 </div>
             </div>
         @endif
+
+        <!-- User Acquisition Widget -->
+        <livewire:pages.dashboard.user-acquisition />
     </div>
 </x-app-layout>

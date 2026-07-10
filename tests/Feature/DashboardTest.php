@@ -53,4 +53,22 @@ class DashboardTest extends TestCase
         $this->assertEquals(5, $response->viewData('totalParents'));
         $this->assertEquals(2, $response->viewData('totalChildren'));
     }
+
+    public function test_user_acquisition_component_renders_and_navigates(): void
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('Admin');
+
+        \Livewire\Volt\Volt::actingAs($admin)
+            ->test('pages.dashboard.user-acquisition')
+            ->assertSet('viewType', 'monthly')
+            ->assertSet('offset', 0)
+            ->call('previous')
+            ->assertSet('offset', -1)
+            ->call('next')
+            ->assertSet('offset', 0)
+            ->call('setViewType', 'daily')
+            ->assertSet('viewType', 'daily')
+            ->assertSet('offset', 0);
+    }
 }
