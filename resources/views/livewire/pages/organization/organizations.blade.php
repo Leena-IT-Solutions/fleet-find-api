@@ -28,11 +28,7 @@ new class extends Component
     public $newAddress = '';
     public $newLatitude = '';
     public $newLongitude = '';
-    public $newEnrollmentEndDate = '';
     public $newLogo = '';
-    public $newDisplayDriverPhone = true;
-    public $newDisplayAttendantPhone = true;
-    public $newShareLocationBy = 'driver';
 
     // Form inputs for editing
     public $editingOrgId = null;
@@ -43,11 +39,7 @@ new class extends Component
     public $editingAddress = '';
     public $editingLatitude = '';
     public $editingLongitude = '';
-    public $editingEnrollmentEndDate = '';
     public $editingLogo = '';
-    public $editingDisplayDriverPhone = true;
-    public $editingDisplayAttendantPhone = true;
-    public $editingShareLocationBy = 'driver';
 
     // Delete target state
     public $deletingOrgId = null;
@@ -83,12 +75,8 @@ new class extends Component
     {
         $this->reset([
             'newName', 'newContactName', 'newNumber', 'newEmail', 'newAddress',
-            'newLatitude', 'newLongitude', 'newEnrollmentEndDate', 'newLogo',
-            'newDisplayDriverPhone', 'newDisplayAttendantPhone', 'newShareLocationBy'
+            'newLatitude', 'newLongitude', 'newLogo'
         ]);
-        $this->newDisplayDriverPhone = true;
-        $this->newDisplayAttendantPhone = true;
-        $this->newShareLocationBy = 'driver';
         $this->showAddModal = true;
         $this->dispatch('open-modal', 'add-org-modal');
     }
@@ -99,8 +87,7 @@ new class extends Component
         $this->dispatch('close-modal', 'add-org-modal');
         $this->reset([
             'newName', 'newContactName', 'newNumber', 'newEmail', 'newAddress',
-            'newLatitude', 'newLongitude', 'newEnrollmentEndDate', 'newLogo',
-            'newDisplayDriverPhone', 'newDisplayAttendantPhone', 'newShareLocationBy'
+            'newLatitude', 'newLongitude', 'newLogo'
         ]);
         $this->resetErrorBag();
     }
@@ -115,11 +102,7 @@ new class extends Component
             'newAddress' => ['nullable', 'string'],
             'newLatitude' => ['nullable', 'numeric', 'between:-90,90'],
             'newLongitude' => ['nullable', 'numeric', 'between:-180,180'],
-            'newEnrollmentEndDate' => ['nullable', 'date'],
             'newLogo' => ['nullable', 'string', 'max:255'],
-            'newDisplayDriverPhone' => ['required', 'boolean'],
-            'newDisplayAttendantPhone' => ['required', 'boolean'],
-            'newShareLocationBy' => ['required', 'string', Rule::in(['driver', 'attendant', 'vehicle'])],
         ]);
 
         $org = Organization::create([
@@ -130,11 +113,7 @@ new class extends Component
             'address' => $this->newAddress,
             'latitude' => $this->newLatitude ?: null,
             'longitude' => $this->newLongitude ?: null,
-            'enrollment_end_date' => $this->newEnrollmentEndDate ?: null,
             'logo' => $this->newLogo,
-            'display_driver_phone' => $this->newDisplayDriverPhone,
-            'display_attendant_phone' => $this->newDisplayAttendantPhone,
-            'share_location_by' => $this->newShareLocationBy,
         ]);
 
         // Connect the user who is creating the organization
@@ -156,11 +135,7 @@ new class extends Component
         $this->editingAddress = $org->address ?? '';
         $this->editingLatitude = $org->latitude ?? '';
         $this->editingLongitude = $org->longitude ?? '';
-        $this->editingEnrollmentEndDate = $org->enrollment_end_date ? $org->enrollment_end_date->format('Y-m-d') : '';
         $this->editingLogo = $org->logo ?? '';
-        $this->editingDisplayDriverPhone = $org->display_driver_phone;
-        $this->editingDisplayAttendantPhone = $org->display_attendant_phone;
-        $this->editingShareLocationBy = $org->share_location_by;
         
         $this->showEditModal = true;
         $this->dispatch('open-modal', 'edit-org-modal');
@@ -172,8 +147,7 @@ new class extends Component
         $this->dispatch('close-modal', 'edit-org-modal');
         $this->reset([
             'editingOrgId', 'editingName', 'editingContactName', 'editingNumber', 'editingEmail', 'editingAddress',
-            'editingLatitude', 'editingLongitude', 'editingEnrollmentEndDate', 'editingLogo',
-            'editingDisplayDriverPhone', 'editingDisplayAttendantPhone', 'editingShareLocationBy'
+            'editingLatitude', 'editingLongitude', 'editingLogo'
         ]);
         $this->resetErrorBag();
     }
@@ -188,11 +162,7 @@ new class extends Component
             'editingAddress' => ['nullable', 'string'],
             'editingLatitude' => ['nullable', 'numeric', 'between:-90,90'],
             'editingLongitude' => ['nullable', 'numeric', 'between:-180,180'],
-            'editingEnrollmentEndDate' => ['nullable', 'date'],
             'editingLogo' => ['nullable', 'string', 'max:255'],
-            'editingDisplayDriverPhone' => ['required', 'boolean'],
-            'editingDisplayAttendantPhone' => ['required', 'boolean'],
-            'editingShareLocationBy' => ['required', 'string', Rule::in(['driver', 'attendant', 'vehicle'])],
         ]);
 
         $org = Organization::findOrFail($this->editingOrgId);
@@ -204,11 +174,7 @@ new class extends Component
             'address' => $this->editingAddress,
             'latitude' => $this->editingLatitude ?: null,
             'longitude' => $this->editingLongitude ?: null,
-            'enrollment_end_date' => $this->editingEnrollmentEndDate ?: null,
             'logo' => $this->editingLogo,
-            'display_driver_phone' => $this->editingDisplayDriverPhone,
-            'display_attendant_phone' => $this->editingDisplayAttendantPhone,
-            'share_location_by' => $this->editingShareLocationBy,
         ]);
 
         $this->closeEditModal();
@@ -274,7 +240,7 @@ new class extends Component
     @if (session()->has('success'))
         <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl p-4 text-sm flex items-center gap-2">
             <svg class="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <span>{{ session('success') }}</span>
         </div>
@@ -379,45 +345,21 @@ new class extends Component
                                             <strong>Email:</strong> {{ $org->email }}
                                         </span>
                                     @endif
-                                    @if ($org->enrollment_end_date)
-                                        <span class="text-slate-200 hidden lg:inline">|</span>
-                                        <span class="flex items-center gap-1.5 text-amber-600 font-medium">
-                                            <strong>End Date:</strong> {{ $org->enrollment_end_date->format('M d, Y') }}
-                                        </span>
-                                    @endif
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Right Column: Settings Badges & Actions -->
-                    <div class="flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end justify-between gap-4 shrink-0">
-                        <div class="flex flex-wrap gap-2">
-                            <!-- Share Location -->
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold tracking-wide bg-slate-50 text-slate-600 border border-slate-200">
-                                Location by: {{ ucfirst($org->share_location_by) }}
-                            </span>
-                            <!-- Driver Phone display -->
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold tracking-wide {{ $org->display_driver_phone ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-100' }}">
-                                Driver Phone: {{ $org->display_driver_phone ? 'Show' : 'Hide' }}
-                            </span>
-                            <!-- Attendant Phone display -->
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold tracking-wide {{ $org->display_attendant_phone ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-100' }}">
-                                Attendant Phone: {{ $org->display_attendant_phone ? 'Show' : 'Hide' }}
-                            </span>
-                        </div>
-
-                        <!-- Action buttons -->
-                        <div class="flex items-center gap-3 w-full sm:w-auto">
-                            <button wire:click="openEditModal({{ $org->id }})" 
-                                    class="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-800 rounded-lg text-xs font-semibold transition duration-150 flex-grow sm:flex-grow-0 text-center">
-                                Edit
-                            </button>
-                            <button wire:click="openDeleteModal({{ $org->id }})" 
-                                    class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 hover:text-rose-800 rounded-lg text-xs font-semibold transition duration-150 flex-grow sm:flex-grow-0 text-center">
-                                Delete
-                            </button>
-                        </div>
+                    <!-- Right Column: Actions -->
+                    <div class="flex items-center gap-3 shrink-0 w-full lg:w-auto">
+                        <button wire:click="openEditModal({{ $org->id }})" 
+                                class="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-800 rounded-lg text-xs font-semibold transition duration-150 flex-grow lg:flex-grow-0 text-center">
+                            Edit
+                        </button>
+                        <button wire:click="openDeleteModal({{ $org->id }})" 
+                                class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 hover:text-rose-800 rounded-lg text-xs font-semibold transition duration-150 flex-grow lg:flex-grow-0 text-center">
+                            Delete
+                        </button>
                     </div>
                 </div>
             @endforeach
@@ -441,7 +383,7 @@ new class extends Component
             </h2>
 
             <p class="mt-1 text-sm text-slate-500">
-                {{ __('Create a new organization record, specify settings, and configure geolocations.') }}
+                {{ __('Create a new organization record, specify details, and configure geographical coordinates.') }}
             </p>
 
             <div class="mt-6 flex flex-col gap-4">
@@ -453,14 +395,14 @@ new class extends Component
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <!-- Contact Name -->
+                    <!-- Contact Person -->
                     <div>
                         <x-input-label for="newContactName" value="{{ __('Contact Person') }}" />
                         <x-text-input id="newContactName" type="text" class="mt-1 block w-full" wire:model="newContactName" />
                         <x-input-error :messages="$errors->get('newContactName')" class="mt-2" />
                     </div>
 
-                    <!-- Contact Number -->
+                    <!-- Contact Phone -->
                     <div>
                         <x-input-label for="newNumber" value="{{ __('Contact Phone') }}" />
                         <x-text-input id="newNumber" type="text" class="mt-1 block w-full" wire:model="newNumber" />
@@ -468,20 +410,11 @@ new class extends Component
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <!-- Email -->
-                    <div>
-                        <x-input-label for="newEmail" value="{{ __('Email Address') }}" />
-                        <x-text-input id="newEmail" type="email" class="mt-1 block w-full" wire:model="newEmail" />
-                        <x-input-error :messages="$errors->get('newEmail')" class="mt-2" />
-                    </div>
-
-                    <!-- Enrollment End Date -->
-                    <div>
-                        <x-input-label for="newEnrollmentEndDate" value="{{ __('Enrollment End Date') }}" />
-                        <x-text-input id="newEnrollmentEndDate" type="date" class="mt-1 block w-full" wire:model="newEnrollmentEndDate" />
-                        <x-input-error :messages="$errors->get('newEnrollmentEndDate')" class="mt-2" />
-                    </div>
+                <!-- Email Address -->
+                <div>
+                    <x-input-label for="newEmail" value="{{ __('Email Address') }}" />
+                    <x-text-input id="newEmail" type="email" class="mt-1 block w-full" wire:model="newEmail" />
+                    <x-input-error :messages="$errors->get('newEmail')" class="mt-2" />
                 </div>
 
                 <!-- Geolocation coords (Latitude & Longitude) -->
@@ -507,31 +440,6 @@ new class extends Component
                     <textarea id="newAddress" rows="2" class="mt-1 block w-full border-slate-200 rounded-lg text-sm bg-slate-50/50 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition duration-150 shadow-sm" wire:model="newAddress"></textarea>
                     <x-input-error :messages="$errors->get('newAddress')" class="mt-2" />
                 </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-slate-100 pt-4 mt-2">
-                    <!-- Share Location By -->
-                    <div>
-                        <x-input-label for="newShareLocationBy" value="{{ __('Share Location Basis') }}" />
-                        <select id="newShareLocationBy" wire:model="newShareLocationBy" class="mt-1 block w-full border-slate-200 rounded-lg text-sm bg-slate-50/50 text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition duration-150 shadow-sm">
-                            <option value="driver">Driver</option>
-                            <option value="attendant">Attendant</option>
-                            <option value="vehicle">Vehicle</option>
-                        </select>
-                        <x-input-error :messages="$errors->get('newShareLocationBy')" class="mt-2" />
-                    </div>
-
-                    <!-- Switches -->
-                    <div class="flex flex-col gap-3 justify-center">
-                        <label class="inline-flex items-center text-sm text-slate-700 cursor-pointer">
-                            <input type="checkbox" wire:model="newDisplayDriverPhone" class="rounded border-slate-200 text-indigo-600 shadow-sm focus:ring-indigo-500">
-                            <span class="ms-2 font-medium">Display Driver Phone</span>
-                        </label>
-                        <label class="inline-flex items-center text-sm text-slate-700 cursor-pointer">
-                            <input type="checkbox" wire:model="newDisplayAttendantPhone" class="rounded border-slate-200 text-indigo-600 shadow-sm focus:ring-indigo-500">
-                            <span class="ms-2 font-medium">Display Attendant Phone</span>
-                        </label>
-                    </div>
-                </div>
             </div>
 
             <div class="mt-6 flex justify-end gap-3 border-t border-slate-100 pt-4">
@@ -554,7 +462,7 @@ new class extends Component
             </h2>
 
             <p class="mt-1 text-sm text-slate-500">
-                {{ __('Update the details, coordinates, and settings for this organization.') }}
+                {{ __('Update the details and geographical coordinates for this organization.') }}
             </p>
 
             <div class="mt-6 flex flex-col gap-4">
@@ -566,14 +474,14 @@ new class extends Component
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <!-- Contact Name -->
+                    <!-- Contact Person -->
                     <div>
                         <x-input-label for="editingContactName" value="{{ __('Contact Person') }}" />
                         <x-text-input id="editingContactName" type="text" class="mt-1 block w-full" wire:model="editingContactName" />
                         <x-input-error :messages="$errors->get('editingContactName')" class="mt-2" />
                     </div>
 
-                    <!-- Contact Number -->
+                    <!-- Contact Phone -->
                     <div>
                         <x-input-label for="editingNumber" value="{{ __('Contact Phone') }}" />
                         <x-text-input id="editingNumber" type="text" class="mt-1 block w-full" wire:model="editingNumber" />
@@ -581,20 +489,11 @@ new class extends Component
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <!-- Email -->
-                    <div>
-                        <x-input-label for="editingEmail" value="{{ __('Email Address') }}" />
-                        <x-text-input id="editingEmail" type="email" class="mt-1 block w-full" wire:model="editingEmail" />
-                        <x-input-error :messages="$errors->get('editingEmail')" class="mt-2" />
-                    </div>
-
-                    <!-- Enrollment End Date -->
-                    <div>
-                        <x-input-label for="editingEnrollmentEndDate" value="{{ __('Enrollment End Date') }}" />
-                        <x-text-input id="editingEnrollmentEndDate" type="date" class="mt-1 block w-full" wire:model="editingEnrollmentEndDate" />
-                        <x-input-error :messages="$errors->get('editingEnrollmentEndDate')" class="mt-2" />
-                    </div>
+                <!-- Email Address -->
+                <div>
+                    <x-input-label for="editingEmail" value="{{ __('Email Address') }}" />
+                    <x-text-input id="editingEmail" type="email" class="mt-1 block w-full" wire:model="editingEmail" />
+                    <x-input-error :messages="$errors->get('editingEmail')" class="mt-2" />
                 </div>
 
                 <!-- Geolocation coords (Latitude & Longitude) -->
@@ -619,31 +518,6 @@ new class extends Component
                     <x-input-label for="editingAddress" value="{{ __('Physical Address') }}" />
                     <textarea id="editingAddress" rows="2" class="mt-1 block w-full border-slate-200 rounded-lg text-sm bg-slate-50/50 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition duration-150 shadow-sm" wire:model="editingAddress"></textarea>
                     <x-input-error :messages="$errors->get('editingAddress')" class="mt-2" />
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-slate-100 pt-4 mt-2">
-                    <!-- Share Location By -->
-                    <div>
-                        <x-input-label for="editingShareLocationBy" value="{{ __('Share Location Basis') }}" />
-                        <select id="editingShareLocationBy" wire:model="editingShareLocationBy" class="mt-1 block w-full border-slate-200 rounded-lg text-sm bg-slate-50/50 text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition duration-150 shadow-sm">
-                            <option value="driver">Driver</option>
-                            <option value="attendant">Attendant</option>
-                            <option value="vehicle">Vehicle</option>
-                        </select>
-                        <x-input-error :messages="$errors->get('editingShareLocationBy')" class="mt-2" />
-                    </div>
-
-                    <!-- Switches -->
-                    <div class="flex flex-col gap-3 justify-center">
-                        <label class="inline-flex items-center text-sm text-slate-700 cursor-pointer">
-                            <input type="checkbox" wire:model="editingDisplayDriverPhone" class="rounded border-slate-200 text-indigo-600 shadow-sm focus:ring-indigo-500">
-                            <span class="ms-2 font-medium">Display Driver Phone</span>
-                        </label>
-                        <label class="inline-flex items-center text-sm text-slate-700 cursor-pointer">
-                            <input type="checkbox" wire:model="editingDisplayAttendantPhone" class="rounded border-slate-200 text-indigo-600 shadow-sm focus:ring-indigo-500">
-                            <span class="ms-2 font-medium">Display Attendant Phone</span>
-                        </label>
-                    </div>
                 </div>
             </div>
 

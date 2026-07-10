@@ -17,17 +17,10 @@ class Organization extends Model
         'address',
         'latitude',
         'longitude',
-        'enrollment_end_date',
         'logo',
-        'display_driver_phone',
-        'display_attendant_phone',
-        'share_location_by',
     ];
 
     protected $casts = [
-        'enrollment_end_date' => 'date',
-        'display_driver_phone' => 'boolean',
-        'display_attendant_phone' => 'boolean',
         'latitude' => 'decimal:8',
         'longitude' => 'decimal:8',
     ];

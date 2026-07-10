@@ -56,10 +56,7 @@ class OrganizationCrudTest extends TestCase
             ->set('newEmail', 'contact@starlight.edu')
             ->set('newAddress', '123 Star Lane')
             ->set('newLatitude', '19.0760')
-            ->set('newLongitude', '72.8777')
-            ->set('newDisplayDriverPhone', true)
-            ->set('newDisplayAttendantPhone', false)
-            ->set('newShareLocationBy', 'driver');
+            ->set('newLongitude', '72.8777');
 
         $component->call('createOrganization');
 
@@ -71,9 +68,6 @@ class OrganizationCrudTest extends TestCase
             'email' => 'contact@starlight.edu',
             'latitude' => '19.07600000',
             'longitude' => '72.87770000',
-            'display_driver_phone' => true,
-            'display_attendant_phone' => false,
-            'share_location_by' => 'driver',
         ]);
 
         // Assert that the creator user is linked to the organization
@@ -89,19 +83,13 @@ class OrganizationCrudTest extends TestCase
         $org = Organization::create([
             'name' => 'Old Academy',
             'contact_name' => 'Old Person',
-            'display_driver_phone' => true,
-            'display_attendant_phone' => true,
-            'share_location_by' => 'driver',
         ]);
 
         $component = Volt::actingAs($orgUser)
             ->test('pages.organization.organizations')
             ->call('openEditModal', $org->id)
             ->set('editingName', 'New Academy')
-            ->set('editingContactName', 'New Person')
-            ->set('editingDisplayDriverPhone', false)
-            ->set('editingDisplayAttendantPhone', true)
-            ->set('editingShareLocationBy', 'attendant');
+            ->set('editingContactName', 'New Person');
 
         $component->call('updateOrganization');
         $component->assertHasNoErrors();
@@ -110,9 +98,6 @@ class OrganizationCrudTest extends TestCase
             'id' => $org->id,
             'name' => 'New Academy',
             'contact_name' => 'New Person',
-            'display_driver_phone' => false,
-            'display_attendant_phone' => true,
-            'share_location_by' => 'attendant',
         ]);
     }
 
@@ -123,9 +108,6 @@ class OrganizationCrudTest extends TestCase
 
         $org = Organization::create([
             'name' => 'Trash Academy',
-            'display_driver_phone' => true,
-            'display_attendant_phone' => true,
-            'share_location_by' => 'driver',
         ]);
 
         $component = Volt::actingAs($orgUser)
