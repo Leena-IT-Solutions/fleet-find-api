@@ -33,7 +33,6 @@ new class extends Component
     public $newDisplayDriverPhone = true;
     public $newDisplayAttendantPhone = true;
     public $newShareLocationBy = 'driver';
-    public $newUsers = [];
 
     // Form inputs for editing
     public $editingOrgId = null;
@@ -49,7 +48,6 @@ new class extends Component
     public $editingDisplayDriverPhone = true;
     public $editingDisplayAttendantPhone = true;
     public $editingShareLocationBy = 'driver';
-    public $editingUsers = [];
 
     // Delete target state
     public $deletingOrgId = null;
@@ -86,7 +84,7 @@ new class extends Component
         $this->reset([
             'newName', 'newContactName', 'newNumber', 'newEmail', 'newAddress',
             'newLatitude', 'newLongitude', 'newEnrollmentEndDate', 'newLogo',
-            'newDisplayDriverPhone', 'newDisplayAttendantPhone', 'newShareLocationBy', 'newUsers'
+            'newDisplayDriverPhone', 'newDisplayAttendantPhone', 'newShareLocationBy'
         ]);
         $this->newDisplayDriverPhone = true;
         $this->newDisplayAttendantPhone = true;
@@ -102,7 +100,7 @@ new class extends Component
         $this->reset([
             'newName', 'newContactName', 'newNumber', 'newEmail', 'newAddress',
             'newLatitude', 'newLongitude', 'newEnrollmentEndDate', 'newLogo',
-            'newDisplayDriverPhone', 'newDisplayAttendantPhone', 'newShareLocationBy', 'newUsers'
+            'newDisplayDriverPhone', 'newDisplayAttendantPhone', 'newShareLocationBy'
         ]);
         $this->resetErrorBag();
     }
@@ -122,8 +120,6 @@ new class extends Component
             'newDisplayDriverPhone' => ['required', 'boolean'],
             'newDisplayAttendantPhone' => ['required', 'boolean'],
             'newShareLocationBy' => ['required', 'string', Rule::in(['driver', 'attendant', 'vehicle'])],
-            'newUsers' => ['array'],
-            'newUsers.*' => ['exists:users,id'],
         ]);
 
         $org = Organization::create([
@@ -141,7 +137,8 @@ new class extends Component
             'share_location_by' => $this->newShareLocationBy,
         ]);
 
-        $org->users()->sync($this->newUsers);
+        // Connect the user who is creating the organization
+        $org->users()->sync([auth()->id()]);
 
         $this->closeAddModal();
         session()->flash('success', 'Organization created successfully.');
@@ -150,7 +147,7 @@ new class extends Component
     // Edit Organization Modal Actions
     public function openEditModal(int $orgId): void
     {
-        $org = Organization::with('users')->findOrFail($orgId);
+        $org = Organization::findOrFail($orgId);
         $this->editingOrgId = $org->id;
         $this->editingName = $org->name;
         $this->editingContactName = $org->contact_name ?? '';
@@ -164,7 +161,6 @@ new class extends Component
         $this->editingDisplayDriverPhone = $org->display_driver_phone;
         $this->editingDisplayAttendantPhone = $org->display_attendant_phone;
         $this->editingShareLocationBy = $org->share_location_by;
-        $this->editingUsers = $org->users->pluck('id')->toArray();
         
         $this->showEditModal = true;
         $this->dispatch('open-modal', 'edit-org-modal');
@@ -177,7 +173,7 @@ new class extends Component
         $this->reset([
             'editingOrgId', 'editingName', 'editingContactName', 'editingNumber', 'editingEmail', 'editingAddress',
             'editingLatitude', 'editingLongitude', 'editingEnrollmentEndDate', 'editingLogo',
-            'editingDisplayDriverPhone', 'editingDisplayAttendantPhone', 'editingShareLocationBy', 'editingUsers'
+            'editingDisplayDriverPhone', 'editingDisplayAttendantPhone', 'editingShareLocationBy'
         ]);
         $this->resetErrorBag();
     }
@@ -197,8 +193,6 @@ new class extends Component
             'editingDisplayDriverPhone' => ['required', 'boolean'],
             'editingDisplayAttendantPhone' => ['required', 'boolean'],
             'editingShareLocationBy' => ['required', 'string', Rule::in(['driver', 'attendant', 'vehicle'])],
-            'editingUsers' => ['array'],
-            'editingUsers.*' => ['exists:users,id'],
         ]);
 
         $org = Organization::findOrFail($this->editingOrgId);
@@ -216,8 +210,6 @@ new class extends Component
             'display_attendant_phone' => $this->editingDisplayAttendantPhone,
             'share_location_by' => $this->editingShareLocationBy,
         ]);
-
-        $org->users()->sync($this->editingUsers);
 
         $this->closeEditModal();
         session()->flash('success', 'Organization updated successfully.');
@@ -249,7 +241,7 @@ new class extends Component
     // Computed properties / views helper
     public function with(): array
     {
-        $query = Organization::with('users');
+        $query = Organization::query();
 
         if (!empty($this->search)) {
             $term = '%' . $this->search . '%';
@@ -264,12 +256,8 @@ new class extends Component
         $organizations = $query->latest()->take($this->perPage)->get();
         $hasMore = Organization::count() > $this->perPage;
 
-        // Get users with Organization role for modal select dropdown
-        $orgUsers = User::whereHas('roles', fn ($q) => $q->where('name', 'Organization'))->get();
-
         return [
             'organizations' => $organizations,
-            'orgUsers' => $orgUsers,
             'hasMore' => $hasMore,
         ];
     }
@@ -400,18 +388,6 @@ new class extends Component
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Associated Users -->
-                        <div class="flex flex-wrap gap-1.5 items-center pl-[60px]">
-                            <span class="text-xs text-slate-400 font-medium mr-1">Linked Users:</span>
-                            @forelse($org->users as $u)
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold tracking-wide bg-indigo-50 text-indigo-600 border border-indigo-100">
-                                    {{ $u->name }}
-                                </span>
-                            @empty
-                                <span class="text-xs text-slate-400 italic">None</span>
-                            @endforelse
-                        </div>
                     </div>
 
                     <!-- Right Column: Settings Badges & Actions -->
@@ -465,7 +441,7 @@ new class extends Component
             </h2>
 
             <p class="mt-1 text-sm text-slate-500">
-                {{ __('Create a new organization record, specify settings, set geolocations, and assign organization owners/users.') }}
+                {{ __('Create a new organization record, specify settings, and configure geolocations.') }}
             </p>
 
             <div class="mt-6 flex flex-col gap-4">
@@ -532,22 +508,6 @@ new class extends Component
                     <x-input-error :messages="$errors->get('newAddress')" class="mt-2" />
                 </div>
 
-                <!-- Associated Users (Role Organization) -->
-                <div>
-                    <x-input-label value="{{ __('Associate Organization Users') }}" />
-                    <div class="mt-2 max-h-36 overflow-y-auto border border-slate-200 rounded-lg p-3 bg-slate-50/50 flex flex-col gap-2">
-                        @forelse($orgUsers as $uOption)
-                            <label class="inline-flex items-center text-sm text-slate-700 cursor-pointer">
-                                <input type="checkbox" value="{{ $uOption->id }}" wire:model="newUsers" class="rounded border-slate-200 text-indigo-600 shadow-sm focus:ring-indigo-500">
-                                <span class="ms-2 font-medium">{{ $uOption->name }} ({{ $uOption->email }})</span>
-                            </label>
-                        @empty
-                            <span class="text-xs text-slate-400 italic">No users with 'Organization' role found.</span>
-                        @endforelse
-                    </div>
-                    <x-input-error :messages="$errors->get('newUsers')" class="mt-2" />
-                </div>
-
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-slate-100 pt-4 mt-2">
                     <!-- Share Location By -->
                     <div>
@@ -594,7 +554,7 @@ new class extends Component
             </h2>
 
             <p class="mt-1 text-sm text-slate-500">
-                {{ __('Update the details, coordinates, settings, and linked users for this organization.') }}
+                {{ __('Update the details, coordinates, and settings for this organization.') }}
             </p>
 
             <div class="mt-6 flex flex-col gap-4">
@@ -659,22 +619,6 @@ new class extends Component
                     <x-input-label for="editingAddress" value="{{ __('Physical Address') }}" />
                     <textarea id="editingAddress" rows="2" class="mt-1 block w-full border-slate-200 rounded-lg text-sm bg-slate-50/50 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition duration-150 shadow-sm" wire:model="editingAddress"></textarea>
                     <x-input-error :messages="$errors->get('editingAddress')" class="mt-2" />
-                </div>
-
-                <!-- Associated Users (Role Organization) -->
-                <div>
-                    <x-input-label value="{{ __('Associate Organization Users') }}" />
-                    <div class="mt-2 max-h-36 overflow-y-auto border border-slate-200 rounded-lg p-3 bg-slate-50/50 flex flex-col gap-2">
-                        @forelse($orgUsers as $uOption)
-                            <label class="inline-flex items-center text-sm text-slate-700 cursor-pointer">
-                                <input type="checkbox" value="{{ $uOption->id }}" wire:model="editingUsers" class="rounded border-slate-200 text-indigo-600 shadow-sm focus:ring-indigo-500">
-                                <span class="ms-2 font-medium">{{ $uOption->name }} ({{ $uOption->email }})</span>
-                            </label>
-                        @empty
-                            <span class="text-xs text-slate-400 italic">No users with 'Organization' role found.</span>
-                        @endforelse
-                    </div>
-                    <x-input-error :messages="$errors->get('editingUsers')" class="mt-2" />
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-slate-100 pt-4 mt-2">

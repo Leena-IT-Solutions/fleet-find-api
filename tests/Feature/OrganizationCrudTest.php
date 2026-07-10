@@ -43,13 +43,10 @@ class OrganizationCrudTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_organization_user_can_create_organization_with_geolocation_and_users(): void
+    public function test_organization_user_can_create_organization_with_geolocation_automatically_linked(): void
     {
         $orgUser = User::factory()->create();
         $orgUser->assignRole('Organization');
-
-        $anotherOrgUser = User::factory()->create();
-        $anotherOrgUser->assignRole('Organization');
 
         $component = Volt::actingAs($orgUser)
             ->test('pages.organization.organizations')
@@ -62,8 +59,7 @@ class OrganizationCrudTest extends TestCase
             ->set('newLongitude', '72.8777')
             ->set('newDisplayDriverPhone', true)
             ->set('newDisplayAttendantPhone', false)
-            ->set('newShareLocationBy', 'driver')
-            ->set('newUsers', [$anotherOrgUser->id]);
+            ->set('newShareLocationBy', 'driver');
 
         $component->call('createOrganization');
 
@@ -80,8 +76,9 @@ class OrganizationCrudTest extends TestCase
             'share_location_by' => 'driver',
         ]);
 
+        // Assert that the creator user is linked to the organization
         $org = Organization::where('name', 'Starlight Academy')->first();
-        $this->assertTrue($org->users->contains($anotherOrgUser->id));
+        $this->assertTrue($org->users->contains($orgUser->id));
     }
 
     public function test_organization_user_can_update_organization(): void
