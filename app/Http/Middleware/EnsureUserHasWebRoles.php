@@ -19,6 +19,10 @@ class EnsureUserHasWebRoles
             return $next($request);
         }
 
+        if ($request->user()) {
+            return redirect()->route('organization.dashboard');
+        }
+
         abort(403, 'Unauthorized. Only Admins and Organizations are permitted to access this area.');
     }
 }

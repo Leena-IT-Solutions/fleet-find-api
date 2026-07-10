@@ -29,4 +29,8 @@ Route::middleware(['auth', 'web-roles'])->group(function () {
     Volt::route('settings', 'pages.settings.index')->name('settings.index');
 });
 
+Route::middleware(['auth'])->group(function () {
+    Volt::route('organization/dashboard', 'pages.organization.dashboard')->name('organization.dashboard');
+});
+
 require __DIR__.'/auth.php';

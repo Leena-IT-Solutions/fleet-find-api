@@ -92,6 +92,6 @@ class RoleTest extends TestCase
 
         $response = $this->actingAs($user)->get('/dashboard');
 
-        $response->assertStatus(403);
+        $response->assertRedirect(route('organization.dashboard'));
     }
 }

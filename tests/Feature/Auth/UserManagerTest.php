@@ -24,7 +24,7 @@ class UserManagerTest extends TestCase
 
         $this->actingAs($admin)->get(route('users.index'))->assertStatus(200);
         $this->actingAs($org)->get(route('users.index'))->assertStatus(200);
-        $this->actingAs($parent)->get(route('users.index'))->assertStatus(403);
+        $this->actingAs($parent)->get(route('users.index'))->assertRedirect(route('organization.dashboard'));
     }
 
     public function test_user_manager_displays_users_list(): void
