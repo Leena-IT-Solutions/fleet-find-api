@@ -234,9 +234,9 @@ new class extends Component
 
         <!-- Search & Filter Controls -->
         <div class="bg-white border border-slate-200/80 shadow-sm rounded-xl p-5 flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div class="w-full md:w-auto flex-1 flex flex-col sm:flex-row gap-3">
+            <div class="w-full flex-grow flex flex-col sm:flex-row gap-3">
                 <!-- Search Input -->
-                <div class="relative flex-1 max-w-md">
+                <div class="relative flex-grow">
                     <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                         <svg class="w-4 h-4 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
@@ -249,7 +249,7 @@ new class extends Component
                 </div>
 
                 <!-- Role Filter -->
-                <div class="w-full sm:w-48">
+                <div class="w-full sm:w-48 shrink-0">
                     <select wire:model.live="selectedRole" 
                             class="block w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50/50 text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition duration-150">
                         <option value="">All Roles</option>
