@@ -19,7 +19,7 @@ class RegistrationTest extends TestCase
             ->assertSeeVolt('pages.auth.register');
     }
 
-    public function test_new_users_can_register(): void
+    public function test_new_users_can_register_with_otp_verification(): void
     {
         $component = Volt::test('pages.auth.register')
             ->set('name', 'Test User')
@@ -28,6 +28,12 @@ class RegistrationTest extends TestCase
             ->set('password', 'password')
             ->set('password_confirmation', 'password');
 
+        // Step 1: Submit form details to request OTP
+        $component->call('register');
+        $component->assertSet('otpSent', true);
+
+        // Step 2: Set the mock OTP code and verify/register
+        $component->set('otp', '123456');
         $component->call('register');
 
         $component->assertRedirect(route('dashboard', absolute: false));
