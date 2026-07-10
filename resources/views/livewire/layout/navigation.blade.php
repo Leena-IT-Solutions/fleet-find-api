@@ -36,6 +36,15 @@ new class extends Component
                     <span>Dashboard</span>
                 </a>
 
+                @if (auth()->user()->hasRole(['Admin', 'Organization']))
+                    <a href="{{ route('users.index') }}" wire:navigate class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition duration-150 {{ request()->routeIs('users.index') ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
+                        <svg class="w-5 h-5 {{ request()->routeIs('users.index') ? 'text-indigo-500' : 'text-slate-400' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A11.386 11.386 0 0110.089 20.03c-2.115 0-4.07-.58-5.75-1.595a4.125 4.125 0 00-5.74 3.447h16.5m-3.92-14.77a3 3 0 11-6 0 3 3 0 016 0zm-7.42 8.25a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span>User Manager</span>
+                    </a>
+                @endif
+
                 @if (auth()->user()->hasRole('Admin'))
                     <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition duration-150">
                         <svg class="w-5 h-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -132,6 +141,15 @@ new class extends Component
                     </svg>
                     <span>Dashboard</span>
                 </a>
+
+                @if (auth()->user()->hasRole(['Admin', 'Organization']))
+                    <a href="{{ route('users.index') }}" wire:navigate class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition duration-150 {{ request()->routeIs('users.index') ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
+                        <svg class="w-5 h-5 {{ request()->routeIs('users.index') ? 'text-indigo-500' : 'text-slate-400' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A11.386 11.386 0 0110.089 20.03c-2.115 0-4.07-.58-5.75-1.595a4.125 4.125 0 00-5.74 3.447h16.5m-3.92-14.77a3 3 0 11-6 0 3 3 0 016 0zm-7.42 8.25a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span>User Manager</span>
+                    </a>
+                @endif
 
                 @if (auth()->user()->hasRole('Admin'))
                     <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition duration-150">
