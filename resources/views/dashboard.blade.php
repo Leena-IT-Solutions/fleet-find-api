@@ -51,6 +51,9 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Git Update Actions -->
+            <livewire:pages.dashboard.git-updater />
         @elseif (auth()->user()->hasRole('Organization'))
             <!-- Organization Dashboard Page Content -->
             <div class="bg-white border border-slate-200/80 shadow-sm rounded-xl p-6">
