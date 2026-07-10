@@ -37,7 +37,7 @@
                 <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0">
                     <div class="flex flex-col items-center">
                         <a href="/" wire:navigate class="flex flex-col items-center gap-2">
-                            <x-application-logo class="w-16 h-16 rounded-xl shadow-lg border border-slate-200" />
+                            <x-application-logo class="w-16 h-16 object-contain" />
                             <span class="text-2xl font-bold tracking-tight bg-gradient-to-r from-indigo-600 to-cyan-600 bg-clip-text text-transparent">FleetFind</span>
                         </a>
                     </div>
