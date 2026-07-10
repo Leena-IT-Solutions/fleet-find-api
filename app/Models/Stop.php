@@ -15,11 +15,13 @@ class Stop extends Model
         'name',
         'latitude',
         'longitude',
+        'sequence_order',
     ];
 
     protected $casts = [
         'latitude' => 'decimal:8',
         'longitude' => 'decimal:8',
+        'sequence_order' => 'integer',
     ];
 
     public function route(): BelongsTo

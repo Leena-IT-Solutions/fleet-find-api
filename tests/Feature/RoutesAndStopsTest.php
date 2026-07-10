@@ -298,4 +298,58 @@ class RoutesAndStopsTest extends TestCase
         $this->assertEquals(19.5555, $stop->latitude);
         $this->assertEquals(73.6666, $stop->longitude);
     }
+
+    public function test_stop_reordering_sequence_flow(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole('Organization');
+
+        $org = Organization::create(['name' => 'Starlight Academy']);
+        $user->organizations()->sync([$org->id => ['access' => 'owner']]);
+        session(['active_organization_id' => $org->id]);
+
+        $route = $org->routes()->create([
+            'name' => 'Route B',
+        ]);
+
+        $stop1 = $route->stops()->create([
+            'name' => 'Stop 1',
+            'latitude' => 19.0001,
+            'longitude' => 73.0001,
+            'sequence_order' => 1,
+        ]);
+
+        $stop2 = $route->stops()->create([
+            'name' => 'Stop 2',
+            'latitude' => 19.0002,
+            'longitude' => 73.0002,
+            'sequence_order' => 2,
+        ]);
+
+        // Move Stop 2 Up
+        Volt::actingAs($user)
+            ->test('pages.organization.routes-and-stops')
+            ->set('selectedRouteId', $route->id)
+            ->call('moveStopUp', $stop2->id);
+
+        $stop1->refresh();
+        $stop2->refresh();
+
+        // Orders should be swapped
+        $this->assertEquals(2, $stop1->sequence_order);
+        $this->assertEquals(1, $stop2->sequence_order);
+
+        // Move Stop 2 Down
+        Volt::actingAs($user)
+            ->test('pages.organization.routes-and-stops')
+            ->set('selectedRouteId', $route->id)
+            ->call('moveStopDown', $stop2->id);
+
+        $stop1->refresh();
+        $stop2->refresh();
+
+        // Orders should swap back
+        $this->assertEquals(1, $stop1->sequence_order);
+        $this->assertEquals(2, $stop2->sequence_order);
+    }
 }

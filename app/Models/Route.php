@@ -24,6 +24,6 @@ class Route extends Model
 
     public function stops(): HasMany
     {
-        return $this->hasMany(Stop::class);
+        return $this->hasMany(Stop::class)->orderBy('sequence_order', 'asc');
     }
 }

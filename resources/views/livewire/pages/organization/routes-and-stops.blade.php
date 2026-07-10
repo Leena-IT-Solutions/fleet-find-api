@@ -250,10 +250,12 @@ new class extends Component
             ]);
             session()->flash('success_stop', 'Stop updated successfully.');
         } else {
+            $maxOrder = $route->stops()->max('sequence_order') ?? 0;
             $route->stops()->create([
                 'name' => $this->stopName,
                 'latitude' => $this->stopLatitude !== '' ? $this->stopLatitude : null,
                 'longitude' => $this->stopLongitude !== '' ? $this->stopLongitude : null,
+                'sequence_order' => $maxOrder + 1,
             ]);
             session()->flash('success_stop', 'Stop added successfully.');
         }
@@ -278,11 +280,67 @@ new class extends Component
     public function deleteStop(): void
     {
         $stop = Stop::findOrFail($this->deletingStopId);
+        $routeId = $stop->route_id;
         $stop->delete();
         $this->closeDeleteStopModal();
         session()->flash('success_stop', 'Stop deleted successfully.');
         
-        $route = Route::findOrFail($this->selectedRouteId);
+        // Re-sequence remaining stops
+        $stops = Stop::where('route_id', $routeId)->orderBy('sequence_order')->get();
+        $order = 1;
+        foreach ($stops as $remainingStop) {
+            $remainingStop->update(['sequence_order' => $order++]);
+        }
+
+        $route = Route::findOrFail($routeId);
+        $this->dispatch('stops-updated', stops: $route->stops()->get()->toArray());
+    }
+
+    public function moveStopUp(int $stopId): void
+    {
+        $currentStop = Stop::findOrFail($stopId);
+        $routeId = $currentStop->route_id;
+
+        // Find the stop directly preceding this one in sequence_order
+        $previousStop = Stop::where('route_id', $routeId)
+            ->where('sequence_order', '<', $currentStop->sequence_order)
+            ->orderBy('sequence_order', 'desc')
+            ->first();
+
+        if ($previousStop) {
+            $temp = $currentStop->sequence_order;
+            $currentStop->sequence_order = $previousStop->sequence_order;
+            $previousStop->sequence_order = $temp;
+
+            $currentStop->save();
+            $previousStop->save();
+        }
+
+        $route = Route::findOrFail($routeId);
+        $this->dispatch('stops-updated', stops: $route->stops()->get()->toArray());
+    }
+
+    public function moveStopDown(int $stopId): void
+    {
+        $currentStop = Stop::findOrFail($stopId);
+        $routeId = $currentStop->route_id;
+
+        // Find the stop directly following this one in sequence_order
+        $nextStop = Stop::where('route_id', $routeId)
+            ->where('sequence_order', '>', $currentStop->sequence_order)
+            ->orderBy('sequence_order', 'asc')
+            ->first();
+
+        if ($nextStop) {
+            $temp = $currentStop->sequence_order;
+            $currentStop->sequence_order = $nextStop->sequence_order;
+            $nextStop->sequence_order = $temp;
+
+            $currentStop->save();
+            $nextStop->save();
+        }
+
+        $route = Route::findOrFail($routeId);
         $this->dispatch('stops-updated', stops: $route->stops()->get()->toArray());
     }
 
@@ -533,9 +591,37 @@ new class extends Component
                                             <tbody class="divide-y divide-slate-100">
                                                 @foreach ($stops as $index => $stop)
                                                     <tr class="hover:bg-slate-50/50 text-slate-700">
-                                                        <td class="py-3 px-4 font-bold">
-                                                            <div class="w-6 h-6 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded-full flex items-center justify-center">
-                                                                {{ $index + 1 }}
+                                                        <td class="py-3 px-4">
+                                                            <div class="flex items-center gap-2">
+                                                                <div class="w-7 h-7 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded-full flex items-center justify-center font-bold text-xs shadow-sm">
+                                                                    {{ $index + 1 }}
+                                                                </div>
+                                                                <div class="flex flex-col gap-0.5">
+                                                                    @if ($index > 0)
+                                                                        <button wire:click="moveStopUp({{ $stop->id }})" 
+                                                                                type="button"
+                                                                                class="text-slate-400 hover:text-indigo-600 transition duration-150 p-0.5 hover:bg-slate-100 rounded" 
+                                                                                title="{{ __('Move Up') }}">
+                                                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+                                                                            </svg>
+                                                                        </button>
+                                                                    @else
+                                                                        <div class="w-4 h-4"></div>
+                                                                    @endif
+                                                                    @if ($index < count($stops) - 1)
+                                                                        <button wire:click="moveStopDown({{ $stop->id }})" 
+                                                                                type="button"
+                                                                                class="text-slate-400 hover:text-indigo-600 transition duration-150 p-0.5 hover:bg-slate-100 rounded" 
+                                                                                title="{{ __('Move Down') }}">
+                                                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                                                            </svg>
+                                                                        </button>
+                                                                    @else
+                                                                        <div class="w-4 h-4"></div>
+                                                                    @endif
+                                                                </div>
                                                             </div>
                                                         </td>
                                                         <td class="py-3 px-4 font-semibold text-slate-800">
