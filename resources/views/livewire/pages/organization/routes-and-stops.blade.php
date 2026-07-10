@@ -332,9 +332,7 @@ new class extends Component
     <!-- Leaflet CDN resources -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    @if ($mapProvider === 'google_maps' && $googleMapsApiKey)
-        <script src="https://maps.googleapis.com/maps/api/js?key={{ $googleMapsApiKey }}&v=weekly&loading=async" defer></script>
-    @endif
+
 
     <div class="flex flex-col gap-6">
         @if (session()->has('success'))
@@ -811,6 +809,13 @@ new class extends Component
 
                     if (this.provider === 'google_maps') {
                         if (typeof google === 'undefined' || typeof google.maps === 'undefined') {
+                            let existingScript = document.querySelector('script[src*="maps.googleapis.com/maps/api/js"]');
+                            if (!existingScript && this.googleMapsApiKey) {
+                                let script = document.createElement('script');
+                                script.src = `https://maps.googleapis.com/maps/api/js?key=${this.googleMapsApiKey}&v=weekly&loading=async`;
+                                script.defer = true;
+                                document.head.appendChild(script);
+                            }
                             setTimeout(() => this.initMap(isNewStopAdded), 100);
                             return;
                         }
@@ -961,8 +966,22 @@ new class extends Component
                         bounds.extend(position);
 
                         const markerElement = document.createElement('div');
-                        markerElement.className = 'w-7 h-7 bg-indigo-600 text-white rounded-full border-2 border-white flex items-center justify-center font-bold text-xs shadow-md';
                         markerElement.innerText = String(index + 1);
+                        
+                        // Inline styles to bypass Shadow DOM styling limits
+                        markerElement.style.width = '28px';
+                        markerElement.style.height = '28px';
+                        markerElement.style.backgroundColor = '#4f46e5';
+                        markerElement.style.color = '#ffffff';
+                        markerElement.style.borderRadius = '50%';
+                        markerElement.style.border = '2px solid #ffffff';
+                        markerElement.style.display = 'flex';
+                        markerElement.style.alignItems = 'center';
+                        markerElement.style.justifyContent = 'center';
+                        markerElement.style.fontWeight = 'bold';
+                        markerElement.style.fontSize = '12px';
+                        markerElement.style.fontFamily = 'sans-serif';
+                        markerElement.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
 
                         let marker = new AdvancedMarkerElement({
                             position,
