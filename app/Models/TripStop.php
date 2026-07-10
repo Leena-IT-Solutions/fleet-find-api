@@ -13,8 +13,7 @@ class TripStop extends Model
     protected $fillable = [
         'trip_id',
         'stop_id',
-        'pickup_time',
-        'drop_time',
+        'time',
     ];
 
     public function trip(): BelongsTo

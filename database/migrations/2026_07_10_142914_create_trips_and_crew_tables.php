@@ -48,8 +48,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('trip_id')->constrained()->cascadeOnDelete();
             $table->foreignId('stop_id')->constrained()->cascadeOnDelete();
-            $table->time('pickup_time')->nullable();
-            $table->time('drop_time')->nullable();
+            $table->time('time')->nullable();
             $table->timestamps();
         });
 
@@ -60,6 +59,7 @@ return new class extends Migration
             $table->foreignId('vehicle_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('driver_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('attendant_id')->nullable()->constrained()->nullOnDelete();
+            $table->string('stops_order')->default('asc');
             $table->boolean('is_tracking')->default(false);
             $table->decimal('latitude', 10, 8)->nullable();
             $table->decimal('longitude', 11, 8)->nullable();

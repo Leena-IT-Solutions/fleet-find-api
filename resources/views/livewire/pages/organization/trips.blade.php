@@ -16,9 +16,6 @@ new class extends Component
 {
     public ?Organization $organization = null;
     
-    // Active Tab (trips, crew)
-    public string $activeTab = 'trips';
-    
     // Master-Detail Selected Trip and Route IDs
     public ?int $selectedTripId = null;
     public ?int $selectedRouteId = null;
@@ -33,10 +30,7 @@ new class extends Component
     // Logistics & Timings State
     public array $logisticsData = [];
     public array $timingsData = [];
-
-    // Crew Form Fields
-    public string $crewIdentity = '';
-    public string $crewType = 'driver'; // driver or attendant
+    public array $stopsOrder = [];
 
     public function rendering($view)
     {
@@ -77,6 +71,7 @@ new class extends Component
     public function loadLogistics(): void
     {
         $this->logisticsData = [];
+        $this->stopsOrder = [];
         if ($this->organization) {
             $trips = $this->organization->trips()->with('routeLogistics')->get();
             foreach ($trips as $trip) {
@@ -86,6 +81,7 @@ new class extends Component
                         'driver_id' => $l->driver_id ? (string)$l->driver_id : '',
                         'attendant_id' => $l->attendant_id ? (string)$l->attendant_id : '',
                     ];
+                    $this->stopsOrder["{$trip->id}_{$l->route_id}"] = $l->stops_order ?? 'asc';
                 }
             }
         }
@@ -99,8 +95,7 @@ new class extends Component
             foreach ($trips as $trip) {
                 foreach ($trip->tripStops as $ts) {
                     $this->timingsData["{$trip->id}_{$ts->stop_id}"] = [
-                        'pickup_time' => $ts->pickup_time ? substr($ts->pickup_time, 0, 5) : '',
-                        'drop_time' => $ts->drop_time ? substr($ts->drop_time, 0, 5) : '',
+                        'time' => $ts->time ? substr($ts->time, 0, 5) : '',
                     ];
                 }
             }
@@ -140,7 +135,7 @@ new class extends Component
 
         // Check if there are any assignments or timings
         $hasAnyLogistics = $logistics->contains(fn($l) => $l->vehicle_id || $l->driver_id || $l->attendant_id);
-        $hasAnyTimings = $stops->contains(fn($s) => $s->pickup_time || $s->drop_time);
+        $hasAnyTimings = $stops->contains(fn($s) => $s->time);
 
         if (!$hasAnyLogistics && !$hasAnyTimings) {
             return 'draft';
@@ -152,7 +147,7 @@ new class extends Component
 
         // Count actual complete assignments
         $completeLogisticsCount = $logistics->filter(fn($l) => $l->vehicle_id && $l->driver_id && $l->attendant_id)->count();
-        $completeStopsCount = $stops->filter(fn($s) => $s->pickup_time && $s->drop_time)->count();
+        $completeStopsCount = $stops->filter(fn($s) => $s->time)->count();
 
         if ($completeLogisticsCount === $expectedLogisticsCount && $completeStopsCount === $expectedStopsCount) {
             return 'ready';
@@ -264,82 +259,36 @@ new class extends Component
             TripStop::updateOrCreate(
                 ['trip_id' => $tripId, 'stop_id' => $stop->id],
                 [
-                    'pickup_time' => !empty($data['pickup_time']) ? $data['pickup_time'] : null,
-                    'drop_time' => !empty($data['drop_time']) ? $data['drop_time'] : null,
+                    'time' => !empty($data['time']) ? $data['time'] : null,
                 ]
             );
+        }
+
+        $this->loadTimings();
+        if ($this->organization) {
+            $this->organization->refresh();
         }
 
         $this->dispatch('show-toast', message: 'Timings saved successfully.', type: 'success');
     }
 
-    public function hireCrew(): void
+    public function toggleStopsOrder(int $tripId, int $routeId): void
     {
-        if (!$this->organization) {
-            return;
-        }
+        $key = "{$tripId}_{$routeId}";
+        $current = $this->stopsOrder[$key] ?? 'asc';
+        $newOrder = $current === 'asc' ? 'desc' : 'asc';
+        
+        $this->stopsOrder[$key] = $newOrder;
 
-        $this->validate([
-            'crewIdentity' => 'required|string',
-            'crewType' => 'required|in:driver,attendant',
-        ]);
+        TripRouteLogistics::updateOrCreate(
+            ['trip_id' => $tripId, 'route_id' => $routeId],
+            ['stops_order' => $newOrder]
+        );
 
-        $user = User::where('email', $this->crewIdentity)
-            ->orWhere('mobile', $this->crewIdentity)
-            ->first();
-
-        if (!$user) {
-            $this->addError('crewIdentity', 'No user found with that email or mobile number.');
-            return;
-        }
-
-        if ($this->crewType === 'driver') {
-            $driver = Driver::firstOrCreate(
-                ['user_id' => $user->id],
-                ['name' => $user->name, 'email' => $user->email, 'number' => $user->mobile]
-            );
-            $user->assignRole('Driver');
-
-            if ($driver->organization_id === $this->organization->id) {
-                $this->addError('crewIdentity', 'This driver is already hired by this organization.');
-                return;
-            }
-
-            $driver->update(['organization_id' => $this->organization->id]);
-            $this->dispatch('show-toast', message: 'Driver hired successfully.', type: 'success');
-        } else {
-            $attendant = Attendant::firstOrCreate(
-                ['user_id' => $user->id],
-                ['name' => $user->name, 'email' => $user->email, 'number' => $user->mobile]
-            );
-            $user->assignRole('Attendant');
-
-            if ($attendant->organization_id === $this->organization->id) {
-                $this->addError('crewIdentity', 'This attendant is already hired by this organization.');
-                return;
-            }
-
-            $attendant->update(['organization_id' => $this->organization->id]);
-            $this->dispatch('show-toast', message: 'Attendant hired successfully.', type: 'success');
-        }
-
-        $this->reset(['crewIdentity']);
-        $this->loadLogistics();
+        $this->dispatch('show-toast', message: 'Stop sequence order updated.', type: 'success');
     }
 
-    public function unhireCrew(string $type, int $id): void
-    {
-        if ($type === 'driver') {
-            $driver = Driver::findOrFail($id);
-            $driver->update(['organization_id' => null]);
-            $this->dispatch('show-toast', message: 'Driver removed successfully.', type: 'warning');
-        } else {
-            $attendant = Attendant::findOrFail($id);
-            $attendant->update(['organization_id' => null]);
-            $this->dispatch('show-toast', message: 'Attendant removed successfully.', type: 'warning');
-        }
-        $this->loadLogistics();
-    }
+
 
     public function with()
     {
@@ -354,11 +303,11 @@ new class extends Component
         }
 
         return [
-            'trips' => $this->organization->trips()->latest()->get(),
+            'trips' => $this->organization->trips()->with(['tripStops', 'routeLogistics'])->latest()->get(),
             'vehicles' => $this->organization->vehicles()->orderBy('registration_number')->get(),
             'drivers' => $this->organization->drivers()->orderBy('name')->get(),
             'attendants' => $this->organization->attendants()->orderBy('name')->get(),
-'routes' => $this->organization->routes()->with('stops')->get(),
+            'routes' => $this->organization->routes()->with('stops')->get(),
         ];
     }
 }; ?>
@@ -549,24 +498,24 @@ new class extends Component
                                                         </div>
 
                                                         <div class="space-y-1">
-                                                            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-widest pl-0.5">Route Pilot/Driver</label>
-                                                            <select wire:model="logisticsData.{{ $activeTrip->id }}_{$activeRoute->id}.driver_id" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:ring-4 focus:ring-indigo-500/10 cursor-pointer shadow-sm">
-                                                                <option value="">No Driver Assigned</option>
-                                                                @foreach ($drivers as $driver)
-                                                                    <option value="{{ $driver->id }}">{{ $driver->name }}</option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
+                                                             <label class="text-[9px] font-bold text-slate-400 uppercase tracking-widest pl-0.5">Route Pilot/Driver</label>
+                                                             <select wire:model="logisticsData.{{ $activeTrip->id }}_{{ $activeRoute->id }}.driver_id" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:ring-4 focus:ring-indigo-500/10 cursor-pointer shadow-sm">
+                                                                 <option value="">No Driver Assigned</option>
+                                                                 @foreach ($drivers as $driver)
+                                                                     <option value="{{ $driver->id }}">{{ $driver->name }}</option>
+                                                                 @endforeach
+                                                             </select>
+                                                         </div>
 
-                                                        <div class="space-y-1">
-                                                            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-widest pl-0.5">Route Assistant</label>
-                                                            <select wire:model="logisticsData.{{ $activeTrip->id }}_{$activeRoute->id}.attendant_id" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:ring-4 focus:ring-indigo-500/10 cursor-pointer shadow-sm">
-                                                                <option value="">No Attendant Assigned</option>
-                                                                @foreach ($attendants as $attendant)
-                                                                    <option value="{{ $attendant->id }}">{{ $attendant->name }}</option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
+                                                         <div class="space-y-1">
+                                                             <label class="text-[9px] font-bold text-slate-400 uppercase tracking-widest pl-0.5">Route Assistant</label>
+                                                             <select wire:model="logisticsData.{{ $activeTrip->id }}_{{ $activeRoute->id }}.attendant_id" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:ring-4 focus:ring-indigo-500/10 cursor-pointer shadow-sm">
+                                                                 <option value="">No Attendant Assigned</option>
+                                                                 @foreach ($attendants as $attendant)
+                                                                     <option value="{{ $attendant->id }}">{{ $attendant->name }}</option>
+                                                                 @endforeach
+                                                             </select>
+                                                         </div>
 
                                                         <div>
                                                             <button wire:click="saveLogistics({{ $activeTrip->id }}, {{ $activeRoute->id }})" 
@@ -585,9 +534,28 @@ new class extends Component
                                                     </div>
                                                 @else
                                                     <div class="space-y-4">
-                                                        <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wide">Stop Schedule & Timings</h4>
+                                                        <div class="flex items-center justify-between">
+                                                            <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wide">Stop Schedule & Timings</h4>
+                                                            <button wire:click="toggleStopsOrder({{ $activeTrip->id }}, {{ $activeRoute->id }})" 
+                                                                    class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-55 border border-slate-200 hover:bg-slate-100 text-slate-650 rounded-lg text-[10px] font-bold transition-all shadow-sm">
+                                                                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                                    @if (($stopsOrder["{$activeTrip->id}_{$activeRoute->id}"] ?? 'asc') === 'asc')
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                                                    @else
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+                                                                    @endif
+                                                                </svg>
+                                                                <span>Order: {{ ($stopsOrder["{$activeTrip->id}_{$activeRoute->id}"] ?? 'asc') === 'asc' ? 'Ascending (Up)' : 'Descending (Down)' }}</span>
+                                                            </button>
+                                                        </div>
                                                         <div class="divide-y divide-slate-100 border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm">
-                                                            @foreach ($activeRoute->stops as $stopIndex => $stop)
+                                                            @php
+                                                                $order = $stopsOrder["{$activeTrip->id}_{$activeRoute->id}"] ?? 'asc';
+                                                                $orderedStops = $order === 'desc' 
+                                                                    ? $activeRoute->stops->sortByDesc('sequence_order') 
+                                                                    : $activeRoute->stops->sortBy('sequence_order');
+                                                            @endphp
+                                                            @foreach ($orderedStops->values() as $stopIndex => $stop)
                                                                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 hover:bg-slate-50/30 transition">
                                                                     <div class="flex items-center gap-3">
                                                                         <div class="w-6 h-6 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-[10px] font-bold text-indigo-700 shadow-sm shrink-0">
@@ -604,12 +572,8 @@ new class extends Component
                                                                     
                                                                     <div class="flex items-center gap-3 self-end sm:self-auto">
                                                                         <div class="flex items-center gap-1.5">
-                                                                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Pickup</span>
-                                                                            <input type="time" wire:model="timingsData.{{ $activeTrip->id }}_{{ $stop->id }}.pickup_time" class="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-xs text-indigo-650 font-bold focus:ring-4 focus:ring-indigo-500/10">
-                                                                        </div>
-                                                                        <div class="flex items-center gap-1.5">
-                                                                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Drop</span>
-                                                                            <input type="time" wire:model="timingsData.{{ $activeTrip->id }}_{{ $stop->id }}.drop_time" class="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-xs text-amber-650 font-bold focus:ring-4 focus:ring-amber-500/10">
+                                                                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Scheduled Time</span>
+                                                                            <input type="time" wire:model="timingsData.{{ $activeTrip->id }}_{{ $stop->id }}.time" class="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-xs text-indigo-650 font-bold focus:ring-4 focus:ring-indigo-500/10">
                                                                         </div>
                                                                     </div>
                                                                 </div>

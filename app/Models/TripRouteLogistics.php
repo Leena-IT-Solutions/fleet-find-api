@@ -16,6 +16,7 @@ class TripRouteLogistics extends Model
         'vehicle_id',
         'driver_id',
         'attendant_id',
+        'stops_order',
         'is_tracking',
         'latitude',
         'longitude',

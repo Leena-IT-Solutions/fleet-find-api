@@ -132,7 +132,7 @@ class TripsAndCrewTest extends TestCase
         ]);
 
         Volt::actingAs($user)
-            ->test('pages.organization.trips')
+            ->test('pages.organization.crew')
             ->set('crewType', 'driver')
             ->set('crewIdentity', 'pilot@academy.com')
             ->call('hireCrew')
@@ -162,7 +162,7 @@ class TripsAndCrewTest extends TestCase
         ]);
 
         Volt::actingAs($user)
-            ->test('pages.organization.trips')
+            ->test('pages.organization.crew')
             ->call('unhireCrew', 'driver', $driver->id)
             ->assertHasNoErrors();
 
@@ -221,12 +221,10 @@ class TripsAndCrewTest extends TestCase
         Volt::actingAs($user)
             ->test('pages.organization.trips')
             ->set("timingsData.{$trip->id}_{$stop1->id}", [
-                'pickup_time' => '07:30',
-                'drop_time' => '13:30',
+                'time' => '07:30',
             ])
             ->set("timingsData.{$trip->id}_{$stop2->id}", [
-                'pickup_time' => '07:50',
-                'drop_time' => '13:50',
+                'time' => '07:50',
             ])
             ->call('saveRouteTimings', $trip->id, $route->id)
             ->assertHasNoErrors();
@@ -234,15 +232,37 @@ class TripsAndCrewTest extends TestCase
         $this->assertDatabaseHas('trip_stops', [
             'trip_id' => $trip->id,
             'stop_id' => $stop1->id,
-            'pickup_time' => '07:30',
-            'drop_time' => '13:30',
+            'time' => '07:30',
         ]);
 
         $this->assertDatabaseHas('trip_stops', [
             'trip_id' => $trip->id,
             'stop_id' => $stop2->id,
-            'pickup_time' => '07:50',
-            'drop_time' => '13:50',
+            'time' => '07:50',
+        ]);
+    }
+
+    public function test_stops_order_can_be_toggled(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole('Organization');
+
+        $org = Organization::create(['name' => 'Star Academy']);
+        $user->organizations()->sync([$org->id => ['access' => 'owner']]);
+        session(['active_organization_id' => $org->id]);
+
+        $route = $org->routes()->create(['name' => 'School Route A']);
+        $trip = $org->trips()->create(['name' => 'Main Shift']);
+
+        Volt::actingAs($user)
+            ->test('pages.organization.trips')
+            ->call('toggleStopsOrder', $trip->id, $route->id)
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('trip_route_logistics', [
+            'trip_id' => $trip->id,
+            'route_id' => $route->id,
+            'stops_order' => 'desc',
         ]);
     }
 }
