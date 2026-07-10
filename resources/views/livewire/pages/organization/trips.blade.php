@@ -19,6 +19,10 @@ new class extends Component
     // Active Tab (trips, crew)
     public string $activeTab = 'trips';
     
+    // Master-Detail Selected Trip and Route IDs
+    public ?int $selectedTripId = null;
+    public ?int $selectedRouteId = null;
+    
     // Trip Form Fields
     public string $tripName = '';
     public ?int $editingTripId = null;
@@ -44,6 +48,14 @@ new class extends Component
         $this->loadOrganization();
         $this->loadLogistics();
         $this->loadTimings();
+        
+        // Select the first trip by default if available
+        if ($this->organization) {
+            $firstTrip = $this->organization->trips()->latest()->first();
+            if ($firstTrip) {
+                $this->selectTrip($firstTrip->id);
+            }
+        }
     }
 
     private function loadOrganization(): void
@@ -95,6 +107,60 @@ new class extends Component
         }
     }
 
+    public function selectTrip(?int $tripId): void
+    {
+        $this->selectedTripId = $tripId;
+        if ($tripId) {
+            $trip = Trip::find($tripId);
+            if ($trip && $this->organization) {
+                $firstRoute = $this->organization->routes()->first();
+                $this->selectedRouteId = $firstRoute ? $firstRoute->id : null;
+            } else {
+                $this->selectedRouteId = null;
+            }
+        } else {
+            $this->selectedRouteId = null;
+        }
+    }
+
+    public function selectRoute(?int $routeId): void
+    {
+        $this->selectedRouteId = $routeId;
+    }
+
+    public function getTripStatus(Trip $trip): string
+    {
+        $routes = $this->organization ? $this->organization->routes : collect();
+        if ($routes->isEmpty()) {
+            return 'draft';
+        }
+
+        $logistics = $trip->routeLogistics;
+        $stops = $trip->tripStops;
+
+        // Check if there are any assignments or timings
+        $hasAnyLogistics = $logistics->contains(fn($l) => $l->vehicle_id || $l->driver_id || $l->attendant_id);
+        $hasAnyTimings = $stops->contains(fn($s) => $s->pickup_time || $s->drop_time);
+
+        if (!$hasAnyLogistics && !$hasAnyTimings) {
+            return 'draft';
+        }
+
+        // Count expected total assignments
+        $expectedLogisticsCount = $routes->count();
+        $expectedStopsCount = Stop::whereIn('route_id', $routes->pluck('id'))->count();
+
+        // Count actual complete assignments
+        $completeLogisticsCount = $logistics->filter(fn($l) => $l->vehicle_id && $l->driver_id && $l->attendant_id)->count();
+        $completeStopsCount = $stops->filter(fn($s) => $s->pickup_time && $s->drop_time)->count();
+
+        if ($completeLogisticsCount === $expectedLogisticsCount && $completeStopsCount === $expectedStopsCount) {
+            return 'ready';
+        }
+
+        return 'partial';
+    }
+
     public function openAddTripModal(): void
     {
         $this->reset(['tripName', 'editingTripId']);
@@ -131,10 +197,11 @@ new class extends Component
         if ($this->editingTripId) {
             $trip = Trip::findOrFail($this->editingTripId);
             $trip->update(['name' => $this->tripName]);
-            session()->flash('success_trip', 'Trip updated successfully.');
+            $this->dispatch('show-toast', message: 'Trip updated successfully.', type: 'success');
         } else {
-            $this->organization->trips()->create(['name' => $this->tripName]);
-            session()->flash('success_trip', 'Trip created successfully.');
+            $trip = $this->organization->trips()->create(['name' => $this->tripName]);
+            $this->selectTrip($trip->id);
+            $this->dispatch('show-toast', message: 'Trip created successfully.', type: 'success');
         }
 
         $this->closeTripModal();
@@ -160,7 +227,15 @@ new class extends Component
         $trip = Trip::findOrFail($this->deletingTripId);
         $trip->delete();
         $this->closeDeleteTripModal();
-        session()->flash('success_trip', 'Trip cancelled successfully.');
+        
+        $firstTrip = $this->organization->trips()->latest()->first();
+        if ($firstTrip) {
+            $this->selectTrip($firstTrip->id);
+        } else {
+            $this->selectTrip(null);
+        }
+        
+        $this->dispatch('show-toast', message: 'Trip cancelled successfully.', type: 'warning');
         $this->loadLogistics();
         $this->loadTimings();
     }
@@ -178,7 +253,7 @@ new class extends Component
             ]
         );
 
-        session()->flash('success_logistics', 'Logistics saved successfully.');
+        $this->dispatch('show-toast', message: 'Logistics saved successfully.', type: 'success');
     }
 
     public function saveRouteTimings(int $tripId, int $routeId): void
@@ -195,7 +270,7 @@ new class extends Component
             );
         }
 
-        session()->flash('success_timings', 'Timings saved successfully.');
+        $this->dispatch('show-toast', message: 'Timings saved successfully.', type: 'success');
     }
 
     public function hireCrew(): void
@@ -231,7 +306,7 @@ new class extends Component
             }
 
             $driver->update(['organization_id' => $this->organization->id]);
-            session()->flash('success_crew', 'Driver hired successfully.');
+            $this->dispatch('show-toast', message: 'Driver hired successfully.', type: 'success');
         } else {
             $attendant = Attendant::firstOrCreate(
                 ['user_id' => $user->id],
@@ -245,7 +320,7 @@ new class extends Component
             }
 
             $attendant->update(['organization_id' => $this->organization->id]);
-            session()->flash('success_crew', 'Attendant hired successfully.');
+            $this->dispatch('show-toast', message: 'Attendant hired successfully.', type: 'success');
         }
 
         $this->reset(['crewIdentity']);
@@ -257,11 +332,11 @@ new class extends Component
         if ($type === 'driver') {
             $driver = Driver::findOrFail($id);
             $driver->update(['organization_id' => null]);
-            session()->flash('success_crew', 'Driver removed successfully.');
+            $this->dispatch('show-toast', message: 'Driver removed successfully.', type: 'warning');
         } else {
             $attendant = Attendant::findOrFail($id);
             $attendant->update(['organization_id' => null]);
-            session()->flash('success_crew', 'Attendant removed successfully.');
+            $this->dispatch('show-toast', message: 'Attendant removed successfully.', type: 'warning');
         }
         $this->loadLogistics();
     }
@@ -283,17 +358,53 @@ new class extends Component
             'vehicles' => $this->organization->vehicles()->orderBy('registration_number')->get(),
             'drivers' => $this->organization->drivers()->orderBy('name')->get(),
             'attendants' => $this->organization->attendants()->orderBy('name')->get(),
-            'routes' => $this->organization->routes()->with('stops')->get(),
+'routes' => $this->organization->routes()->with('stops')->get(),
         ];
     }
 }; ?>
 
-<div class="space-y-6">
+<div class="space-y-6" x-data="{
+    toasts: [],
+    addToast(message, type = 'success') {
+        const id = Date.now();
+        this.toasts.push({ id, message, type });
+        setTimeout(() => {
+            this.toasts = this.toasts.filter(t => t.id !== id);
+        }, 3000);
+    }
+}" @show-toast.window="addToast($event.detail.message, $event.detail.type || 'success')">
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-slate-900 leading-tight">
             {{ __('Journey Management (Trips & Crew)') }}
         </h2>
     </x-slot>
+
+    <!-- Toast Notifications Container -->
+    <div class="fixed top-5 right-5 z-50 space-y-2 pointer-events-none">
+        <template x-for="toast in toasts" :key="toast.id">
+            <div x-transition:enter="transition ease-out duration-300 transform translate-y-[-10px] opacity-0"
+                 x-transition:enter-start="transform translate-y-[-10px] opacity-0"
+                 x-transition:enter-end="transform translate-y-0 opacity-100"
+                 x-transition:leave="transition ease-in duration-200 transform translate-y-[-10px] opacity-0"
+                 class="px-4 py-3 rounded-xl shadow-lg border text-xs font-semibold flex items-center gap-2 pointer-events-auto min-w-[200px]"
+                 :class="{
+                     'bg-emerald-50 border-emerald-100 text-emerald-800': toast.type === 'success',
+                     'bg-amber-50 border-amber-100 text-amber-800': toast.type === 'warning',
+                     'bg-rose-50 border-rose-100 text-rose-800': toast.type === 'error'
+                 }">
+                <template x-if="toast.type === 'success'">
+                    <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
+                </template>
+                <template x-if="toast.type === 'warning'">
+                    <svg class="w-4 h-4 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                </template>
+                <template x-if="toast.type === 'error'">
+                    <svg class="w-4 h-4 text-rose-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+                </template>
+                <span x-text="toast.message"></span>
+            </div>
+        </template>
+    </div>
 
     @if (!$organization)
         <div class="bg-white border border-slate-200 p-8 rounded-2xl shadow-sm text-center">
@@ -317,87 +428,132 @@ new class extends Component
         </div>
 
         @if ($activeTab === 'trips')
-            <!-- TAB 1: SCHEDULED TRIPS -->
-            <div class="space-y-6">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                        <h3 class="text-base font-bold text-slate-800">Scheduled Trips</h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Manage operational shifts, logistics crew deployments, and pickup/drop timing schedules.</p>
+            <!-- TAB 1: SCHEDULED TRIPS (Master-Detail Split Layout) -->
+            <div class="flex flex-col lg:flex-row gap-6">
+                <!-- Left Panel: Trip Master List Sidebar -->
+                <div class="w-full lg:w-80 shrink-0 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Deployments</h3>
+                            <span class="text-[10px] text-slate-400 font-semibold">{{ $trips->count() }} Shifts scheduled</span>
+                        </div>
+                        <button wire:click="openAddTripModal" 
+                                class="p-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition shadow-sm flex items-center justify-center"
+                                title="Add Shift Trip">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                        </button>
                     </div>
-                    <button wire:click="openAddTripModal" 
-                            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                        </svg>
-                        <span>Initialize Trip</span>
-                    </button>
-                </div>
 
-                @if (session()->has('success_trip'))
-                    <div class="bg-emerald-50 border border-emerald-100 text-emerald-800 rounded-xl p-4 text-xs flex items-center gap-2">
-                        <svg class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
-                        <span>{{ session('success_trip') }}</span>
-                    </div>
-                @endif
-
-                @if ($trips->isEmpty())
-                    <div class="bg-white border border-slate-200 rounded-2xl p-12 text-center flex flex-col items-center justify-center">
-                        <svg class="w-10 h-10 text-slate-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
-                        <p class="text-slate-850 font-bold text-sm">No Journey Logs</p>
-                        <p class="text-slate-400 text-xs mt-1">Start by scheduling your first operational journey.</p>
-                    </div>
-                @else
-                    <div class="space-y-4" x-data="{ openTripId: null }">
-                        @foreach ($trips as $trip)
-                            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition-all duration-300">
-                                <!-- Accordion Header -->
-                                <div class="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50/50 cursor-pointer" @click="openTripId = openTripId === {{ $trip->id }} ? null : {{ $trip->id }}">
-                                    <div class="flex items-center gap-4">
-                                        <div class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400">
-                                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+                    @if ($trips->isEmpty())
+                        <div class="bg-white border border-slate-200 rounded-2xl p-8 text-center flex flex-col items-center justify-center shadow-sm">
+                            <svg class="w-8 h-8 text-slate-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+                            <p class="text-slate-805 font-bold text-xs">No Journey Logs</p>
+                            <p class="text-slate-400 text-[10px] mt-0.5">Start by scheduling your first operational shift.</p>
+                        </div>
+                    @else
+                        <div class="space-y-2 max-h-[600px] overflow-y-auto pr-1">
+                            @foreach ($trips as $trip)
+                                @php $status = $this->getTripStatus($trip); @endphp
+                                <div wire:click="selectTrip({{ $trip->id }})" 
+                                     class="w-full text-left p-4 rounded-xl border transition-all cursor-pointer bg-white {{ $selectedTripId === $trip->id ? 'border-indigo-500 ring-2 ring-indigo-500/10 shadow-sm' : 'border-slate-200 hover:bg-slate-50/50 hover:border-slate-300' }}">
+                                    <div class="flex items-start justify-between gap-2">
+                                        <div class="min-w-0">
+                                            <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wide truncate">{{ $trip->name }}</h4>
+                                            <div class="flex items-center gap-1.5 mt-1.5">
+                                                <!-- Status Badge Pill -->
+                                                <span class="w-2 h-2 rounded-full {{ $status === 'ready' ? 'bg-emerald-500' : ($status === 'partial' ? 'bg-amber-400' : 'bg-slate-300') }}"></span>
+                                                <span class="text-[9px] uppercase tracking-wider font-bold text-slate-400">
+                                                    {{ $status === 'ready' ? 'Ready' : ($status === 'partial' ? 'Partial' : 'Draft') }}
+                                                </span>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h4 class="text-sm font-bold text-slate-855 uppercase tracking-wide">{{ $trip->name }}</h4>
-                                            <span class="text-[10px] text-slate-400 tracking-wider uppercase font-semibold">Shift Configured</span>
+                                        
+                                        <div class="flex items-center gap-1 shrink-0">
+                                            <button wire:click.stop="openEditTripModal({{ $trip->id }})" class="p-1 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 rounded-md transition" title="Edit Trip">
+                                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" /></svg>
+                                            </button>
+                                            <button wire:click.stop="openDeleteTripModal({{ $trip->id }})" class="p-1 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-500 rounded-md transition" title="Delete Trip">
+                                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                            </button>
                                         </div>
-                                    </div>
-                                    <div class="flex items-center gap-3" @click.stop="">
-                                        <button wire:click="openEditTripModal({{ $trip->id }})" class="p-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 rounded-md transition shadow-sm" title="Edit Trip">
-                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" /></svg>
-                                        </button>
-                                        <button wire:click="openDeleteTripModal({{ $trip->id }})" class="p-1.5 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-500 rounded-md transition shadow-sm" title="Delete Trip">
-                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                        </button>
-                                        <div class="w-px h-6 bg-slate-200 mx-1"></div>
-                                        <svg class="w-5 h-5 text-slate-400 transition-transform duration-200" :class="openTripId === {{ $trip->id }} ? 'rotate-180 text-indigo-650' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" /></svg>
                                     </div>
                                 </div>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
 
-                                <!-- Accordion Body -->
-                                <div x-show="openTripId === {{ $trip->id }}" x-collapse class="border-t border-slate-100 p-6 bg-slate-50/20 space-y-8">
-                                    @if ($routes->isEmpty())
-                                        <div class="text-center py-6">
-                                            <p class="text-slate-500 text-xs italic">No routes configured in your organization yet.</p>
+                <!-- Right Panel: Trip Details, Logistics, and Stop Timings -->
+                <div class="flex-grow">
+                    @if (!$selectedTripId)
+                        <div class="bg-white border border-slate-200 rounded-2xl p-16 text-center flex flex-col items-center justify-center h-full min-h-[300px]">
+                            <svg class="w-12 h-12 text-slate-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L16 4m0 13V4m0 0L9 7" /></svg>
+                            <h4 class="text-slate-800 font-bold text-sm">No Trip Selected</h4>
+                            <p class="text-slate-400 text-xs mt-1">Select a scheduled trip on the left panel to edit timings and crew assignments.</p>
+                        </div>
+                    @else
+                        @php 
+                            $activeTrip = $trips->firstWhere('id', $selectedTripId); 
+                            $activeTripStatus = $activeTrip ? $this->getTripStatus($activeTrip) : 'draft';
+                        @endphp
+                        @if ($activeTrip)
+                            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-6 space-y-6">
+                                <!-- Detail Header -->
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-4 gap-4">
+                                    <div class="flex items-center gap-3">
+                                        <h3 class="text-base font-bold text-slate-850 uppercase tracking-wide">{{ $activeTrip->name }}</h3>
+                                        <span class="px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border {{ $activeTripStatus === 'ready' ? 'bg-emerald-50 border-emerald-100 text-emerald-800' : ($activeTripStatus === 'partial' ? 'bg-amber-50 border-amber-100 text-amber-800' : 'bg-slate-50 border-slate-250 text-slate-600') }}">
+                                            {{ $activeTripStatus === 'ready' ? 'Deploy Ready' : ($activeTripStatus === 'partial' ? 'Partial Settings' : 'Draft') }}
+                                        </span>
+                                    </div>
+                                    <div class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Active Configuration Panel</div>
+                                </div>
+
+                                <!-- Route Horizontal Sub-Tabs -->
+                                @if ($routes->isEmpty())
+                                    <div class="text-center py-8">
+                                        <p class="text-slate-500 text-xs italic">No routes configured in your organization yet.</p>
+                                    </div>
+                                @else
+                                    <div class="space-y-6">
+                                        <div class="border-b border-slate-200">
+                                            <nav class="flex flex-wrap gap-2 -mb-px">
+                                                @foreach ($routes as $route)
+                                                    <button wire:click="selectRoute({{ $route->id }})" 
+                                                            class="pb-3 px-4 text-xs font-semibold uppercase tracking-wider transition-all border-b-2 {{ $selectedRouteId === $route->id ? 'border-indigo-600 text-indigo-700 font-bold' : 'border-transparent text-slate-400 hover:text-slate-700 hover:border-slate-300' }}">
+                                                        {{ $route->name }}
+                                                    </button>
+                                                @endforeach
+                                            </nav>
                                         </div>
-                                    @else
-                                        <!-- Configured Routes loop -->
-                                        @foreach ($routes as $route)
-                                            <div class="space-y-6 p-6 bg-slate-50/50 rounded-2xl border border-slate-200/60 shadow-inner">
-                                                <div class="flex items-center justify-between border-b border-slate-200 pb-3">
-                                                    <div class="flex items-center gap-2">
-                                                        <span class="px-2.5 py-1 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded-lg text-[10px] font-bold uppercase tracking-wider">{{ $route->name }}</span>
-                                                        <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Deployments</span>
-                                                    </div>
-                                                    <span class="text-[10px] text-slate-400 font-medium italic">{{ count($route->stops) }} Stops configured</span>
-                                                </div>
 
-                                                <!-- Logistics Manifest Grid -->
-                                                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
-                                                    <h5 class="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Crew & Vehicle Manifest</h5>
+                                        <!-- Detail view for Active Selected Route -->
+                                        @php $activeRoute = $routes->firstWhere('id', $selectedRouteId); @endphp
+                                        @if ($activeRoute)
+                                            <div class="space-y-6">
+                                                <!-- Card 1: Logistics Assignment -->
+                                                <div class="bg-slate-50/50 border border-slate-200/80 p-5 rounded-2xl space-y-4">
+                                                    <div class="flex items-center justify-between">
+                                                        <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wide">Crew & Vehicle Manifest</h4>
+                                                        <!-- Configuration indicator badge -->
+                                                        @php 
+                                                            $hasVehicle = !empty($logisticsData["{$activeTrip->id}_{$activeRoute->id}"]['vehicle_id']);
+                                                            $hasDriver = !empty($logisticsData["{$activeTrip->id}_{$activeRoute->id}"]['driver_id']);
+                                                            $hasAttendant = !empty($logisticsData["{$activeTrip->id}_{$activeRoute->id}"]['attendant_id']);
+                                                            $logisticsComplete = $hasVehicle && $hasDriver && $hasAttendant;
+                                                        @endphp
+                                                        <span class="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider {{ $logisticsComplete ? 'text-emerald-600' : 'text-amber-600' }}">
+                                                            <span class="w-1.5 h-1.5 rounded-full {{ $logisticsComplete ? 'bg-emerald-500' : 'bg-amber-400' }}"></span>
+                                                            {{ $logisticsComplete ? 'Assigned' : 'Incomplete' }}
+                                                        </span>
+                                                    </div>
+
                                                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                                                         <div class="space-y-1">
                                                             <label class="text-[9px] font-bold text-slate-400 uppercase tracking-widest pl-0.5">Route Vehicle</label>
-                                                            <select wire:model="logisticsData.{{ $trip->id }}_{{ $route->id }}.vehicle_id" class="w-full bg-slate-50 border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:ring-4 focus:ring-indigo-500/10 cursor-pointer">
+                                                            <select wire:model="logisticsData.{{ $activeTrip->id }}_{{$activeRoute->id}}.vehicle_id" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:ring-4 focus:ring-indigo-500/10 cursor-pointer shadow-sm">
                                                                 <option value="">No Vehicle Assigned</option>
                                                                 @foreach ($vehicles as $vehicle)
                                                                     <option value="{{ $vehicle->id }}">{{ $vehicle->registration_number }}</option>
@@ -407,7 +563,7 @@ new class extends Component
 
                                                         <div class="space-y-1">
                                                             <label class="text-[9px] font-bold text-slate-400 uppercase tracking-widest pl-0.5">Route Pilot/Driver</label>
-                                                            <select wire:model="logisticsData.{{ $trip->id }}_{{ $route->id }}.driver_id" class="w-full bg-slate-50 border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:ring-4 focus:ring-indigo-500/10 cursor-pointer">
+                                                            <select wire:model="logisticsData.{{ $activeTrip->id }}_{$activeRoute->id}.driver_id" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:ring-4 focus:ring-indigo-500/10 cursor-pointer shadow-sm">
                                                                 <option value="">No Driver Assigned</option>
                                                                 @foreach ($drivers as $driver)
                                                                     <option value="{{ $driver->id }}">{{ $driver->name }}</option>
@@ -417,7 +573,7 @@ new class extends Component
 
                                                         <div class="space-y-1">
                                                             <label class="text-[9px] font-bold text-slate-400 uppercase tracking-widest pl-0.5">Route Assistant</label>
-                                                            <select wire:model="logisticsData.{{ $trip->id }}_{{ $route->id }}.attendant_id" class="w-full bg-slate-50 border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:ring-4 focus:ring-indigo-500/10 cursor-pointer">
+                                                            <select wire:model="logisticsData.{{ $activeTrip->id }}_{$activeRoute->id}.attendant_id" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:ring-4 focus:ring-indigo-500/10 cursor-pointer shadow-sm">
                                                                 <option value="">No Attendant Assigned</option>
                                                                 @foreach ($attendants as $attendant)
                                                                     <option value="{{ $attendant->id }}">{{ $attendant->name }}</option>
@@ -426,75 +582,78 @@ new class extends Component
                                                         </div>
 
                                                         <div>
-                                                            <button wire:click="saveLogistics({{ $trip->id }}, {{ $route->id }})" 
-                                                                    class="w-full py-2 bg-indigo-650 hover:bg-indigo-700 text-white rounded-lg font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-sm">
+                                                            <button wire:click="saveLogistics({{ $activeTrip->id }}, {{ $activeRoute->id }})" 
+                                                                    class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-sm">
                                                                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
                                                                 <span>Assign Crew</span>
                                                             </button>
                                                         </div>
                                                     </div>
-                                                    @if (session()->has('success_logistics'))
-                                                        <span class="text-[10px] text-emerald-600 font-semibold block mt-1">✓ {{ session('success_logistics') }}</span>
-                                                    @endif
                                                 </div>
 
-                                                <!-- Timings Config -->
-                                                @if ($route->stops->isEmpty())
-                                                    <p class="text-slate-400 text-xs italic">No stops are added to this route yet.</p>
+                                                <!-- Card 2: Stop Schedule & Timings Timeline -->
+                                                @if ($activeRoute->stops->isEmpty())
+                                                    <div class="bg-slate-50/50 p-6 rounded-2xl text-center italic text-slate-400 text-xs">
+                                                        No stops are added to this route yet.
+                                                    </div>
                                                 @else
-                                                    <div class="space-y-3">
-                                                        <h5 class="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Stop Schedule & Timings</h5>
-                                                        <div class="divide-y divide-slate-200 border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm">
-                                                            @foreach ($route->stops as $stopIndex => $stop)
-                                                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 hover:bg-slate-50/50 transition">
+                                                    <div class="space-y-4">
+                                                        <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wide">Stop Schedule & Timings</h4>
+                                                        <div class="divide-y divide-slate-100 border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm">
+                                                            @foreach ($activeRoute->stops as $stopIndex => $stop)
+                                                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 hover:bg-slate-50/30 transition">
                                                                     <div class="flex items-center gap-3">
-                                                                        <div class="w-6 h-6 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-[10px] font-bold text-indigo-700 shadow-sm">{{ $stopIndex + 1 }}</div>
+                                                                        <div class="w-6 h-6 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-[10px] font-bold text-indigo-700 shadow-sm shrink-0">
+                                                                            {{ $stopIndex + 1 }}
+                                                                        </div>
                                                                         <div>
-                                                                            <p class="text-xs font-bold text-slate-800">{{ $stop->name }}</p>
-                                                                            <p class="text-[10px] text-slate-400 font-mono">{{ $stop->latitude }}, {{ $stop->longitude }}</p>
+                                                                            <p class="text-xs font-bold text-slate-800 flex items-center gap-1">
+                                                                                <svg class="w-3 h-3 text-indigo-550 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                                                                <span>{{ $stop->name }}</span>
+                                                                            </p>
+                                                                            <p class="text-[9px] text-slate-400 font-semibold tracking-wide mt-0.5">{{ $stop->sequence_order ? __('Sequence Position ').$stop->sequence_order : __('Core Network Stop') }}</p>
                                                                         </div>
                                                                     </div>
-                                                                    <div class="flex items-center gap-2 self-end sm:self-auto">
-                                                                        <div class="flex items-center gap-1">
+                                                                    
+                                                                    <div class="flex items-center gap-3 self-end sm:self-auto">
+                                                                        <div class="flex items-center gap-1.5">
                                                                             <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Pickup</span>
-                                                                            <input type="time" wire:model="timingsData.{{ $trip->id }}_{{ $stop->id }}.pickup_time" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs text-indigo-650 font-bold focus:ring-4 focus:ring-indigo-500/10">
+                                                                            <input type="time" wire:model="timingsData.{{ $activeTrip->id }}_{{ $stop->id }}.pickup_time" class="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-xs text-indigo-650 font-bold focus:ring-4 focus:ring-indigo-500/10">
                                                                         </div>
-                                                                        <div class="flex items-center gap-1">
+                                                                        <div class="flex items-center gap-1.5">
                                                                             <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Drop</span>
-                                                                            <input type="time" wire:model="timingsData.{{ $trip->id }}_{{ $stop->id }}.drop_time" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs text-amber-600 font-bold focus:ring-4 focus:ring-amber-500/10">
+                                                                            <input type="time" wire:model="timingsData.{{ $activeTrip->id }}_{{ $stop->id }}.drop_time" class="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-xs text-amber-650 font-bold focus:ring-4 focus:ring-amber-500/10">
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                             @endforeach
                                                         </div>
+                                                        
                                                         <div class="flex justify-end">
-                                                            <button wire:click="saveRouteTimings({{ $trip->id }}, {{ $route->id }})" 
-                                                                    class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-md">
+                                                            <button wire:click="saveRouteTimings({{ $activeTrip->id }}, {{ $activeRoute->id }})" 
+                                                                    class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-md">
                                                                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
                                                                 <span>Update Timing Manifest</span>
                                                             </button>
                                                         </div>
-                                                        @if (session()->has('success_timings'))
-                                                            <span class="text-[10px] text-emerald-600 font-semibold block text-right mt-1">✓ {{ session('success_timings') }}</span>
-                                                        @endif
                                                     </div>
                                                 @endif
                                             </div>
-                                        @endforeach
-                                    @endif
-                                </div>
+                                        @endif
+                                    </div>
+                                @endif
                             </div>
-                        @endforeach
-                    </div>
-                @endif
+                        @endif
+                    @endif
+                </div>
             </div>
         @else
             <!-- TAB 2: CREW & ROSTER -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Hiring Roster Form -->
+                <!-- Hiring Roster Form Card -->
                 <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm h-fit">
-                    <h3 class="text-sm font-bold text-slate-800 mb-1">Add Crew Member</h3>
-                    <p class="text-xs text-slate-500 mb-4">Link a registered user to your organization as a Pilot/Driver or travel assistant.</p>
+                    <h3 class="text-sm font-bold text-slate-850 mb-1">Add Crew Member</h3>
+                    <p class="text-xs text-slate-400 mb-4">Link a registered user to your organization as a Pilot/Driver or travel assistant.</p>
 
                     <form wire:submit.prevent="hireCrew" class="space-y-4">
                         <div>
@@ -503,17 +662,25 @@ new class extends Component
                             <x-input-error :messages="$errors->get('crewIdentity')" class="mt-2" />
                         </div>
 
-                        <div>
-                            <x-input-label for="crewType" :value="__('Select Crew Role')" />
-                            <select wire:model="crewType" id="crewType" class="mt-1 block w-full bg-white border border-slate-300 text-slate-700 rounded-lg text-xs p-2.5 focus:border-indigo-500 focus:ring-indigo-500">
-                                <option value="driver">{{ __('Driver (Pilot)') }}</option>
-                                <option value="attendant">{{ __('Attendant (Crew Assistant)') }}</option>
-                            </select>
-                            <x-input-error :messages="$errors->get('crewType')" class="mt-2" />
+                        <div class="space-y-1.5">
+                            <x-input-label :value="__('Select Crew Role')" />
+                            <!-- Pill Selector Buttons -->
+                            <div class="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl border border-slate-200">
+                                <button type="button" wire:click="$set('crewType', 'driver')" 
+                                        class="py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 {{ $crewType === 'driver' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-900' }}">
+                                    <span>🚗</span>
+                                    <span>Driver</span>
+                                </button>
+                                <button type="button" wire:click="$set('crewType', 'attendant')" 
+                                        class="py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 {{ $crewType === 'attendant' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-900' }}">
+                                    <span>👥</span>
+                                    <span>Attendant</span>
+                                </button>
+                            </div>
                         </div>
 
                         <div class="flex justify-end pt-2">
-                            <x-primary-button class="w-full justify-center">
+                            <x-primary-button class="w-full justify-center text-xs py-2.5 font-bold uppercase tracking-wider">
                                 {{ __('Hire Crew Member') }}
                             </x-primary-button>
                         </div>
@@ -527,35 +694,34 @@ new class extends Component
                         <p class="text-xs text-slate-500 mt-0.5">Hired Drivers and Attendants registered with your organization.</p>
                     </div>
 
-                    @if (session()->has('success_crew'))
-                        <div class="bg-emerald-50 border border-emerald-100 text-emerald-800 rounded-xl p-4 text-xs flex items-center gap-2">
-                            <svg class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
-                            <span>{{ session('success_crew') }}</span>
-                        </div>
-                    @endif
-
                     <div class="space-y-6">
                         <!-- Drivers Section -->
-                        <div class="space-y-2">
+                        <div class="space-y-3">
                             <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-0.5">Drivers / Pilots</h4>
                             @if ($drivers->isEmpty())
                                 <p class="text-slate-500 text-xs italic pl-0.5">No drivers hired yet.</p>
                             @else
-                                <div class="divide-y divide-slate-100 border border-slate-100 rounded-xl overflow-hidden">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     @foreach ($drivers as $driver)
-                                        <div class="flex items-center justify-between gap-4 p-3 hover:bg-slate-50/50 transition">
+                                        @php
+                                            $initials = collect(explode(' ', $driver->name))->map(fn($n) => mb_substr($n, 0, 1))->take(2)->join('');
+                                        @endphp
+                                        <div class="flex items-center justify-between gap-4 p-4 rounded-xl border border-slate-100 hover:border-slate-200 hover:bg-slate-50/50 transition bg-white shadow-sm">
                                             <div class="flex items-center gap-3">
-                                                <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-650 font-bold text-xs">D</div>
-                                                <div>
-                                                    <p class="text-xs font-bold text-slate-850">{{ $driver->name }}</p>
-                                                    <p class="text-[10px] text-slate-400">{{ $driver->email }} | {{ $driver->number }}</p>
+                                                <div class="w-9 h-9 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs uppercase shadow-sm">
+                                                    {{ $initials }}
+                                                </div>
+                                                <div class="min-w-0">
+                                                    <p class="text-xs font-bold text-slate-800 truncate">{{ $driver->name }}</p>
+                                                    <p class="text-[10px] text-slate-400 truncate mt-0.5">{{ $driver->number }}</p>
                                                 </div>
                                             </div>
                                             <button wire:click="unhireCrew('driver', {{ $driver->id }})" 
+                                                    wire:confirm="Are you sure you want to remove this driver from the organization?"
                                                     type="button"
-                                                    class="p-1 text-slate-400 hover:text-rose-600 transition" 
+                                                    class="p-1.5 text-slate-350 hover:text-rose-600 transition" 
                                                     title="{{ __('Remove Driver') }}">
-                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                             </button>
                                         </div>
                                     @endforeach
@@ -564,26 +730,32 @@ new class extends Component
                         </div>
 
                         <!-- Attendants Section -->
-                        <div class="space-y-2">
+                        <div class="space-y-3">
                             <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-0.5">Attendants / Crew Assistants</h4>
                             @if ($attendants->isEmpty())
                                 <p class="text-slate-500 text-xs italic pl-0.5">No attendants hired yet.</p>
                             @else
-                                <div class="divide-y divide-slate-100 border border-slate-100 rounded-xl overflow-hidden">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     @foreach ($attendants as $attendant)
-                                        <div class="flex items-center justify-between gap-4 p-3 hover:bg-slate-50/50 transition">
+                                        @php
+                                            $initials = collect(explode(' ', $attendant->name))->map(fn($n) => mb_substr($n, 0, 1))->take(2)->join('');
+                                        @endphp
+                                        <div class="flex items-center justify-between gap-4 p-4 rounded-xl border border-slate-100 hover:border-slate-200 hover:bg-slate-50/50 transition bg-white shadow-sm">
                                             <div class="flex items-center gap-3">
-                                                <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-650 font-bold text-xs">A</div>
-                                                <div>
-                                                    <p class="text-xs font-bold text-slate-855">{{ $attendant->name }}</p>
-                                                    <p class="text-[10px] text-slate-400">{{ $attendant->email }} | {{ $attendant->number }}</p>
+                                                <div class="w-9 h-9 rounded-full bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-700 font-bold text-xs uppercase shadow-sm">
+                                                    {{ $initials }}
+                                                </div>
+                                                <div class="min-w-0">
+                                                    <p class="text-xs font-bold text-slate-800 truncate">{{ $attendant->name }}</p>
+                                                    <p class="text-[10px] text-slate-400 truncate mt-0.5">{{ $attendant->number }}</p>
                                                 </div>
                                             </div>
                                             <button wire:click="unhireCrew('attendant', {{ $attendant->id }})" 
+                                                    wire:confirm="Are you sure you want to remove this attendant from the organization?"
                                                     type="button"
-                                                    class="p-1 text-slate-400 hover:text-rose-600 transition" 
+                                                    class="p-1.5 text-slate-350 hover:text-rose-600 transition" 
                                                     title="{{ __('Remove Attendant') }}">
-                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                             </button>
                                         </div>
                                     @endforeach
