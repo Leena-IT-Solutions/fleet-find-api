@@ -10,12 +10,23 @@ new class extends Component
     public function mount(): void
     {
         $user = auth()->user();
-        if ($user && $user->hasRole('Organization')) {
-            $userOrgs = $user->organizations;
-            $this->activeOrgId = session('active_organization_id');
-            if (!$this->activeOrgId && $userOrgs->isNotEmpty()) {
-                $this->activeOrgId = $userOrgs->first()->id;
-                session(['active_organization_id' => $this->activeOrgId]);
+        if ($user) {
+            if ($user->hasRole('Admin')) {
+                $this->activeOrgId = session('active_organization_id');
+                if (!$this->activeOrgId) {
+                    $firstOrg = \App\Models\Organization::first();
+                    if ($firstOrg) {
+                        $this->activeOrgId = $firstOrg->id;
+                        session(['active_organization_id' => $this->activeOrgId]);
+                    }
+                }
+            } elseif ($user->hasRole('Organization')) {
+                $userOrgs = $user->organizations;
+                $this->activeOrgId = session('active_organization_id');
+                if (!$this->activeOrgId && $userOrgs->isNotEmpty()) {
+                    $this->activeOrgId = $userOrgs->first()->id;
+                    session(['active_organization_id' => $this->activeOrgId]);
+                }
             }
         }
     }
@@ -23,14 +34,22 @@ new class extends Component
     public function selectOrganization($orgId): void
     {
         $user = auth()->user();
-        if ($user && $user->hasRole('Organization')) {
-            $exists = $user->organizations()->where('organizations.id', $orgId)->exists();
-            if ($exists) {
+        if ($user) {
+            $hasAccess = false;
+            if ($user->hasRole('Admin')) {
+                $hasAccess = \App\Models\Organization::where('id', $orgId)->exists();
+            } elseif ($user->hasRole('Organization')) {
+                $hasAccess = $user->organizations()->where('organizations.id', $orgId)->exists();
+            }
+
+            if ($hasAccess) {
                 session(['active_organization_id' => $orgId]);
                 $this->activeOrgId = $orgId;
                 
                 $this->dispatch('active-organization-changed', $orgId);
-                $this->redirect(request()->header('Referer') ?: route('organization.dashboard'), navigate: true);
+                
+                $fallbackRoute = $user->hasRole('Admin') ? route('administrator') : route('organization.dashboard');
+                $this->redirect(request()->header('Referer') ?: $fallbackRoute, navigate: true);
             }
         }
     }
@@ -58,17 +77,19 @@ new class extends Component
             </div>
 
             <!-- Organization Selector -->
-            @if (auth()->user()->hasRole('Organization'))
+            @if (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Organization'))
                 @php
-                    $userOrgs = auth()->user()->organizations;
+                    $orgsToShow = auth()->user()->hasRole('Admin') 
+                        ? \App\Models\Organization::all() 
+                        : auth()->user()->organizations;
                 @endphp
-                @if ($userOrgs->isNotEmpty())
+                @if ($orgsToShow->isNotEmpty())
                     <div class="px-2 mb-2">
                         <label for="org-select-desktop" class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Active Organization</label>
                         <select id="org-select-desktop" 
                                 wire:change="selectOrganization($event.target.value)" 
                                 class="block w-full border border-slate-200 rounded-lg text-xs bg-slate-50/50 text-slate-700 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition duration-150 shadow-sm cursor-pointer font-medium">
-                            @foreach($userOrgs as $org)
+                            @foreach($orgsToShow as $org)
                                 <option value="{{ $org->id }}" {{ $org->id == $activeOrgId ? 'selected' : '' }}>
                                     {{ $org->name }}
                                 </option>
@@ -204,17 +225,19 @@ new class extends Component
             </div>
 
             <!-- Organization Selector Mobile -->
-            @if (auth()->user()->hasRole('Organization'))
+            @if (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Organization'))
                 @php
-                    $userOrgs = auth()->user()->organizations;
+                    $orgsToShow = auth()->user()->hasRole('Admin') 
+                        ? \App\Models\Organization::all() 
+                        : auth()->user()->organizations;
                 @endphp
-                @if ($userOrgs->isNotEmpty())
+                @if ($orgsToShow->isNotEmpty())
                     <div class="px-2 mb-2">
                         <label for="org-select-mobile" class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Active Organization</label>
                         <select id="org-select-mobile" 
                                 wire:change="selectOrganization($event.target.value)" 
                                 class="block w-full border border-slate-200 rounded-lg text-xs bg-slate-50/50 text-slate-700 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition duration-150 shadow-sm cursor-pointer font-medium">
-                            @foreach($userOrgs as $org)
+                            @foreach($orgsToShow as $org)
                                 <option value="{{ $org->id }}" {{ $org->id == $activeOrgId ? 'selected' : '' }}>
                                     {{ $org->name }}
                                 </option>
