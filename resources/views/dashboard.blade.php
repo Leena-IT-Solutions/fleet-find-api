@@ -11,7 +11,7 @@
         </h2>
     </x-slot>
 
-    <div class="py-6">
+    <div class="flex flex-col gap-6">
         @if (auth()->user()->hasRole('Admin'))
             <!-- Admin Dashboard Page Content -->
             <div class="bg-white border border-slate-200/80 shadow-sm rounded-xl p-6">

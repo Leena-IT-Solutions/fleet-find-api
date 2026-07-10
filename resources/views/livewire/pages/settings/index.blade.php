@@ -86,7 +86,7 @@ new class extends Component
         </h2>
     </x-slot>
 
-    <div class="py-6 flex flex-col gap-6">
+    <div class="flex flex-col gap-6">
         <!-- Success Alert Messages -->
         @if (session()->has('success'))
             <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl p-4 text-sm flex items-center gap-2 max-w-3xl">

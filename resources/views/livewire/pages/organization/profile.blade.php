@@ -54,7 +54,7 @@ new class extends Component
         </h2>
     </x-slot>
 
-    <div class="py-6 flex flex-col gap-6">
+    <div class="flex flex-col gap-6">
         @if (session()->has('success'))
             <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl p-4 text-sm flex items-center gap-2 max-w-xl">
                 <svg class="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">

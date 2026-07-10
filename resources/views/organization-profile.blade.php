@@ -9,7 +9,7 @@
         </h2>
     </x-slot>
 
-    <div class="py-6 flex flex-col gap-6">
+    <div class="flex flex-col gap-6">
         <div class="max-w-3xl space-y-6">
             <div class="p-6 bg-white border border-slate-200/80 shadow-sm rounded-xl">
                 <div class="max-w-xl">
