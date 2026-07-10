@@ -415,20 +415,7 @@ new class extends Component
             <p class="text-xs text-slate-500 mt-1">Please configure or select an active organization profile first.</p>
         </div>
     @else
-        <!-- Premium Tabs Controller -->
-        <div class="flex items-center gap-1 bg-slate-200/50 p-1 rounded-xl self-start inline-flex border border-slate-200">
-            <button wire:click="$set('activeTab', 'trips')" 
-                    class="px-5 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all {{ $activeTab === 'trips' ? 'bg-white text-indigo-650 shadow-sm border border-slate-200/40' : 'text-slate-500 hover:text-slate-900' }}">
-                {{ __('Scheduled Trips') }}
-            </button>
-            <button wire:click="$set('activeTab', 'crew')" 
-                    class="px-5 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all {{ $activeTab === 'crew' ? 'bg-white text-indigo-650 shadow-sm border border-slate-200/40' : 'text-slate-500 hover:text-slate-900' }}">
-                {{ __('Crew & Roster') }}
-            </button>
-        </div>
-
-        @if ($activeTab === 'trips')
-            <!-- TAB 1: SCHEDULED TRIPS (Master-Detail Split Layout) -->
+        <!-- TAB 1: SCHEDULED TRIPS (Master-Detail Split Layout) -->
             <div class="flex flex-col lg:flex-row gap-6">
                 <!-- Left Panel: Trip Master List Sidebar -->
                 <div class="w-full lg:w-80 shrink-0 space-y-4">
@@ -647,125 +634,7 @@ new class extends Component
                     @endif
                 </div>
             </div>
-        @else
-            <!-- TAB 2: CREW & ROSTER -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Hiring Roster Form Card -->
-                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm h-fit">
-                    <h3 class="text-sm font-bold text-slate-850 mb-1">Add Crew Member</h3>
-                    <p class="text-xs text-slate-400 mb-4">Link a registered user to your organization as a Pilot/Driver or travel assistant.</p>
 
-                    <form wire:submit.prevent="hireCrew" class="space-y-4">
-                        <div>
-                            <x-input-label for="crewIdentity" :value="__('User Email or Mobile')" />
-                            <x-text-input wire:model="crewIdentity" id="crewIdentity" type="text" class="mt-1 block w-full text-xs" placeholder="e.g. pilot@school.com" required />
-                            <x-input-error :messages="$errors->get('crewIdentity')" class="mt-2" />
-                        </div>
-
-                        <div class="space-y-1.5">
-                            <x-input-label :value="__('Select Crew Role')" />
-                            <!-- Pill Selector Buttons -->
-                            <div class="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl border border-slate-200">
-                                <button type="button" wire:click="$set('crewType', 'driver')" 
-                                        class="py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 {{ $crewType === 'driver' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-900' }}">
-                                    <span>🚗</span>
-                                    <span>Driver</span>
-                                </button>
-                                <button type="button" wire:click="$set('crewType', 'attendant')" 
-                                        class="py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 {{ $crewType === 'attendant' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-900' }}">
-                                    <span>👥</span>
-                                    <span>Attendant</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="flex justify-end pt-2">
-                            <x-primary-button class="w-full justify-center text-xs py-2.5 font-bold uppercase tracking-wider">
-                                {{ __('Hire Crew Member') }}
-                            </x-primary-button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Crew Members List Roster -->
-                <div class="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
-                    <div>
-                        <h3 class="text-sm font-bold text-slate-800">Crew Roster</h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Hired Drivers and Attendants registered with your organization.</p>
-                    </div>
-
-                    <div class="space-y-6">
-                        <!-- Drivers Section -->
-                        <div class="space-y-3">
-                            <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-0.5">Drivers / Pilots</h4>
-                            @if ($drivers->isEmpty())
-                                <p class="text-slate-500 text-xs italic pl-0.5">No drivers hired yet.</p>
-                            @else
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                    @foreach ($drivers as $driver)
-                                        @php
-                                            $initials = collect(explode(' ', $driver->name))->map(fn($n) => mb_substr($n, 0, 1))->take(2)->join('');
-                                        @endphp
-                                        <div class="flex items-center justify-between gap-4 p-4 rounded-xl border border-slate-100 hover:border-slate-200 hover:bg-slate-50/50 transition bg-white shadow-sm">
-                                            <div class="flex items-center gap-3">
-                                                <div class="w-9 h-9 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs uppercase shadow-sm">
-                                                    {{ $initials }}
-                                                </div>
-                                                <div class="min-w-0">
-                                                    <p class="text-xs font-bold text-slate-800 truncate">{{ $driver->name }}</p>
-                                                    <p class="text-[10px] text-slate-400 truncate mt-0.5">{{ $driver->number }}</p>
-                                                </div>
-                                            </div>
-                                            <button wire:click="unhireCrew('driver', {{ $driver->id }})" 
-                                                    wire:confirm="Are you sure you want to remove this driver from the organization?"
-                                                    type="button"
-                                                    class="p-1.5 text-slate-350 hover:text-rose-600 transition" 
-                                                    title="{{ __('Remove Driver') }}">
-                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                            </button>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            @endif
-                        </div>
-
-                        <!-- Attendants Section -->
-                        <div class="space-y-3">
-                            <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-0.5">Attendants / Crew Assistants</h4>
-                            @if ($attendants->isEmpty())
-                                <p class="text-slate-500 text-xs italic pl-0.5">No attendants hired yet.</p>
-                            @else
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                    @foreach ($attendants as $attendant)
-                                        @php
-                                            $initials = collect(explode(' ', $attendant->name))->map(fn($n) => mb_substr($n, 0, 1))->take(2)->join('');
-                                        @endphp
-                                        <div class="flex items-center justify-between gap-4 p-4 rounded-xl border border-slate-100 hover:border-slate-200 hover:bg-slate-50/50 transition bg-white shadow-sm">
-                                            <div class="flex items-center gap-3">
-                                                <div class="w-9 h-9 rounded-full bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-700 font-bold text-xs uppercase shadow-sm">
-                                                    {{ $initials }}
-                                                </div>
-                                                <div class="min-w-0">
-                                                    <p class="text-xs font-bold text-slate-800 truncate">{{ $attendant->name }}</p>
-                                                    <p class="text-[10px] text-slate-400 truncate mt-0.5">{{ $attendant->number }}</p>
-                                                </div>
-                                            </div>
-                                            <button wire:click="unhireCrew('attendant', {{ $attendant->id }})" 
-                                                    wire:confirm="Are you sure you want to remove this attendant from the organization?"
-                                                    type="button"
-                                                    class="p-1.5 text-slate-350 hover:text-rose-600 transition" 
-                                                    title="{{ __('Remove Attendant') }}">
-                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                            </button>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
 
         <!-- ADD/EDIT TRIP MODAL -->
         <x-modal name="trip-modal" :show="$showTripModal" focusable>
