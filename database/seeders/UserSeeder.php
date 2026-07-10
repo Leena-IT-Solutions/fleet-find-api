@@ -24,12 +24,24 @@ class UserSeeder extends Seeder
 
         $user->syncRoles(['Admin', 'Organization', 'Driver', 'Attendant', 'Parent']);
 
-        // Seed some children for the parent
+        // Seed some children for the parent Sandeep
         \App\Models\Child::firstOrCreate(
             ['parent_id' => $user->id, 'name' => 'Aarav Rathod']
         );
         \App\Models\Child::firstOrCreate(
             ['parent_id' => $user->id, 'name' => 'Kiara Rathod']
         );
+
+        // Seed Leena Adam
+        $leena = User::firstOrCreate(
+            ['email' => 'leenaadam28@gmail.com'],
+            [
+                'name' => 'Leena Adam',
+                'mobile' => '9769409405',
+                'password' => Hash::make('password'),
+            ]
+        );
+
+        $leena->syncRoles(['Parent', 'Organization']);
     }
 }
