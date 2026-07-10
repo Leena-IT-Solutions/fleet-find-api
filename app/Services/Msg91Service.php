@@ -12,8 +12,8 @@ class Msg91Service
 
     public function __construct()
     {
-        $this->authKey = config('services.msg91.auth_key', '');
-        $this->templateId = config('services.msg91.template_id', '');
+        $this->authKey = \App\Models\Setting::get('msg91_auth_key', config('services.msg91.auth_key', ''));
+        $this->templateId = \App\Models\Setting::get('msg91_template_id', config('services.msg91.template_id', ''));
     }
 
     /**
