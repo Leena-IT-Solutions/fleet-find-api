@@ -46,6 +46,7 @@ class SettingsTest extends TestCase
             ->set('mapDefaultLat', '20.1234')
             ->set('mapDefaultLng', '74.8765')
             ->set('mapDefaultZoom', 12)
+            ->set('mapProvider', 'google_maps')
             ->call('saveSettings')
             ->assertHasNoErrors();
 
@@ -66,6 +67,7 @@ class SettingsTest extends TestCase
         $this->assertEquals('20.1234', Setting::get('map_default_lat'));
         $this->assertEquals('74.8765', Setting::get('map_default_lng'));
         $this->assertEquals('12', Setting::get('map_default_zoom'));
+        $this->assertEquals('google_maps', Setting::get('map_provider'));
 
         // Check dynamic config override works on subsequent loads
         $this->assertEquals('new-mailgun.com', config('services.mailgun.domain'));
@@ -84,11 +86,13 @@ class SettingsTest extends TestCase
             ->set('mapDefaultLat', '100') // Out of bounds (>90)
             ->set('mapDefaultLng', '-200') // Out of bounds (<-180)
             ->set('mapDefaultZoom', '25') // Out of bounds (>20)
+            ->set('mapProvider', 'invalid_provider') // Invalid option
             ->call('saveSettings')
             ->assertHasErrors([
                 'mapDefaultLat' => 'between',
                 'mapDefaultLng' => 'between',
                 'mapDefaultZoom' => 'between',
+                'mapProvider' => 'in',
             ]);
     }
 }

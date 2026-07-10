@@ -30,11 +30,13 @@ new class extends Component
     public bool $showStopModal = false;
     public bool $showDeleteStopModal = false;
     public ?int $deletingStopId = null;
-
     public string $mapTileUrl = '';
     public string $mapDefaultLat = '';
     public string $mapDefaultLng = '';
     public int $mapDefaultZoom = 14;
+    public string $mapProvider = 'leaflet';
+    public string $googleMapsApiKey = '';
+    public string $mapboxAccessToken = '';
 
     public function rendering($view)
     {
@@ -48,6 +50,9 @@ new class extends Component
         $this->mapDefaultLat = Setting::get('map_default_lat', '19.18');
         $this->mapDefaultLng = Setting::get('map_default_lng', '73.21');
         $this->mapDefaultZoom = (int)Setting::get('map_default_zoom', 14);
+        $this->mapProvider = Setting::get('map_provider', 'leaflet');
+        $this->googleMapsApiKey = Setting::get('google_maps_api_key', '');
+        $this->mapboxAccessToken = Setting::get('mapbox_access_token', '');
     }
 
     #[On('active-organization-changed')]
@@ -281,7 +286,10 @@ new class extends Component
 
     <!-- Leaflet CDN resources -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0nIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    @if ($mapProvider === 'google_maps' && $googleMapsApiKey)
+        <script src="https://maps.googleapis.com/maps/api/js?key={{ $googleMapsApiKey }}&v=weekly" defer></script>
+    @endif
 
     <div class="flex flex-col gap-6">
         @if (session()->has('success'))
@@ -393,7 +401,7 @@ new class extends Component
                             
                              <!-- Leaflet Map Panel -->
                               <div class="bg-white border border-slate-200/80 shadow-sm rounded-2xl overflow-hidden" 
-                                   x-data="routeMap({{ $organization->latitude ?? 'null' }}, {{ $organization->longitude ?? 'null' }}, '{{ $mapTileUrl }}', {{ $mapDefaultZoom }}, {{ $mapDefaultLat }}, {{ $mapDefaultLng }})"
+                                   x-data="routeMap({{ $organization->latitude ?? 'null' }}, {{ $organization->longitude ?? 'null' }}, '{{ $mapTileUrl }}', {{ $mapDefaultZoom }}, {{ $mapDefaultLat }}, {{ $mapDefaultLng }}, '{{ $mapProvider }}', '{{ $googleMapsApiKey }}', '{{ $mapboxAccessToken }}')"
                                    x-on:route-selected.window="stops = $event.detail.stops; initMap();"
                                    x-on:stops-updated.window="stops = $event.detail.stops; initMap();">
                                  
@@ -638,11 +646,17 @@ new class extends Component
 
     <script>
         document.addEventListener('alpine:init', () => {
-            Alpine.data('routeMap', (orgLat, orgLng, tileUrl, defaultZoom, mapFallbackLat, mapFallbackLng) => ({
+            Alpine.data('routeMap', (orgLat, orgLng, tileUrl, defaultZoom, mapFallbackLat, mapFallbackLng, provider, googleMapsApiKey, mapboxAccessToken) => ({
                 map: null,
+                gmap: null,
                 markers: [],
+                googleMarkers: [],
                 polyline: null,
+                googlePolyline: null,
                 stops: [],
+                provider: provider || 'leaflet',
+                googleMapsApiKey: googleMapsApiKey || '',
+                mapboxAccessToken: mapboxAccessToken || '',
                 tileUrl: tileUrl || 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                 defaultZoom: defaultZoom || 14,
                 defaultLat: orgLat || mapFallbackLat || 19.18,
@@ -655,20 +669,34 @@ new class extends Component
                 },
 
                 initMap() {
+                    let mapContainer = document.getElementById('map');
+                    if (!mapContainer) return;
+
+                    // Clean up Leaflet
                     if (this.map) {
-                        this.map.remove();
+                        try { this.map.remove(); } catch(e) {}
                         this.map = null;
                     }
+                    this.markers = [];
+                    this.polyline = null;
 
-                    if (typeof L === 'undefined') {
-                        // Leaflet not loaded yet, wait and retry
-                        setTimeout(() => this.initMap(), 100);
-                        return;
+                    // Clean up Google Maps
+                    if (this.googleMarkers.length > 0) {
+                        this.googleMarkers.forEach(m => m.setMap(null));
+                        this.googleMarkers = [];
                     }
+                    if (this.googlePolyline) {
+                        this.googlePolyline.setMap(null);
+                        this.googlePolyline = null;
+                    }
+                    this.gmap = null;
 
-                    let centerLat = this.defaultLat;
-                    let centerLng = this.defaultLng;
+                    // Reset map container classes and inner HTML
+                    mapContainer.innerHTML = '';
+                    mapContainer.className = 'h-[300px] w-full z-0 bg-slate-100';
 
+                    let centerLat = parseFloat(this.defaultLat);
+                    let centerLng = parseFloat(this.defaultLng);
                     let validStops = this.stops.filter(s => s.latitude && s.longitude);
 
                     if (validStops.length > 0) {
@@ -676,41 +704,68 @@ new class extends Component
                         centerLng = parseFloat(validStops[0].longitude);
                     }
 
-                    let mapContainer = document.getElementById('map');
-                    if (!mapContainer) return;
-
-                    this.map = L.map('map').setView([centerLat, centerLng], this.defaultZoom);
-
-                    L.tileLayer(this.tileUrl, {
-                        maxZoom: 19,
-                        attribution: '&copy; OpenStreetMap contributors'
-                    }).addTo(this.map);
-
-                    this.plotStops(validStops);
-
-                    this.map.on('click', (e) => {
-                        let lat = e.latlng.lat.toFixed(8);
-                        let lng = e.latlng.lng.toFixed(8);
-                        this.$wire.set('stopLatitude', lat);
-                        this.$wire.set('stopLongitude', lng);
-                        this.$wire.openAddStopModal();
-                    });
-
-                    setTimeout(() => {
-                        if (this.map) {
-                            this.map.invalidateSize();
+                    if (this.provider === 'google_maps') {
+                        if (typeof google === 'undefined' || typeof google.maps === 'undefined') {
+                            setTimeout(() => this.initMap(), 100);
+                            return;
                         }
-                    }, 200);
+
+                        this.gmap = new google.maps.Map(mapContainer, {
+                            center: { lat: centerLat, lng: centerLng },
+                            zoom: this.defaultZoom,
+                            mapTypeId: google.maps.MapTypeId.ROADMAP
+                        });
+
+                        this.plotStopsGoogle(validStops);
+
+                        this.gmap.addListener('click', (e) => {
+                            let lat = e.latLng.lat().toFixed(8);
+                            let lng = e.latLng.lng().toFixed(8);
+                            this.$wire.set('stopLatitude', lat);
+                            this.$wire.set('stopLongitude', lng);
+                            this.$wire.openAddStopModal();
+                        });
+                    } else {
+                        // Leaflet (OSM or Mapbox tile)
+                        if (typeof L === 'undefined') {
+                            setTimeout(() => this.initMap(), 100);
+                            return;
+                        }
+
+                        this.map = L.map('map').setView([centerLat, centerLng], this.defaultZoom);
+
+                        let currentTileUrl = this.tileUrl;
+                        let attribution = '&copy; OpenStreetMap contributors';
+
+                        if (this.provider === 'mapbox' && this.mapboxAccessToken) {
+                            currentTileUrl = `https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=${this.mapboxAccessToken}`;
+                            attribution = '&copy; Mapbox contributors';
+                        }
+
+                        L.tileLayer(currentTileUrl, {
+                            maxZoom: 19,
+                            attribution: attribution
+                        }).addTo(this.map);
+
+                        this.plotStopsLeaflet(validStops);
+
+                        this.map.on('click', (e) => {
+                            let lat = e.latlng.lat.toFixed(8);
+                            let lng = e.latlng.lng.toFixed(8);
+                            this.$wire.set('stopLatitude', lat);
+                            this.$wire.set('stopLongitude', lng);
+                            this.$wire.openAddStopModal();
+                        });
+
+                        setTimeout(() => {
+                            if (this.map) {
+                                this.map.invalidateSize();
+                            }
+                        }, 200);
+                    }
                 },
 
-                plotStops(validStops) {
-                    this.markers.forEach(m => this.map.removeLayer(m));
-                    this.markers = [];
-                    if (this.polyline) {
-                        this.map.removeLayer(this.polyline);
-                        this.polyline = null;
-                    }
-
+                plotStopsLeaflet(validStops) {
                     let coordinates = [];
 
                     validStops.forEach((stop, index) => {
@@ -743,6 +798,53 @@ new class extends Component
                         }).addTo(this.map);
 
                         this.map.fitBounds(this.polyline.getBounds(), { padding: [40, 40] });
+                    }
+                },
+
+                plotStopsGoogle(validStops) {
+                    let pathCoordinates = [];
+                    let bounds = new google.maps.LatLngBounds();
+
+                    validStops.forEach((stop, index) => {
+                        let lat = parseFloat(stop.latitude);
+                        let lng = parseFloat(stop.longitude);
+                        let position = { lat, lng };
+                        pathCoordinates.push(position);
+                        bounds.extend(position);
+
+                        let marker = new google.maps.Marker({
+                            position,
+                            map: this.gmap,
+                            label: {
+                                text: String(index + 1),
+                                color: 'white',
+                                fontWeight: 'bold'
+                            },
+                            title: stop.name
+                        });
+
+                        let infoWindow = new google.maps.InfoWindow({
+                            content: `<b>${index + 1}. ${stop.name}</b><br><span class='text-[10px] text-slate-500'>${lat}, ${lng}</span>`
+                        });
+
+                        marker.addListener('click', () => {
+                            infoWindow.open(this.gmap, marker);
+                        });
+
+                        this.googleMarkers.push(marker);
+                    });
+
+                    if (pathCoordinates.length > 1) {
+                        this.googlePolyline = new google.maps.Polyline({
+                            path: pathCoordinates,
+                            geodesic: true,
+                            strokeColor: '#4f46e5',
+                            strokeOpacity: 0.8,
+                            strokeWeight: 4
+                        });
+
+                        this.googlePolyline.setMap(this.gmap);
+                        this.gmap.fitBounds(bounds);
                     }
                 }
             }));

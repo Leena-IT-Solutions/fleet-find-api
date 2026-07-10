@@ -34,6 +34,7 @@ new class extends Component
         $this->mapDefaultLat = Setting::get('map_default_lat', '19.18');
         $this->mapDefaultLng = Setting::get('map_default_lng', '73.21');
         $this->mapDefaultZoom = Setting::get('map_default_zoom', '14');
+        $this->mapProvider = Setting::get('map_provider', 'leaflet');
     }
 
     public string $companyName = '';
@@ -54,6 +55,7 @@ new class extends Component
     public string $mapDefaultLat = '';
     public string $mapDefaultLng = '';
     public string $mapDefaultZoom = '';
+    public string $mapProvider = 'leaflet';
 
     public function saveSettings(): void
     {
@@ -73,6 +75,7 @@ new class extends Component
             'mapDefaultLat' => ['required', 'numeric', 'between:-90,90'],
             'mapDefaultLng' => ['required', 'numeric', 'between:-180,180'],
             'mapDefaultZoom' => ['required', 'integer', 'between:1,20'],
+            'mapProvider' => ['required', 'string', 'in:google_maps,mapbox,leaflet'],
         ]);
 
         Setting::set('company_name', $this->companyName);
@@ -93,6 +96,7 @@ new class extends Component
         Setting::set('map_default_lat', $this->mapDefaultLat);
         Setting::set('map_default_lng', $this->mapDefaultLng);
         Setting::set('map_default_zoom', $this->mapDefaultZoom);
+        Setting::set('map_provider', $this->mapProvider);
 
         // Dynamically update config in current request scope
         config([
@@ -228,6 +232,38 @@ new class extends Component
                 </h3>
                 
                 <div class="flex flex-col gap-4">
+                    <div>
+                        <x-input-label for="mapProvider" value="{{ __('Map Platform Provider') }}" />
+                        <select id="mapProvider" wire:model.live="mapProvider" class="mt-1 block w-full border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm text-sm">
+                            <option value="leaflet">{{ __('Leaflet (OpenStreetMap)') }}</option>
+                            <option value="mapbox">{{ __('Mapbox') }}</option>
+                            <option value="google_maps">{{ __('Google Maps') }}</option>
+                        </select>
+                        <x-input-error :messages="$errors->get('mapProvider')" class="mt-2" />
+                    </div>
+
+                    @if ($mapProvider === 'google_maps')
+                        <div class="p-3.5 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl text-xs flex items-start gap-2.5">
+                            <svg class="w-4 h-4 text-amber-600 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <div>
+                                <span class="font-bold">{{ __('Google Maps Required') }}:</span>
+                                <span>{{ __('An API Key is required to load maps using the Google Maps platform.') }}</span>
+                            </div>
+                        </div>
+                    @elseif ($mapProvider === 'mapbox')
+                        <div class="p-3.5 bg-sky-50 border border-sky-200 text-sky-800 rounded-xl text-xs flex items-start gap-2.5">
+                            <svg class="w-4 h-4 text-sky-600 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div>
+                                <span class="font-bold">{{ __('Mapbox Access Token') }}:</span>
+                                <span>{{ __('A valid Mapbox Access Token is required to render Mapbox styles. Customize the tile template below to target your custom style.') }}</span>
+                            </div>
+                        </div>
+                    @endif
+
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <x-input-label for="googleMapsApiKey" value="{{ __('Google Maps API Key') }}" />
