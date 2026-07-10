@@ -73,4 +73,58 @@ class UserManagerTest extends TestCase
             ->assertSee('John Driver')
             ->assertDontSee('Jane Parent');
     }
+
+    public function test_admin_can_edit_user_details_and_roles(): void
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('Admin');
+
+        $user = User::factory()->create(['name' => 'Original Name', 'email' => 'original@example.com']);
+
+        Volt::actingAs($admin)
+            ->test('pages.users.index')
+            ->call('openEditModal', $user->id)
+            ->assertSet('editingName', 'Original Name')
+            ->set('editingName', 'Updated Name')
+            ->set('editingEmail', 'updated@example.com')
+            ->set('editingRoles', ['Driver']) // User model will enforce Parent role is kept
+            ->call('updateUser')
+            ->assertHasNoErrors();
+
+        $user->refresh();
+        $this->assertEquals('Updated Name', $user->name);
+        $this->assertEquals('updated@example.com', $user->email);
+        $this->assertTrue($user->hasRole('Parent'));
+        $this->assertTrue($user->hasRole('Driver'));
+    }
+
+    public function test_admin_cannot_delete_themselves(): void
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('Admin');
+
+        Volt::actingAs($admin)
+            ->test('pages.users.index')
+            ->call('openDeleteModal', $admin->id)
+            ->assertSet('showDeleteModal', false); // Delete modal should not open for self
+
+        $this->assertNotNull($admin->fresh());
+    }
+
+    public function test_admin_can_delete_other_user(): void
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('Admin');
+
+        $user = User::factory()->create();
+
+        Volt::actingAs($admin)
+            ->test('pages.users.index')
+            ->call('openDeleteModal', $user->id)
+            ->assertSet('showDeleteModal', true)
+            ->call('deleteUser')
+            ->assertSet('showDeleteModal', false);
+
+        $this->assertNull($user->fresh());
+    }
 }

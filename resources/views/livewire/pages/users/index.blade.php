@@ -4,6 +4,7 @@ use Livewire\Volt\Component;
 use Livewire\WithPagination;
 use App\Models\User;
 use App\Models\Role;
+use Illuminate\Validation\Rule;
 
 new class extends Component
 {
@@ -16,6 +17,20 @@ new class extends Component
 
     public $search = '';
     public $selectedRole = '';
+
+    // Modal control states
+    public $showEditModal = false;
+    public $showDeleteModal = false;
+
+    // Form inputs for editing
+    public $editingUserId = null;
+    public $editingName = '';
+    public $editingEmail = '';
+    public $editingMobile = '';
+    public $editingRoles = [];
+
+    // Delete target state
+    public $deletingUserId = null;
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -38,6 +53,81 @@ new class extends Component
         $this->resetPage();
     }
 
+    // Modal Actions
+    public function openEditModal(int $userId): void
+    {
+        $user = User::with('roles')->findOrFail($userId);
+        $this->editingUserId = $user->id;
+        $this->editingName = $user->name;
+        $this->editingEmail = $user->email;
+        $this->editingMobile = $user->mobile;
+        $this->editingRoles = $user->roles->pluck('name')->toArray();
+        
+        $this->showEditModal = true;
+    }
+
+    public function closeEditModal(): void
+    {
+        $this->showEditModal = false;
+        $this->reset(['editingUserId', 'editingName', 'editingEmail', 'editingMobile', 'editingRoles']);
+        $this->resetErrorBag();
+    }
+
+    public function updateUser(): void
+    {
+        $this->validate([
+            'editingName' => ['required', 'string', 'max:255'],
+            'editingEmail' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class, 'email')->ignore($this->editingUserId)],
+            'editingMobile' => ['nullable', 'string', 'max:20', Rule::unique(User::class, 'mobile')->ignore($this->editingUserId)],
+            'editingRoles' => ['array'],
+        ]);
+
+        $user = User::findOrFail($this->editingUserId);
+        $user->update([
+            'name' => $this->editingName,
+            'email' => $this->editingEmail,
+            'mobile' => $this->editingMobile,
+        ]);
+
+        // Sync roles (User model will auto-enforce keeping the Parent role)
+        $user->syncRoles($this->editingRoles);
+
+        $this->closeEditModal();
+        session()->flash('success', 'User updated successfully.');
+    }
+
+    public function openDeleteModal(int $userId): void
+    {
+        if (auth()->id() === $userId) {
+            session()->flash('error', 'You cannot delete your own logged-in user profile.');
+            return;
+        }
+
+        $this->deletingUserId = $userId;
+        $this->showDeleteModal = true;
+    }
+
+    public function closeDeleteModal(): void
+    {
+        $this->showDeleteModal = false;
+        $this->reset('deletingUserId');
+    }
+
+    public function deleteUser(): void
+    {
+        if (auth()->id() === $this->deletingUserId) {
+            session()->flash('error', 'You cannot delete your own logged-in user profile.');
+            $this->closeDeleteModal();
+            return;
+        }
+
+        $user = User::findOrFail($this->deletingUserId);
+        $user->delete();
+
+        $this->closeDeleteModal();
+        session()->flash('success', 'User deleted successfully.');
+    }
+
     public function with(): array
     {
         $query = User::with('roles');
@@ -57,7 +147,7 @@ new class extends Component
         }
 
         return [
-            'users' => $query->latest()->paginate(12),
+            'users' => $query->latest()->paginate(10),
             'roles' => Role::all(),
         ];
     }
@@ -71,6 +161,25 @@ new class extends Component
     </x-slot>
 
     <div class="py-6 flex flex-col gap-6">
+        <!-- Success & Error Alert Messages -->
+        @if (session()->has('success'))
+            <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl p-4 text-sm flex items-center gap-2">
+                <svg class="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ session('success') }}</span>
+            </div>
+        @endif
+
+        @if (session()->has('error'))
+            <div class="bg-rose-50 border border-rose-200 text-rose-800 rounded-xl p-4 text-sm flex items-center gap-2">
+                <svg class="w-5 h-5 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ session('error') }}</span>
+            </div>
+        @endif
+
         <!-- Search & Filter Controls -->
         <div class="bg-white border border-slate-200/80 shadow-sm rounded-xl p-5 flex flex-col md:flex-row gap-4 items-center justify-between">
             <div class="w-full md:w-auto flex-1 flex flex-col sm:flex-row gap-3">
@@ -111,7 +220,7 @@ new class extends Component
             @endif
         </div>
 
-        <!-- User Cards Grid -->
+        <!-- Full-Width User Cards List -->
         @if($users->isEmpty())
             <div class="bg-white border border-slate-200/80 shadow-sm rounded-xl p-12 text-center flex flex-col items-center justify-center">
                 <svg class="w-12 h-12 text-slate-300 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -121,15 +230,14 @@ new class extends Component
                 <p class="text-slate-500 text-sm mt-1">Try adjusting your search query or filter criteria.</p>
             </div>
         @else
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="flex flex-col gap-4">
                 @foreach($users as $u)
-                    <div class="bg-white border border-slate-200/80 hover:border-slate-300 shadow-sm hover:shadow-md transition duration-200 rounded-xl p-5 flex flex-col justify-between h-56">
-                        <!-- Top details -->
-                        <div class="flex items-start gap-4">
+                    <div class="bg-white border border-slate-200/80 hover:border-slate-300 shadow-sm hover:shadow transition duration-200 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <!-- Left Details Section -->
+                        <div class="flex items-center gap-4 min-w-0">
                             <!-- Initials Avatar -->
                             @php
                                 $initials = collect(explode(' ', $u->name))->map(fn($n) => mb_substr($n, 0, 1))->take(2)->join('');
-                                // Generate a semi-stable color theme for the avatar based on user ID
                                 $colors = [
                                     'bg-indigo-50 text-indigo-600',
                                     'bg-cyan-50 text-cyan-600',
@@ -145,43 +253,68 @@ new class extends Component
 
                             <div class="min-w-0">
                                 <h3 class="font-semibold text-base text-slate-800 truncate">{{ $u->name }}</h3>
-                                <p class="text-xs text-slate-400 truncate mt-0.5">{{ $u->email }}</p>
-                                
-                                @if($u->mobile)
-                                    <div class="flex items-center gap-1.5 text-slate-500 text-xs mt-2">
-                                        <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
-                                        </svg>
-                                        <span>{{ $u->mobile }}</span>
-                                    </div>
-                                @endif
+                                <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-0.5 text-xs text-slate-400">
+                                    <span class="truncate">{{ $u->email }}</span>
+                                    @if($u->mobile)
+                                        <div class="flex items-center gap-1.5 text-slate-400 shrink-0">
+                                            <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+                                            </svg>
+                                            <span>{{ $u->mobile }}</span>
+                                        </div>
+                                    @endif
+                                    <span class="shrink-0 text-slate-300 hidden sm:inline">|</span>
+                                    <span class="shrink-0">Joined {{ $u->created_at->format('M d, Y') }}</span>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Role Badges & Joined Info -->
-                        <div class="border-t border-slate-100 pt-4 mt-4 flex flex-col gap-2">
-                            <!-- Roles -->
-                            <div class="flex flex-wrap gap-1">
-                                @foreach($u->roles as $userRole)
-                                    @php
-                                        $badgeColor = match(strtolower($userRole->name)) {
-                                            'admin' => 'bg-rose-50 text-rose-600 border border-rose-100',
-                                            'organization' => 'bg-indigo-50 text-indigo-600 border border-indigo-100',
-                                            'driver' => 'bg-cyan-50 text-cyan-600 border border-cyan-100',
-                                            'attendant' => 'bg-amber-50 text-amber-600 border border-amber-100',
-                                            default => 'bg-emerald-50 text-emerald-600 border border-emerald-100',
-                                        };
-                                    @endphp
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold tracking-wide {{ $badgeColor }}">
-                                        {{ $userRole->name }}
-                                    </span>
-                                @endforeach
-                            </div>
+                        <!-- Middle Badges Section -->
+                        <div class="flex flex-wrap gap-1.5 items-center sm:justify-center">
+                            @foreach($u->roles as $userRole)
+                                @php
+                                    $badgeColor = match(strtolower($userRole->name)) {
+                                        'admin' => 'bg-rose-50 text-rose-600 border border-rose-100',
+                                        'organization' => 'bg-indigo-50 text-indigo-600 border border-indigo-100',
+                                        'driver' => 'bg-cyan-50 text-cyan-600 border border-cyan-100',
+                                        'attendant' => 'bg-amber-50 text-amber-600 border border-amber-100',
+                                        default => 'bg-emerald-50 text-emerald-600 border border-emerald-100',
+                                    };
+                                @endphp
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold tracking-wide {{ $badgeColor }}">
+                                    {{ $userRole->name }}
+                                </span>
+                            @endforeach
+                        </div>
 
-                            <!-- Joined info -->
-                            <div class="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
-                                <span>Joined {{ $u->created_at->format('M d, Y') }}</span>
-                            </div>
+                        <!-- Right Actions Section -->
+                        <div class="flex items-center gap-2 shrink-0 border-t border-slate-100 pt-3 sm:pt-0 sm:border-0">
+                            <!-- Edit Button -->
+                            <button wire:click="openEditModal({{ $u->id }})" 
+                                    class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition duration-150 focus:outline-none">
+                                <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                                </svg>
+                                <span>Edit</span>
+                            </button>
+
+                            <!-- Delete Button -->
+                            @if(auth()->id() !== $u->id)
+                                <button wire:click="openDeleteModal({{ $u->id }})" 
+                                        class="text-rose-600 hover:text-rose-900 bg-rose-50 hover:bg-rose-100 px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition duration-150 focus:outline-none">
+                                    <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                    </svg>
+                                    <span>Delete</span>
+                                </button>
+                            @else
+                                <span class="text-slate-400 bg-slate-100 cursor-not-allowed px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5" title="You cannot delete yourself">
+                                    <svg class="w-3.5 h-3.5 text-slate-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                                    </svg>
+                                    <span>Locked</span>
+                                </span>
+                            @endif
                         </div>
                     </div>
                 @endforeach
@@ -193,4 +326,104 @@ new class extends Component
             </div>
         @endif
     </div>
+
+    <!-- Edit User Modal -->
+    <x-modal name="edit-user-modal" :show="$showEditModal" focusable>
+        <form wire:submit.prevent="updateUser" class="p-6">
+            <h2 class="text-lg font-medium text-slate-900">
+                {{ __('Edit User Details') }}
+            </h2>
+
+            <p class="mt-1 text-sm text-slate-500">
+                {{ __('Update user personal details, contact number, and system access roles.') }}
+            </p>
+
+            <div class="mt-6 flex flex-col gap-4">
+                <!-- Name -->
+                <div>
+                    <x-input-label for="editingName" value="{{ __('Name') }}" />
+                    <x-text-input id="editingName" type="text" class="mt-1 block w-full" wire:model="editingName" required />
+                    <x-input-error :messages="$errors->get('editingName')" class="mt-2" />
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <x-input-label for="editingEmail" value="{{ __('Email') }}" />
+                    <x-text-input id="editingEmail" type="email" class="mt-1 block w-full" wire:model="editingEmail" required />
+                    <x-input-error :messages="$errors->get('editingEmail')" class="mt-2" />
+                </div>
+
+                <!-- Mobile -->
+                <div>
+                    <x-input-label for="editingMobile" value="{{ __('Mobile') }}" />
+                    <x-text-input id="editingMobile" type="text" class="mt-1 block w-full" wire:model="editingMobile" />
+                    <x-input-error :messages="$errors->get('editingMobile')" class="mt-2" />
+                </div>
+
+                <!-- Roles Checkboxes -->
+                <div>
+                    <x-input-label value="{{ __('Assigned System Roles') }}" />
+                    
+                    <div class="grid grid-cols-2 gap-3 mt-2">
+                        @foreach($roles as $role)
+                            @php
+                                $isParent = strtolower($role->name) === 'parent';
+                            @endphp
+                            <label class="inline-flex items-center gap-2 p-2 border border-slate-100 rounded-lg hover:bg-slate-50 cursor-pointer text-sm text-slate-700">
+                                @if($isParent)
+                                    <!-- Parent role is checked and disabled (can't uncheck) -->
+                                    <input type="checkbox" 
+                                           checked 
+                                           disabled 
+                                           class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500/20 cursor-not-allowed">
+                                    <input type="hidden" wire:model="editingRoles" value="Parent">
+                                @else
+                                    <input type="checkbox" 
+                                           value="{{ $role->name }}" 
+                                           wire:model="editingRoles" 
+                                           class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500/20">
+                                @endif
+                                <span>{{ $role->name }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                    <x-input-error :messages="$errors->get('editingRoles')" class="mt-2" />
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="mt-6 flex justify-end gap-3">
+                <x-secondary-button wire:click="closeEditModal" type="button">
+                    {{ __('Cancel') }}
+                </x-secondary-button>
+
+                <x-primary-button>
+                    {{ __('Save Changes') }}
+                </x-primary-button>
+            </div>
+        </form>
+    </x-modal>
+
+    <!-- Delete Confirmation Modal -->
+    <x-modal name="delete-user-modal" :show="$showDeleteModal" focusable>
+        <div class="p-6">
+            <h2 class="text-lg font-medium text-slate-900">
+                {{ __('Confirm User Deletion') }}
+            </h2>
+
+            <p class="mt-2 text-sm text-slate-500">
+                {{ __('Are you sure you want to delete this user profile? All related records associated with this profile will be permanently removed from the system. This operation cannot be undone.') }}
+            </p>
+
+            <div class="mt-6 flex justify-end gap-3">
+                <x-secondary-button wire:click="closeDeleteModal">
+                    {{ __('Cancel') }}
+                </x-secondary-button>
+
+                <x-danger-button wire:click="deleteUser">
+                    {{ __('Delete User') }}
+                </x-danger-button>
+            </div>
+        </div>
+    </x-modal>
 </div>
