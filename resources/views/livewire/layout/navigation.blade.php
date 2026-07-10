@@ -24,7 +24,7 @@ new class extends Component
             <!-- Brand -->
             <div class="flex items-center gap-3 px-2">
                 <x-application-logo class="h-9 w-auto logo-spin" />
-                <span class="text-xl font-bold tracking-tight bg-gradient-to-r from-indigo-600 to-cyan-600 bg-clip-text text-transparent">FleetFind</span>
+                <span class="text-xl font-bold tracking-tight text-slate-900">FleetFind</span>
             </div>
 
             <!-- Navigation Links -->
@@ -67,7 +67,7 @@ new class extends Component
     <header class="md:hidden flex items-center justify-between h-16 px-4 bg-white border-b border-slate-200 sticky top-0 z-20">
         <div class="flex items-center gap-3">
             <x-application-logo class="h-8 w-auto logo-spin" />
-            <span class="text-lg font-bold tracking-tight bg-gradient-to-r from-indigo-600 to-cyan-600 bg-clip-text text-transparent">FleetFind</span>
+            <span class="text-lg font-bold tracking-tight text-slate-900">FleetFind</span>
         </div>
 
         <button @click="open = !open" class="p-2 rounded-lg text-slate-500 hover:bg-slate-50 focus:outline-none">
@@ -97,7 +97,7 @@ new class extends Component
             <div class="flex items-center justify-between px-2">
                 <div class="flex items-center gap-3">
                     <x-application-logo class="h-8 w-auto logo-spin" />
-                    <span class="text-lg font-bold tracking-tight bg-gradient-to-r from-indigo-600 to-cyan-600 bg-clip-text text-transparent">FleetFind</span>
+                    <span class="text-lg font-bold tracking-tight text-slate-900">FleetFind</span>
                 </div>
                 <button @click="open = false" class="p-1 rounded-lg text-slate-400 hover:bg-slate-50">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
