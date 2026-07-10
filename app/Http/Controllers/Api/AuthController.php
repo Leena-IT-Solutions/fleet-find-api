@@ -55,8 +55,10 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
+        $loginKey = $request->has('login') ? 'login' : 'email';
+
         $validator = Validator::make($request->all(), [
-            'email' => ['required', 'string', 'email'],
+            $loginKey => ['required', 'string'],
             'password' => ['required', 'string'],
         ]);
 
@@ -67,7 +69,12 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $user = User::where('email', $request->email)->first();
+        $loginValue = $request->input($loginKey);
+
+        // Find user by email or mobile number
+        $user = User::where('email', $loginValue)
+            ->orWhere('mobile', $loginValue)
+            ->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json([

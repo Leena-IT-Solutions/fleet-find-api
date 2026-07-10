@@ -74,6 +74,28 @@ class ApiAuthTest extends TestCase
             ]);
     }
 
+    public function test_user_can_login_via_api_with_mobile_number(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'john@example.com',
+            'mobile' => '9664588677',
+            'password' => Hash::make('password123'),
+        ]);
+
+        $response = $this->postJson('/api/login', [
+            'email' => '9664588677',
+            'password' => 'password123',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'user' => ['id', 'name', 'email', 'mobile'],
+                'roles',
+                'access_token',
+                'token_type'
+            ]);
+    }
+
     public function test_user_cannot_login_with_invalid_credentials(): void
     {
         $user = User::factory()->create([
