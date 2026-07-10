@@ -11,22 +11,11 @@ new class extends Component
     {
         $user = auth()->user();
         if ($user) {
-            if ($user->hasRole('Admin')) {
-                $this->activeOrgId = session('active_organization_id');
-                if (!$this->activeOrgId) {
-                    $firstOrg = \App\Models\Organization::first();
-                    if ($firstOrg) {
-                        $this->activeOrgId = $firstOrg->id;
-                        session(['active_organization_id' => $this->activeOrgId]);
-                    }
-                }
-            } elseif ($user->hasRole('Organization')) {
-                $userOrgs = $user->organizations;
-                $this->activeOrgId = session('active_organization_id');
-                if (!$this->activeOrgId && $userOrgs->isNotEmpty()) {
-                    $this->activeOrgId = $userOrgs->first()->id;
-                    session(['active_organization_id' => $this->activeOrgId]);
-                }
+            $userOrgs = $user->organizations;
+            $this->activeOrgId = session('active_organization_id');
+            if (!$this->activeOrgId && $userOrgs->isNotEmpty()) {
+                $this->activeOrgId = $userOrgs->first()->id;
+                session(['active_organization_id' => $this->activeOrgId]);
             }
         }
     }
@@ -35,14 +24,8 @@ new class extends Component
     {
         $user = auth()->user();
         if ($user) {
-            $hasAccess = false;
-            if ($user->hasRole('Admin')) {
-                $hasAccess = \App\Models\Organization::where('id', $orgId)->exists();
-            } elseif ($user->hasRole('Organization')) {
-                $hasAccess = $user->organizations()->where('organizations.id', $orgId)->exists();
-            }
-
-            if ($hasAccess) {
+            $exists = $user->organizations()->where('organizations.id', $orgId)->exists();
+            if ($exists) {
                 session(['active_organization_id' => $orgId]);
                 $this->activeOrgId = $orgId;
                 
@@ -79,9 +62,7 @@ new class extends Component
             <!-- Organization Selector -->
             @if (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Organization'))
                 @php
-                    $orgsToShow = auth()->user()->hasRole('Admin') 
-                        ? \App\Models\Organization::all() 
-                        : auth()->user()->organizations;
+                    $orgsToShow = auth()->user()->organizations;
                 @endphp
                 @if ($orgsToShow->isNotEmpty())
                     <div class="px-2 mb-2">
@@ -227,9 +208,7 @@ new class extends Component
             <!-- Organization Selector Mobile -->
             @if (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Organization'))
                 @php
-                    $orgsToShow = auth()->user()->hasRole('Admin') 
-                        ? \App\Models\Organization::all() 
-                        : auth()->user()->organizations;
+                    $orgsToShow = auth()->user()->organizations;
                 @endphp
                 @if ($orgsToShow->isNotEmpty())
                     <div class="px-2 mb-2">

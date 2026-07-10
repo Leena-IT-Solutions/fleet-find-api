@@ -57,6 +57,8 @@ class NavigationSelectTest extends TestCase
         $org1 = Organization::create(['name' => 'Starlight Academy']);
         $org2 = Organization::create(['name' => 'Solar High']);
 
+        $adminUser->organizations()->sync([$org1->id, $org2->id]);
+
         $this->assertNull(session('active_organization_id'));
 
         Volt::actingAs($adminUser)
@@ -66,7 +68,7 @@ class NavigationSelectTest extends TestCase
         $this->assertEquals($org1->id, session('active_organization_id'));
     }
 
-    public function test_navigation_allows_admin_to_select_any_organization(): void
+    public function test_navigation_allows_admin_to_select_their_linked_organization(): void
     {
         $adminUser = User::factory()->create();
         $adminUser->assignRole('Admin');
@@ -74,11 +76,31 @@ class NavigationSelectTest extends TestCase
         $org1 = Organization::create(['name' => 'Starlight Academy']);
         $org2 = Organization::create(['name' => 'Solar High']);
 
+        $adminUser->organizations()->sync([$org1->id, $org2->id]);
+
         Volt::actingAs($adminUser)
             ->test('layout.navigation')
             ->call('selectOrganization', $org2->id)
             ->assertSet('activeOrgId', $org2->id);
 
         $this->assertEquals($org2->id, session('active_organization_id'));
+    }
+
+    public function test_navigation_does_not_allow_admin_to_select_unlinked_organization(): void
+    {
+        $adminUser = User::factory()->create();
+        $adminUser->assignRole('Admin');
+
+        $org1 = Organization::create(['name' => 'Starlight Academy']);
+        $org2 = Organization::create(['name' => 'Solar High']);
+
+        $adminUser->organizations()->sync([$org1->id]);
+
+        Volt::actingAs($adminUser)
+            ->test('layout.navigation')
+            ->call('selectOrganization', $org2->id)
+            ->assertSet('activeOrgId', $org1->id);
+
+        $this->assertEquals($org1->id, session('active_organization_id'));
     }
 }
