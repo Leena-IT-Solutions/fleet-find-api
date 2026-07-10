@@ -180,7 +180,7 @@ class AccessControlTest extends TestCase
         $this->assertFalse($org->users->contains($userB->id));
     }
 
-    public function test_access_control_prevents_removing_last_owner(): void
+    public function test_access_control_prevents_removing_any_owner(): void
     {
         $userA = User::factory()->create(['name' => 'Sandeep Rathod']);
         $userA->assignRole('Organization');
@@ -194,7 +194,7 @@ class AccessControlTest extends TestCase
             ->test('pages.organization.access-control')
             ->call('openRemoveModal', $userA->id)
             ->call('removeMember')
-            ->assertSee('Cannot remove the last Owner of the organization.');
+            ->assertSee('Cannot remove an Owner from the organization.');
 
         $this->assertTrue($org->users->contains($userA->id));
     }

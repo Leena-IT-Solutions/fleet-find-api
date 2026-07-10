@@ -194,11 +194,10 @@ new class extends Component
             return;
         }
 
-        // Verify we aren't removing the last owner
-        $ownerCount = $this->organization->users()->wherePivot('access', 'owner')->count();
+        // Verify we aren't removing an owner
         $targetIsOwner = $this->organization->users()->where('users.id', $this->targetMemberId)->wherePivot('access', 'owner')->exists();
-        if ($ownerCount <= 1 && $targetIsOwner) {
-            session()->flash('error', 'Cannot remove the last Owner of the organization.');
+        if ($targetIsOwner) {
+            session()->flash('error', 'Cannot remove an Owner from the organization.');
             $this->closeRemoveModal();
             return;
         }
@@ -357,13 +356,15 @@ new class extends Component
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
                                                     </svg>
                                                 </button>
-                                                <button wire:click="openRemoveModal({{ $member->id }})" 
-                                                        title="Remove Member"
-                                                        class="p-2 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-500 hover:text-rose-700 rounded-lg transition shadow-sm focus:outline-none">
-                                                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M22 10.5h-6m-2.25-5.25a3 3 0 11-6 0 3 3 0 016 0zm-7.5 15.75a6 6 0 0110.74-3.436M21 21v-1.5a1.5 1.5 0 00-1.5-1.5h-3m1.5 3H15m3 0h3" />
-                                                    </svg>
-                                                </button>
+                                                @if ($access !== 'owner')
+                                                    <button wire:click="openRemoveModal({{ $member->id }})" 
+                                                            title="Remove Member"
+                                                            class="p-2 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-500 hover:text-rose-700 rounded-lg transition shadow-sm focus:outline-none">
+                                                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M22 10.5h-6m-2.25-5.25a3 3 0 11-6 0 3 3 0 016 0zm-7.5 15.75a6 6 0 0110.74-3.436M21 21v-1.5a1.5 1.5 0 00-1.5-1.5h-3m1.5 3H15m3 0h3" />
+                                                        </svg>
+                                                    </button>
+                                                @endif
                                             </div>
                                         </td>
                                     </tr>
