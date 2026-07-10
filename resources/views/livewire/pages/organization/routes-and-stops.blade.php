@@ -55,7 +55,9 @@ new class extends Component
     public function selectRoute(int $routeId): void
     {
         $this->selectedRouteId = $routeId;
-        $this->dispatch('route-selected');
+        $activeRoute = $this->organization->routes()->with('stops')->find($routeId);
+        $stops = $activeRoute ? $activeRoute->stops : collect();
+        $this->dispatch('route-selected', stops: $stops->toArray());
     }
 
     // Route CRUD Actions
@@ -197,7 +199,7 @@ new class extends Component
         }
 
         $this->closeStopModal();
-        $this->dispatch('stops-updated');
+        $this->dispatch('stops-updated', stops: $route->stops()->get()->toArray());
     }
 
     public function openDeleteStopModal(int $id): void
@@ -219,7 +221,9 @@ new class extends Component
         $stop->delete();
         $this->closeDeleteStopModal();
         session()->flash('success_stop', 'Stop deleted successfully.');
-        $this->dispatch('stops-updated');
+        
+        $route = Route::findOrFail($this->selectedRouteId);
+        $this->dispatch('stops-updated', stops: $route->stops()->get()->toArray());
     }
 
     public function with()
@@ -377,103 +381,14 @@ new class extends Component
                     @else
                         <div class="flex flex-col gap-6">
                             
-                            <!-- Leaflet Map Panel -->
-                            <div class="bg-white border border-slate-200/80 shadow-sm rounded-2xl overflow-hidden" 
-                                 x-data="{
-                                     map: null,
-                                     markers: [],
-                                     polyline: null,
-                                     initMap() {
-                                         // If map already exists, remove it
-                                         if (this.map) {
-                                             this.map.remove();
-                                         }
-                                         
-                                         // Org default coordinates
-                                         let defaultLat = {{ $organization->latitude ?? '19.18' }};
-                                         let defaultLng = {{ $organization->longitude ?? '73.21' }};
-                                         
-                                         // Check if we have stops
-                                         let stopsData = @json($stops->toArray());
-                                         
-                                         let centerLat = defaultLat;
-                                         let centerLng = defaultLng;
-                                         
-                                         // Filter out stops without coordinates
-                                         let validStops = stopsData.filter(s => s.latitude && s.longitude);
-                                         
-                                         if (validStops.length > 0) {
-                                             centerLat = parseFloat(validStops[0].latitude);
-                                             centerLng = parseFloat(validStops[0].longitude);
-                                         }
-
-                                         this.map = L.map('map').setView([centerLat, centerLng], 14);
-
-                                         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                                             maxZoom: 19,
-                                             attribution: '&copy; OpenStreetMap contributors'
-                                         }).addTo(this.map);
-
-                                         this.plotStops(validStops);
-
-                                         // Custom pick coordinates on map click
-                                         this.map.on('click', (e) => {
-                                             let lat = e.latlng.lat.toFixed(8);
-                                             let lng = e.latlng.lng.toFixed(8);
-                                             $wire.set('stopLatitude', lat);
-                                             $wire.set('stopLongitude', lng);
-                                             $wire.openAddStopModal();
-                                         });
-                                     },
-                                     plotStops(validStops) {
-                                         // Clear previous markers
-                                         this.markers.forEach(m => this.map.removeLayer(m));
-                                         this.markers = [];
-                                         if (this.polyline) {
-                                             this.map.removeLayer(this.polyline);
-                                         }
-
-                                         let coordinates = [];
-
-                                         validStops.forEach((stop, index) => {
-                                             let lat = parseFloat(stop.latitude);
-                                             let lng = parseFloat(stop.longitude);
-                                             coordinates.push([lat, lng]);
-
-                                             // Icon markup representing index
-                                             let markerHtml = `<div class='w-7 h-7 bg-indigo-600 text-white rounded-full border-2 border-white flex items-center justify-center font-bold text-xs shadow-md'>${index + 1}</div>`;
-                                             
-                                             let myIcon = L.divIcon({
-                                                 html: markerHtml,
-                                                 className: 'custom-div-icon',
-                                                 iconSize: [28, 28],
-                                                 iconAnchor: [14, 14]
-                                             });
-
-                                             let m = L.marker([lat, lng], {icon: myIcon})
-                                                 .addTo(this.map)
-                                                 .bindPopup(`<b>${index + 1}. ${stop.name}</b><br><span class='text-[10px] text-slate-500'>${lat}, ${lng}</span>`);
-                                             
-                                             this.markers.push(m);
-                                         });
-
-                                         // Connect stops in sequence
-                                         if (coordinates.length > 1) {
-                                             this.polyline = L.polyline(coordinates, {
-                                                 color: '#4f46e5',
-                                                 weight: 4,
-                                                 opacity: 0.8,
-                                                 dashArray: '8, 8'
-                                             }).addTo(this.map);
-
-                                             // Fit map bounds
-                                             this.map.fitBounds(this.polyline.getBounds(), { padding: [40, 40] });
-                                         }
-                                     }
-                                 }" 
-                                 x-init="initMap()" 
-                                 x-on:route-selected.window="setTimeout(() => initMap(), 100)"
-                                 x-on:stops-updated.window="setTimeout(() => initMap(), 100)">
+                             <!-- Leaflet Map Panel -->
+                             <div class="bg-white border border-slate-200/80 shadow-sm rounded-2xl overflow-hidden" 
+                                  x-data="routeMap({{ $organization->latitude ?? 'null' }}, {{ $organization->longitude ?? 'null' }})"
+                                  x-on:route-selected.window="stops = $event.detail.stops; initMap();"
+                                  x-on:stops-updated.window="stops = $event.detail.stops; initMap();">
+                                 
+                                 <!-- Hidden element to safely pass stops data -->
+                                 <script id="initial-stops-data" type="application/json">@json($stops->toArray())</script>
                                 <div class="bg-slate-50 border-b border-slate-200 px-5 py-3.5 flex items-center justify-between">
                                     <div>
                                         <h3 class="font-bold text-slate-800 text-sm">Visual Route Path</h3>
@@ -579,7 +494,6 @@ new class extends Component
 
             </div>
         @endif
-    </div>
 
     @if ($organization)
         <!-- Add/Edit Route Modal -->
@@ -711,4 +625,116 @@ new class extends Component
             </div>
         </x-modal>
     @endif
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('routeMap', (orgLat, orgLng) => ({
+                map: null,
+                markers: [],
+                polyline: null,
+                stops: [],
+                defaultLat: orgLat || 19.18,
+                defaultLng: orgLng || 73.21,
+
+                init() {
+                    let initialStopsElement = document.getElementById('initial-stops-data');
+                    this.stops = initialStopsElement ? JSON.parse(initialStopsElement.textContent) : [];
+                    this.initMap();
+                },
+
+                initMap() {
+                    if (this.map) {
+                        this.map.remove();
+                        this.map = null;
+                    }
+
+                    if (typeof L === 'undefined') {
+                        // Leaflet not loaded yet, wait and retry
+                        setTimeout(() => this.initMap(), 100);
+                        return;
+                    }
+
+                    let centerLat = this.defaultLat;
+                    let centerLng = this.defaultLng;
+
+                    let validStops = this.stops.filter(s => s.latitude && s.longitude);
+
+                    if (validStops.length > 0) {
+                        centerLat = parseFloat(validStops[0].latitude);
+                        centerLng = parseFloat(validStops[0].longitude);
+                    }
+
+                    let mapContainer = document.getElementById('map');
+                    if (!mapContainer) return;
+
+                    this.map = L.map('map').setView([centerLat, centerLng], 14);
+
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 19,
+                        attribution: '&copy; OpenStreetMap contributors'
+                    }).addTo(this.map);
+
+                    this.plotStops(validStops);
+
+                    this.map.on('click', (e) => {
+                        let lat = e.latlng.lat.toFixed(8);
+                        let lng = e.latlng.lng.toFixed(8);
+                        this.$wire.set('stopLatitude', lat);
+                        this.$wire.set('stopLongitude', lng);
+                        this.$wire.openAddStopModal();
+                    });
+
+                    setTimeout(() => {
+                        if (this.map) {
+                            this.map.invalidateSize();
+                        }
+                    }, 200);
+                },
+
+                plotStops(validStops) {
+                    this.markers.forEach(m => this.map.removeLayer(m));
+                    this.markers = [];
+                    if (this.polyline) {
+                        this.map.removeLayer(this.polyline);
+                        this.polyline = null;
+                    }
+
+                    let coordinates = [];
+
+                    validStops.forEach((stop, index) => {
+                        let lat = parseFloat(stop.latitude);
+                        let lng = parseFloat(stop.longitude);
+                        coordinates.push([lat, lng]);
+
+                        let markerHtml = `<div class='w-7 h-7 bg-indigo-600 text-white rounded-full border-2 border-white flex items-center justify-center font-bold text-xs shadow-md'>${index + 1}</div>`;
+                        
+                        let myIcon = L.divIcon({
+                            html: markerHtml,
+                            className: 'custom-div-icon',
+                            iconSize: [28, 28],
+                            iconAnchor: [14, 14]
+                        });
+
+                        let m = L.marker([lat, lng], {icon: myIcon})
+                            .addTo(this.map)
+                            .bindPopup(`<b>${index + 1}. ${stop.name}</b><br><span class='text-[10px] text-slate-500'>${lat}, ${lng}</span>`);
+                        
+                        this.markers.push(m);
+                    });
+
+                    if (coordinates.length > 1) {
+                        this.polyline = L.polyline(coordinates, {
+                            color: '#4f46e5',
+                            weight: 4,
+                            opacity: 0.8,
+                            dashArray: '8, 8'
+                        }).addTo(this.map);
+
+                        this.map.fitBounds(this.polyline.getBounds(), { padding: [40, 40] });
+                    }
+                }
+            }));
+        });
+    </script>
+    </div>
 </div>
