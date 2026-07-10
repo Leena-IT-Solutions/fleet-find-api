@@ -64,11 +64,13 @@ new class extends Component
         $this->editingRoles = $user->roles->pluck('name')->toArray();
         
         $this->showEditModal = true;
+        $this->dispatch('open-modal', 'edit-user-modal');
     }
 
     public function closeEditModal(): void
     {
         $this->showEditModal = false;
+        $this->dispatch('close-modal', 'edit-user-modal');
         $this->reset(['editingUserId', 'editingName', 'editingEmail', 'editingMobile', 'editingRoles']);
         $this->resetErrorBag();
     }
@@ -105,11 +107,13 @@ new class extends Component
 
         $this->deletingUserId = $userId;
         $this->showDeleteModal = true;
+        $this->dispatch('open-modal', 'delete-user-modal');
     }
 
     public function closeDeleteModal(): void
     {
         $this->showDeleteModal = false;
+        $this->dispatch('close-modal', 'delete-user-modal');
         $this->reset('deletingUserId');
     }
 
