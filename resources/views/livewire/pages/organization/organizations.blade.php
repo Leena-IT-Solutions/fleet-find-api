@@ -116,8 +116,8 @@ new class extends Component
             'logo' => $this->newLogo,
         ]);
 
-        // Connect the user who is creating the organization
-        $org->users()->sync([auth()->id()]);
+        // Connect the user who is creating the organization with 'owner' access
+        $org->users()->sync([auth()->id() => ['access' => 'owner']]);
 
         $this->closeAddModal();
         session()->flash('success', 'Organization created successfully.');

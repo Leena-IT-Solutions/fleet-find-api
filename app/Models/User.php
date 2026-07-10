@@ -104,7 +104,7 @@ class User extends Authenticatable
      */
     public function organizations()
     {
-        return $this->belongsToMany(Organization::class, 'organization_user');
+        return $this->belongsToMany(Organization::class, 'organization_user')->withPivot('access')->withTimestamps();
     }
 
     /**

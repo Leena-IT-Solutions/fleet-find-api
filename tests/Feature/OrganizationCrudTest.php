@@ -53,7 +53,7 @@ class OrganizationCrudTest extends TestCase
 
         // Create organization linked to User B
         $orgB = Organization::create(['name' => 'User B Org']);
-        $orgB->users()->sync([$userB->id]);
+        $orgB->users()->sync([$userB->id => ['access' => 'owner']]);
 
         // Access page as User A
         $response = $this->actingAs($userA)->get(route('organization.organizations'));

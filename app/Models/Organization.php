@@ -27,6 +27,6 @@ class Organization extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class, 'organization_user');
+        return $this->belongsToMany(User::class, 'organization_user')->withPivot('access')->withTimestamps();
     }
 }

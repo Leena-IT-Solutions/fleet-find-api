@@ -28,6 +28,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('organization_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('access')->default('owner');
             $table->timestamps();
         });
     }

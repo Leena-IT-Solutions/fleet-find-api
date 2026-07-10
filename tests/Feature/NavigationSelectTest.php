@@ -20,7 +20,10 @@ class NavigationSelectTest extends TestCase
         $org1 = Organization::create(['name' => 'Starlight Academy']);
         $org2 = Organization::create(['name' => 'Solar High']);
 
-        $orgUser->organizations()->sync([$org1->id, $org2->id]);
+        $orgUser->organizations()->sync([
+            $org1->id => ['access' => 'owner'],
+            $org2->id => ['access' => 'manager']
+        ]);
 
         $this->assertNull(session('active_organization_id'));
 
@@ -39,7 +42,10 @@ class NavigationSelectTest extends TestCase
         $org1 = Organization::create(['name' => 'Starlight Academy']);
         $org2 = Organization::create(['name' => 'Solar High']);
 
-        $orgUser->organizations()->sync([$org1->id, $org2->id]);
+        $orgUser->organizations()->sync([
+            $org1->id => ['access' => 'owner'],
+            $org2->id => ['access' => 'manager']
+        ]);
 
         Volt::actingAs($orgUser)
             ->test('layout.navigation')
@@ -57,7 +63,10 @@ class NavigationSelectTest extends TestCase
         $org1 = Organization::create(['name' => 'Starlight Academy']);
         $org2 = Organization::create(['name' => 'Solar High']);
 
-        $adminUser->organizations()->sync([$org1->id, $org2->id]);
+        $adminUser->organizations()->sync([
+            $org1->id => ['access' => 'owner'],
+            $org2->id => ['access' => 'manager']
+        ]);
 
         $this->assertNull(session('active_organization_id'));
 
@@ -76,7 +85,10 @@ class NavigationSelectTest extends TestCase
         $org1 = Organization::create(['name' => 'Starlight Academy']);
         $org2 = Organization::create(['name' => 'Solar High']);
 
-        $adminUser->organizations()->sync([$org1->id, $org2->id]);
+        $adminUser->organizations()->sync([
+            $org1->id => ['access' => 'owner'],
+            $org2->id => ['access' => 'manager']
+        ]);
 
         Volt::actingAs($adminUser)
             ->test('layout.navigation')
@@ -94,7 +106,9 @@ class NavigationSelectTest extends TestCase
         $org1 = Organization::create(['name' => 'Starlight Academy']);
         $org2 = Organization::create(['name' => 'Solar High']);
 
-        $adminUser->organizations()->sync([$org1->id]);
+        $adminUser->organizations()->sync([
+            $org1->id => ['access' => 'owner']
+        ]);
 
         Volt::actingAs($adminUser)
             ->test('layout.navigation')
