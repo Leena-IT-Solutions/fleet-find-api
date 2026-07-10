@@ -26,12 +26,12 @@ Route::middleware(['auth', 'web-roles'])->group(function () {
     })->name('administrator');
     Route::view('profile', 'profile')->name('profile');
     Volt::route('users', 'pages.users.index')->name('users.index');
-    Volt::route('organizations', 'pages.organizations.index')->name('organizations.index');
     Volt::route('settings', 'pages.settings.index')->name('settings.index');
 });
 
 Route::middleware(['auth'])->group(function () {
     Volt::route('organization/dashboard', 'pages.organization.dashboard')->name('organization.dashboard');
+    Volt::route('organization/organizations', 'pages.organization.organizations')->name('organization.organizations');
     Volt::route('organization/profile', 'pages.organization.profile')->name('organization.profile');
     Route::view('organization/profile-settings', 'organization-profile')->name('organization.profile-settings');
 });

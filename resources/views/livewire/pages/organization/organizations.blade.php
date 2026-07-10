@@ -58,6 +58,13 @@ new class extends Component
         'search' => ['except' => ''],
     ];
 
+    public function mount()
+    {
+        if (!auth()->user()->hasRole('Organization')) {
+            abort(403, 'Unauthorized access.');
+        }
+    }
+
     public function updatingSearch(): void
     {
         $this->perPage = 10;

@@ -23,36 +23,36 @@ class OrganizationCrudTest extends TestCase
 
     public function test_guests_cannot_access_organizations_page(): void
     {
-        $response = $this->get(route('organizations.index'));
+        $response = $this->get(route('organization.organizations'));
         $response->assertRedirect(route('login'));
     }
 
-    public function test_non_admin_users_cannot_access_organizations_page(): void
+    public function test_non_organization_users_cannot_access_organizations_page(): void
     {
         $user = User::factory()->create(); // holds only Parent role
-        $response = $this->actingAs($user)->get(route('organizations.index'));
-        $response->assertRedirect(route('organization.dashboard'));
+        $response = $this->actingAs($user)->get(route('organization.organizations'));
+        $response->assertStatus(403);
     }
 
-    public function test_admin_users_can_access_organizations_page(): void
+    public function test_organization_users_can_access_organizations_page(): void
     {
-        $admin = User::factory()->create();
-        $admin->assignRole('Admin');
+        $user = User::factory()->create();
+        $user->assignRole('Organization');
 
-        $response = $this->actingAs($admin)->get(route('organizations.index'));
+        $response = $this->actingAs($user)->get(route('organization.organizations'));
         $response->assertStatus(200);
     }
 
-    public function test_admin_can_create_organization_with_geolocation_and_users(): void
+    public function test_organization_user_can_create_organization_with_geolocation_and_users(): void
     {
-        $admin = User::factory()->create();
-        $admin->assignRole('Admin');
-
         $orgUser = User::factory()->create();
         $orgUser->assignRole('Organization');
 
-        $component = Volt::actingAs($admin)
-            ->test('pages.organizations.index')
+        $anotherOrgUser = User::factory()->create();
+        $anotherOrgUser->assignRole('Organization');
+
+        $component = Volt::actingAs($orgUser)
+            ->test('pages.organization.organizations')
             ->set('newName', 'Starlight Academy')
             ->set('newContactName', 'John Doe')
             ->set('newNumber', '1234567890')
@@ -63,7 +63,7 @@ class OrganizationCrudTest extends TestCase
             ->set('newDisplayDriverPhone', true)
             ->set('newDisplayAttendantPhone', false)
             ->set('newShareLocationBy', 'driver')
-            ->set('newUsers', [$orgUser->id]);
+            ->set('newUsers', [$anotherOrgUser->id]);
 
         $component->call('createOrganization');
 
@@ -81,13 +81,13 @@ class OrganizationCrudTest extends TestCase
         ]);
 
         $org = Organization::where('name', 'Starlight Academy')->first();
-        $this->assertTrue($org->users->contains($orgUser->id));
+        $this->assertTrue($org->users->contains($anotherOrgUser->id));
     }
 
-    public function test_admin_can_update_organization(): void
+    public function test_organization_user_can_update_organization(): void
     {
-        $admin = User::factory()->create();
-        $admin->assignRole('Admin');
+        $orgUser = User::factory()->create();
+        $orgUser->assignRole('Organization');
 
         $org = Organization::create([
             'name' => 'Old Academy',
@@ -97,8 +97,8 @@ class OrganizationCrudTest extends TestCase
             'share_location_by' => 'driver',
         ]);
 
-        $component = Volt::actingAs($admin)
-            ->test('pages.organizations.index')
+        $component = Volt::actingAs($orgUser)
+            ->test('pages.organization.organizations')
             ->call('openEditModal', $org->id)
             ->set('editingName', 'New Academy')
             ->set('editingContactName', 'New Person')
@@ -119,10 +119,10 @@ class OrganizationCrudTest extends TestCase
         ]);
     }
 
-    public function test_admin_can_delete_organization(): void
+    public function test_organization_user_can_delete_organization(): void
     {
-        $admin = User::factory()->create();
-        $admin->assignRole('Admin');
+        $orgUser = User::factory()->create();
+        $orgUser->assignRole('Organization');
 
         $org = Organization::create([
             'name' => 'Trash Academy',
@@ -131,8 +131,8 @@ class OrganizationCrudTest extends TestCase
             'share_location_by' => 'driver',
         ]);
 
-        $component = Volt::actingAs($admin)
-            ->test('pages.organizations.index')
+        $component = Volt::actingAs($orgUser)
+            ->test('pages.organization.organizations')
             ->call('openDeleteModal', $org->id)
             ->call('deleteOrganization');
 
