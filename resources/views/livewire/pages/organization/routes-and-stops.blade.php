@@ -4,6 +4,7 @@ use Livewire\Volt\Component;
 use App\Models\Organization;
 use App\Models\Route;
 use App\Models\Stop;
+use App\Models\Setting;
 use Livewire\Attributes\On;
 
 new class extends Component
@@ -30,6 +31,11 @@ new class extends Component
     public bool $showDeleteStopModal = false;
     public ?int $deletingStopId = null;
 
+    public string $mapTileUrl = '';
+    public string $mapDefaultLat = '';
+    public string $mapDefaultLng = '';
+    public int $mapDefaultZoom = 14;
+
     public function rendering($view)
     {
         $view->layout('layouts.app');
@@ -38,6 +44,10 @@ new class extends Component
     public function mount()
     {
         $this->loadOrganization();
+        $this->mapTileUrl = Setting::get('map_tile_url', 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+        $this->mapDefaultLat = Setting::get('map_default_lat', '19.18');
+        $this->mapDefaultLng = Setting::get('map_default_lng', '73.21');
+        $this->mapDefaultZoom = (int)Setting::get('map_default_zoom', 14);
     }
 
     #[On('active-organization-changed')]
@@ -382,10 +392,10 @@ new class extends Component
                         <div class="flex flex-col gap-6">
                             
                              <!-- Leaflet Map Panel -->
-                             <div class="bg-white border border-slate-200/80 shadow-sm rounded-2xl overflow-hidden" 
-                                  x-data="routeMap({{ $organization->latitude ?? 'null' }}, {{ $organization->longitude ?? 'null' }})"
-                                  x-on:route-selected.window="stops = $event.detail.stops; initMap();"
-                                  x-on:stops-updated.window="stops = $event.detail.stops; initMap();">
+                              <div class="bg-white border border-slate-200/80 shadow-sm rounded-2xl overflow-hidden" 
+                                   x-data="routeMap({{ $organization->latitude ?? 'null' }}, {{ $organization->longitude ?? 'null' }}, '{{ $mapTileUrl }}', {{ $mapDefaultZoom }}, {{ $mapDefaultLat }}, {{ $mapDefaultLng }})"
+                                   x-on:route-selected.window="stops = $event.detail.stops; initMap();"
+                                   x-on:stops-updated.window="stops = $event.detail.stops; initMap();">
                                  
                                  <!-- Hidden element to safely pass stops data -->
                                  <script id="initial-stops-data" type="application/json">@json($stops->toArray())</script>
@@ -628,13 +638,15 @@ new class extends Component
 
     <script>
         document.addEventListener('alpine:init', () => {
-            Alpine.data('routeMap', (orgLat, orgLng) => ({
+            Alpine.data('routeMap', (orgLat, orgLng, tileUrl, defaultZoom, mapFallbackLat, mapFallbackLng) => ({
                 map: null,
                 markers: [],
                 polyline: null,
                 stops: [],
-                defaultLat: orgLat || 19.18,
-                defaultLng: orgLng || 73.21,
+                tileUrl: tileUrl || 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                defaultZoom: defaultZoom || 14,
+                defaultLat: orgLat || mapFallbackLat || 19.18,
+                defaultLng: orgLng || mapFallbackLng || 73.21,
 
                 init() {
                     let initialStopsElement = document.getElementById('initial-stops-data');
@@ -667,9 +679,9 @@ new class extends Component
                     let mapContainer = document.getElementById('map');
                     if (!mapContainer) return;
 
-                    this.map = L.map('map').setView([centerLat, centerLng], 14);
+                    this.map = L.map('map').setView([centerLat, centerLng], this.defaultZoom);
 
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    L.tileLayer(this.tileUrl, {
                         maxZoom: 19,
                         attribution: '&copy; OpenStreetMap contributors'
                     }).addTo(this.map);

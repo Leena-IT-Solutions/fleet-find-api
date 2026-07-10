@@ -27,6 +27,13 @@ new class extends Component
         $this->mailgunDomain = Setting::get('mailgun_domain', '');
         $this->mailgunSecret = Setting::get('mailgun_secret', '');
         $this->mailgunEndpoint = Setting::get('mailgun_endpoint', 'api.mailgun.net');
+
+        $this->googleMapsApiKey = Setting::get('google_maps_api_key', '');
+        $this->mapboxAccessToken = Setting::get('mapbox_access_token', '');
+        $this->mapTileUrl = Setting::get('map_tile_url', 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+        $this->mapDefaultLat = Setting::get('map_default_lat', '19.18');
+        $this->mapDefaultLng = Setting::get('map_default_lng', '73.21');
+        $this->mapDefaultZoom = Setting::get('map_default_zoom', '14');
     }
 
     public string $companyName = '';
@@ -41,6 +48,13 @@ new class extends Component
     public string $mailgunSecret = '';
     public string $mailgunEndpoint = '';
 
+    public string $googleMapsApiKey = '';
+    public string $mapboxAccessToken = '';
+    public string $mapTileUrl = '';
+    public string $mapDefaultLat = '';
+    public string $mapDefaultLng = '';
+    public string $mapDefaultZoom = '';
+
     public function saveSettings(): void
     {
         $this->validate([
@@ -53,6 +67,12 @@ new class extends Component
             'mailgunDomain' => ['nullable', 'string', 'max:255'],
             'mailgunSecret' => ['nullable', 'string', 'max:255'],
             'mailgunEndpoint' => ['required', 'string', 'max:255'],
+            'googleMapsApiKey' => ['nullable', 'string', 'max:255'],
+            'mapboxAccessToken' => ['nullable', 'string', 'max:255'],
+            'mapTileUrl' => ['required', 'string', 'max:255'],
+            'mapDefaultLat' => ['required', 'numeric', 'between:-90,90'],
+            'mapDefaultLng' => ['required', 'numeric', 'between:-180,180'],
+            'mapDefaultZoom' => ['required', 'integer', 'between:1,20'],
         ]);
 
         Setting::set('company_name', $this->companyName);
@@ -66,6 +86,13 @@ new class extends Component
         Setting::set('mailgun_domain', $this->mailgunDomain);
         Setting::set('mailgun_secret', $this->mailgunSecret);
         Setting::set('mailgun_endpoint', $this->mailgunEndpoint);
+
+        Setting::set('google_maps_api_key', $this->googleMapsApiKey);
+        Setting::set('mapbox_access_token', $this->mapboxAccessToken);
+        Setting::set('map_tile_url', $this->mapTileUrl);
+        Setting::set('map_default_lat', $this->mapDefaultLat);
+        Setting::set('map_default_lng', $this->mapDefaultLng);
+        Setting::set('map_default_zoom', $this->mapDefaultZoom);
 
         // Dynamically update config in current request scope
         config([
@@ -187,6 +214,56 @@ new class extends Component
                         <x-input-label for="mailgunEndpoint" value="{{ __('Mailgun API Endpoint') }}" />
                         <x-text-input id="mailgunEndpoint" type="text" class="mt-1 block w-full" wire:model="mailgunEndpoint" required />
                         <x-input-error :messages="$errors->get('mailgunEndpoint')" class="mt-2" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Maps Settings Section -->
+            <div class="bg-white border border-slate-200/80 shadow-sm rounded-xl p-6">
+                <h3 class="text-base font-bold text-slate-800 border-b border-slate-100 pb-3 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m-3-3h6m-1.028-9.433C12.628 2.382 12.29 2 11.858 2H5.142c-.43 0-.77.382-.667.807L5.5 7h13l1.025-4.193c.102-.425-.238-.807-.667-.807h-6.716zM5.5 7v10.25c0 .621.504 1.125 1.125 1.125H10m-4.5 0h9.75c.621 0 1.125-.504 1.125-1.125V7M9 21h6" />
+                    </svg>
+                    <span>Maps & Geolocation Settings</span>
+                </h3>
+                
+                <div class="flex flex-col gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <x-input-label for="googleMapsApiKey" value="{{ __('Google Maps API Key') }}" />
+                            <x-text-input id="googleMapsApiKey" type="password" class="mt-1 block w-full" wire:model="googleMapsApiKey" placeholder="AIzaSy..." />
+                            <x-input-error :messages="$errors->get('googleMapsApiKey')" class="mt-2" />
+                        </div>
+                        <div>
+                            <x-input-label for="mapboxAccessToken" value="{{ __('Mapbox Access Token') }}" />
+                            <x-text-input id="mapboxAccessToken" type="password" class="mt-1 block w-full" wire:model="mapboxAccessToken" placeholder="pk.eyJ1..." />
+                            <x-input-error :messages="$errors->get('mapboxAccessToken')" class="mt-2" />
+                        </div>
+                    </div>
+
+                    <div>
+                        <x-input-label for="mapTileUrl" value="{{ __('Map Tile Provider URL Template') }}" />
+                        <x-text-input id="mapTileUrl" type="text" class="mt-1 block w-full font-mono text-xs" wire:model="mapTileUrl" required />
+                        <x-input-error :messages="$errors->get('mapTileUrl')" class="mt-2" />
+                        <p class="text-[10px] text-slate-400 mt-1">Default Leaflet tile template. E.g. <code>https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png</code></p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <x-input-label for="mapDefaultLat" value="{{ __('Default Center Latitude') }}" />
+                            <x-text-input id="mapDefaultLat" type="text" class="mt-1 block w-full" wire:model="mapDefaultLat" required />
+                            <x-input-error :messages="$errors->get('mapDefaultLat')" class="mt-2" />
+                        </div>
+                        <div>
+                            <x-input-label for="mapDefaultLng" value="{{ __('Default Center Longitude') }}" />
+                            <x-text-input id="mapDefaultLng" type="text" class="mt-1 block w-full" wire:model="mapDefaultLng" required />
+                            <x-input-error :messages="$errors->get('mapDefaultLng')" class="mt-2" />
+                        </div>
+                        <div>
+                            <x-input-label for="mapDefaultZoom" value="{{ __('Default Zoom Level (1-20)') }}" />
+                            <x-text-input id="mapDefaultZoom" type="number" min="1" max="20" class="mt-1 block w-full" wire:model="mapDefaultZoom" required />
+                            <x-input-error :messages="$errors->get('mapDefaultZoom')" class="mt-2" />
+                        </div>
                     </div>
                 </div>
             </div>
