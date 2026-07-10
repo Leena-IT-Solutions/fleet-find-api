@@ -207,7 +207,7 @@ new class extends Component
     // Computed properties / views helper
     public function with(): array
     {
-        $query = Organization::query();
+        $query = auth()->user()->organizations();
 
         if (!empty($this->search)) {
             $term = '%' . $this->search . '%';
@@ -220,7 +220,7 @@ new class extends Component
 
         // Paginate by taking $perPage records
         $organizations = $query->latest()->take($this->perPage)->get();
-        $hasMore = Organization::count() > $this->perPage;
+        $hasMore = auth()->user()->organizations()->count() > $this->perPage;
 
         return [
             'organizations' => $organizations,

@@ -43,6 +43,29 @@ class OrganizationCrudTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_organization_user_cannot_see_other_users_organizations(): void
+    {
+        $userA = User::factory()->create();
+        $userA->assignRole('Organization');
+
+        $userB = User::factory()->create();
+        $userB->assignRole('Organization');
+
+        // Create organization linked to User B
+        $orgB = Organization::create(['name' => 'User B Org']);
+        $orgB->users()->sync([$userB->id]);
+
+        // Access page as User A
+        $response = $this->actingAs($userA)->get(route('organization.organizations'));
+        $response->assertStatus(200);
+        $response->assertDontSee('User B Org');
+
+        // Access page as User B
+        $response = $this->actingAs($userB)->get(route('organization.organizations'));
+        $response->assertStatus(200);
+        $response->assertSee('User B Org');
+    }
+
     public function test_organization_user_can_create_organization_with_geolocation_automatically_linked(): void
     {
         $orgUser = User::factory()->create();
