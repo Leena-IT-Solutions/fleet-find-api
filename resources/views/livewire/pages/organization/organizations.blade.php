@@ -309,8 +309,12 @@ new class extends Component
                                 ];
                                 $avatarColor = $colors[$org->id % count($colors)];
                             @endphp
-                            <div class="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-sm border {{ $avatarColor }} shrink-0 shadow-sm">
-                                {{ strtoupper($initials) }}
+                            <div class="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-sm border {{ $avatarColor }} shrink-0 shadow-sm overflow-hidden bg-slate-50">
+                                @if ($org->logo)
+                                    <img src="{{ asset('storage/' . $org->logo) }}" class="w-full h-full object-cover">
+                                @else
+                                    {{ strtoupper($initials) }}
+                                @endif
                             </div>
 
                             <div class="min-w-0">
