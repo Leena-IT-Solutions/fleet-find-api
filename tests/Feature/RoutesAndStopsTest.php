@@ -242,4 +242,60 @@ class RoutesAndStopsTest extends TestCase
 
         $this->assertDatabaseMissing('stops', ['id' => $stop->id]);
     }
+
+    public function test_map_click_location_selection_flow(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole('Organization');
+
+        $org = Organization::create(['name' => 'Starlight Academy']);
+        $user->organizations()->sync([$org->id => ['access' => 'owner']]);
+        session(['active_organization_id' => $org->id]);
+
+        $route = $org->routes()->create([
+            'name' => 'Route A',
+        ]);
+        $stop = $route->stops()->create([
+            'name' => 'Original Stop',
+            'latitude' => 19.1234,
+            'longitude' => 73.5678,
+            'sequence_order' => 1,
+        ]);
+
+        // Scenario 1: Map Click -> Add New Stop Choice
+        Volt::actingAs($user)
+            ->test('pages.organization.routes-and-stops')
+            ->set('selectedRouteId', $route->id)
+            ->call('openMapActionModal', '19.8888', '73.9999')
+            ->assertSet('clickedLat', '19.8888')
+            ->assertSet('clickedLng', '73.9999')
+            ->assertSet('showMapActionModal', true)
+            ->call('chooseAddStop')
+            ->assertSet('showMapActionModal', false)
+            ->assertSet('stopLatitude', '19.8888')
+            ->assertSet('stopLongitude', '73.9999')
+            ->assertSet('showStopModal', true);
+
+        // Scenario 2: Map Click -> Edit Existing Stop Choice -> Click Edit Pencil -> Prefill Clicked Coordinates
+        Volt::actingAs($user)
+            ->test('pages.organization.routes-and-stops')
+            ->set('selectedRouteId', $route->id)
+            ->call('openMapActionModal', '19.5555', '73.6666')
+            ->call('chooseEditStop')
+            ->assertSet('showMapActionModal', false)
+            ->assertSet('updateOnEdit', true)
+            ->assertSet('showEditHint', true)
+            // Open edit modal for the stop
+            ->call('openEditStopModal', $stop->id)
+            ->assertSet('stopLatitude', '19.5555')
+            ->assertSet('stopLongitude', '73.6666')
+            ->assertSet('updateOnEdit', false)
+            ->assertSet('showEditHint', false)
+            ->call('saveStop')
+            ->assertHasNoErrors();
+
+        $stop->refresh();
+        $this->assertEquals(19.5555, $stop->latitude);
+        $this->assertEquals(73.6666, $stop->longitude);
+    }
 }

@@ -38,6 +38,13 @@ new class extends Component
     public string $googleMapsApiKey = '';
     public string $mapboxAccessToken = '';
 
+    // Map Location Selection Flow Properties
+    public string $clickedLat = '';
+    public string $clickedLng = '';
+    public bool $showMapActionModal = false;
+    public bool $updateOnEdit = false;
+    public bool $showEditHint = false;
+
     public function rendering($view)
     {
         $view->layout('layouts.app');
@@ -157,9 +164,38 @@ new class extends Component
     }
 
     // Stop CRUD Actions
-    public function openAddStopModal(): void
+    public function openMapActionModal(string $lat, string $lng): void
     {
-        $this->reset(['stopName', 'stopLatitude', 'stopLongitude', 'editingStopId']);
+        $this->clickedLat = $lat;
+        $this->clickedLng = $lng;
+        $this->showMapActionModal = true;
+        $this->dispatch('open-modal', 'map-action-modal');
+    }
+
+    public function closeMapActionModal(): void
+    {
+        $this->showMapActionModal = false;
+        $this->dispatch('close-modal', 'map-action-modal');
+    }
+
+    public function chooseAddStop(): void
+    {
+        $this->closeMapActionModal();
+        $this->openAddStopModal($this->clickedLat, $this->clickedLng);
+    }
+
+    public function chooseEditStop(): void
+    {
+        $this->closeMapActionModal();
+        $this->updateOnEdit = true;
+        $this->showEditHint = true;
+    }
+
+    public function openAddStopModal(?string $latitude = null, ?string $longitude = null): void
+    {
+        $this->reset(['stopName', 'editingStopId']);
+        $this->stopLatitude = $latitude ?? '';
+        $this->stopLongitude = $longitude ?? '';
         $this->showStopModal = true;
         $this->dispatch('open-modal', 'stop-modal');
     }
@@ -169,8 +205,17 @@ new class extends Component
         $stop = Stop::findOrFail($id);
         $this->editingStopId = $stop->id;
         $this->stopName = $stop->name;
-        $this->stopLatitude = (string)$stop->latitude;
-        $this->stopLongitude = (string)$stop->longitude;
+        
+        if ($this->updateOnEdit) {
+            $this->stopLatitude = $this->clickedLat;
+            $this->stopLongitude = $this->clickedLng;
+            $this->updateOnEdit = false;
+            $this->showEditHint = false;
+        } else {
+            $this->stopLatitude = (string)$stop->latitude;
+            $this->stopLongitude = (string)$stop->longitude;
+        }
+
         $this->showStopModal = true;
         $this->dispatch('open-modal', 'stop-modal');
     }
@@ -286,7 +331,7 @@ new class extends Component
 
     <!-- Leaflet CDN resources -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0nIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     @if ($mapProvider === 'google_maps' && $googleMapsApiKey)
         <script src="https://maps.googleapis.com/maps/api/js?key={{ $googleMapsApiKey }}&v=weekly" defer></script>
     @endif
@@ -420,8 +465,21 @@ new class extends Component
                                 <div id="map" class="h-[300px] w-full z-0 bg-slate-100" wire:ignore></div>
                             </div>
 
-                            <!-- Stops Table / Timeline Panel -->
                             <div class="bg-white border border-slate-200/80 shadow-sm rounded-2xl p-5 flex flex-col gap-4">
+                                @if ($showEditHint)
+                                    <div class="p-3.5 bg-indigo-50 border border-indigo-200 text-indigo-850 rounded-xl text-xs flex items-center justify-between gap-3 shadow-sm animate-pulse">
+                                        <div class="flex items-center gap-2.5">
+                                            <svg class="w-5 h-5 text-indigo-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <div>
+                                                <span class="font-bold">{{ __('Update Location') }}:</span>
+                                                <span>{{ __('Click the pencil edit icon next to the stop you want to move to coordinates') }} <strong class="font-mono bg-indigo-100/60 px-1 py-0.5 rounded border border-indigo-200/30 text-indigo-800">{{ $clickedLat }}, {{ $clickedLng }}</strong></span>
+                                            </div>
+                                        </div>
+                                        <button wire:click="$set('showEditHint', false)" class="text-indigo-550 hover:text-indigo-750 font-bold text-xs uppercase shrink-0">{{ __('Cancel') }}</button>
+                                    </div>
+                                @endif
                                 @if (session()->has('success_stop'))
                                     <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl p-3.5 text-xs flex items-center gap-2">
                                         <svg class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -642,6 +700,38 @@ new class extends Component
                 </div>
             </div>
         </x-modal>
+
+        <!-- Map Action Selection Modal -->
+        <x-modal name="map-action-modal" :show="$showMapActionModal" focusable>
+            <div class="p-6">
+                <h2 class="text-lg font-medium text-slate-900">
+                    {{ __('Map Location Selected') }}
+                </h2>
+
+                <p class="mt-2 text-sm text-slate-500">
+                    {{ __('You clicked on coordinates:') }} <span class="font-mono text-slate-800 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200">{{ $clickedLat }}, {{ $clickedLng }}</span>
+                </p>
+                <p class="mt-1 text-sm text-slate-500">
+                    {{ __('Would you like to add a new stop at this location or update the location of an existing stop?') }}
+                </p>
+
+                <div class="mt-6 flex justify-end gap-3">
+                    <x-secondary-button wire:click="closeMapActionModal">
+                        {{ __('Cancel') }}
+                    </x-secondary-button>
+
+                    <button wire:click="chooseEditStop" 
+                            class="inline-flex items-center px-4 py-2 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 rounded-lg font-semibold text-xs uppercase tracking-widest active:bg-indigo-200 transition">
+                        {{ __('Edit Existing Stop') }}
+                    </button>
+
+                    <button wire:click="chooseAddStop" 
+                            class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition">
+                        {{ __('Add New Stop') }}
+                    </button>
+                </div>
+            </div>
+        </x-modal>
     @endif
 
     <script>
@@ -723,9 +813,12 @@ new class extends Component
                         this.gmap.addListener('click', (e) => {
                             let lat = e.latLng.lat().toFixed(8);
                             let lng = e.latLng.lng().toFixed(8);
-                            this.$wire.set('stopLatitude', lat);
-                            this.$wire.set('stopLongitude', lng);
-                            this.$wire.openAddStopModal();
+                            if (this.$wire.get('showStopModal')) {
+                                this.$wire.set('stopLatitude', lat);
+                                this.$wire.set('stopLongitude', lng);
+                            } else {
+                                this.$wire.openMapActionModal(lat, lng);
+                            }
                         });
                     } else {
                         // Leaflet (OSM or Mapbox tile)
@@ -754,9 +847,12 @@ new class extends Component
                         this.map.on('click', (e) => {
                             let lat = e.latlng.lat.toFixed(8);
                             let lng = e.latlng.lng.toFixed(8);
-                            this.$wire.set('stopLatitude', lat);
-                            this.$wire.set('stopLongitude', lng);
-                            this.$wire.openAddStopModal();
+                            if (this.$wire.get('showStopModal')) {
+                                this.$wire.set('stopLatitude', lat);
+                                this.$wire.set('stopLongitude', lng);
+                            } else {
+                                this.$wire.openMapActionModal(lat, lng);
+                            }
                         });
 
                         setTimeout(() => {
