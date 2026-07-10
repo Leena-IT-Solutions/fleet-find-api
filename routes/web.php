@@ -7,7 +7,7 @@ Route::view('/', 'welcome');
 use Livewire\Volt\Volt;
 
 Route::middleware(['auth', 'web-roles'])->group(function () {
-    Route::get('dashboard', function () {
+    Route::get('administrator', function () {
         $totalUsers = \App\Models\User::count();
         $totalOrgs = \App\Models\User::whereHas('roles', fn($q) => $q->where('name', 'Organization'))->count();
         $totalDrivers = \App\Models\User::whereHas('roles', fn($q) => $q->where('name', 'Driver'))->count();
@@ -23,7 +23,7 @@ Route::middleware(['auth', 'web-roles'])->group(function () {
             'totalParents',
             'totalChildren'
         ));
-    })->name('dashboard');
+    })->name('administrator');
     Route::view('profile', 'profile')->name('profile');
     Volt::route('users', 'pages.users.index')->name('users.index');
     Volt::route('settings', 'pages.settings.index')->name('settings.index');

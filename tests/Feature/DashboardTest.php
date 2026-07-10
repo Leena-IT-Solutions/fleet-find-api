@@ -33,7 +33,7 @@ class DashboardTest extends TestCase
         Child::create(['parent_id' => $parent->id, 'name' => 'Child A']);
         Child::create(['parent_id' => $parent->id, 'name' => 'Child B']);
 
-        $response = $this->actingAs($admin)->get(route('dashboard'));
+        $response = $this->actingAs($admin)->get(route('administrator'));
 
         $response->assertStatus(200)
             ->assertViewHasAll([

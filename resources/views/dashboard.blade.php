@@ -2,7 +2,7 @@
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-slate-900 leading-tight">
             @if (auth()->user()->hasRole('Admin'))
-                {{ __('Admin Dashboard') }}
+                {{ __('Administrator') }}
             @elseif (auth()->user()->hasRole('Organization'))
                 {{ __('Organization Dashboard') }}
             @else
@@ -15,7 +15,7 @@
         @if (auth()->user()->hasRole('Admin'))
             <!-- Admin Dashboard Page Content -->
             <div class="bg-white border border-slate-200/80 shadow-sm rounded-xl p-6">
-                <h3 class="text-lg font-semibold text-slate-800 mb-2">Welcome to the Admin Portal</h3>
+                <h3 class="text-lg font-semibold text-slate-800 mb-2">Welcome to the Administrator Portal</h3>
                 <p class="text-slate-600 text-sm">As an Administrator, you have full control over system configurations, role management, and global statistics.</p>
                 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">

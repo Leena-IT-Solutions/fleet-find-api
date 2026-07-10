@@ -32,7 +32,7 @@ class RegistrationTest extends TestCase
 
         $component->call('register');
 
-        $component->assertRedirect(route('dashboard', absolute: false));
+        $component->assertRedirect(route('administrator', absolute: false));
 
         $this->assertAuthenticated();
     }
@@ -56,7 +56,7 @@ class RegistrationTest extends TestCase
         $component->set('otp', '123456');
         $component->call('register');
 
-        $component->assertRedirect(route('dashboard', absolute: false));
+        $component->assertRedirect(route('administrator', absolute: false));
 
         $this->assertAuthenticated();
     }

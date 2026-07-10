@@ -36,7 +36,7 @@
             <!-- Actions -->
             <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
                 @auth
-                    <a href="{{ url('/dashboard') }}" class="w-full sm:w-auto px-8 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium shadow-lg shadow-indigo-600/20 transition-all duration-200">
+                    <a href="{{ auth()->user()->hasRole('Admin') ? route('administrator') : route('organization.dashboard') }}" class="w-full sm:w-auto px-8 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium shadow-lg shadow-indigo-600/20 transition-all duration-200">
                         Go to Dashboard
                     </a>
                 @else

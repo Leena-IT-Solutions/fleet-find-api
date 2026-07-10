@@ -66,14 +66,12 @@ class RoleTest extends TestCase
         $user = User::factory()->create();
         $user->assignRole('Admin');
 
-        $response = $this->actingAs($user)->get('/dashboard');
+        $response = $this->actingAs($user)->get('/administrator');
 
         $response->assertStatus(200);
-        $response->assertSee('Admin Dashboard');
-        $response->assertSee('Welcome to the Admin Portal');
+        $response->assertSee('Administrator');
+        $response->assertSee('Welcome to the Administrator Portal');
     }
-
-
 
     public function test_organization_can_access_dashboard_and_see_organization_panel(): void
     {
@@ -92,7 +90,7 @@ class RoleTest extends TestCase
         // Default user only has the Parent role
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->get('/dashboard');
+        $response = $this->actingAs($user)->get('/administrator');
 
         $response->assertRedirect(route('organization.dashboard'));
     }
