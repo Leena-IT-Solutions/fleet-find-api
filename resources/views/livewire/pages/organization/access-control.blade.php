@@ -8,6 +8,7 @@ use Livewire\Attributes\On;
 new class extends Component
 {
     public ?Organization $organization = null;
+    public string $search = '';
     public string $userSearch = '';
     public ?int $selectedUserId = null;
     public ?string $selectedUserName = null;
@@ -46,9 +47,22 @@ new class extends Component
 
     public function getMembersProperty()
     {
-        return $this->organization 
-            ? $this->organization->users()->withPivot('access')->get() 
-            : collect();
+        if (!$this->organization) {
+            return collect();
+        }
+
+        $query = $this->organization->users()->withPivot('access');
+
+        if (!empty($this->search)) {
+            $term = '%' . trim($this->search) . '%';
+            $query->where(function ($q) use ($term) {
+                $q->where('name', 'like', $term)
+                  ->orWhere('email', 'like', $term)
+                  ->orWhere('mobile', 'like', $term);
+            });
+        }
+
+        return $query->get();
     }
 
     public function getSearchResultsProperty()
@@ -198,20 +212,9 @@ new class extends Component
 
 <div>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-slate-900 leading-tight">
-                {{ __('Access Control') }}
-            </h2>
-            @if ($organization)
-                <button wire:click="openAddModal" 
-                        class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition shadow-sm focus:outline-none flex items-center gap-1.5">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                    </svg>
-                    <span>Add Member</span>
-                </button>
-            @endif
-        </div>
+        <h2 class="font-semibold text-xl text-slate-900 leading-tight">
+            {{ __('Access Control') }}
+        </h2>
     </x-slot>
 
     <div class="flex flex-col gap-6">
@@ -242,6 +245,41 @@ new class extends Component
                 <p class="text-slate-500 text-sm mt-1">Please select an organization from the selector in the sidebar to manage access privileges.</p>
             </div>
         @else
+            <!-- Search & Action Controls -->
+            <div class="bg-white border border-slate-200/80 shadow-sm rounded-xl p-5 flex flex-col sm:flex-row gap-4 items-center justify-between">
+                <div class="w-full flex-grow relative">
+                    <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                        <svg class="w-4 h-4 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                        </svg>
+                    </div>
+                    <input type="text" 
+                           wire:model.live.debounce.300ms="search" 
+                           placeholder="Search members by name, email, or mobile..." 
+                           class="block w-full ps-10 pe-4 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50/50 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition duration-150">
+                </div>
+
+                <div class="w-full sm:w-auto flex items-center gap-3 shrink-0">
+                    @if(!empty($search))
+                        <button wire:click="$set('search', '')" 
+                                class="w-full sm:w-auto px-4 py-2 bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-600 hover:text-slate-900 rounded-lg text-sm font-medium transition duration-150 flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                            </svg>
+                            <span>Clear</span>
+                        </button>
+                    @endif
+
+                    <button wire:click="openAddModal" 
+                            class="w-full sm:w-auto px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold transition duration-150 flex items-center justify-center gap-2 shadow-sm focus:outline-none">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                        </svg>
+                        <span>Add Member</span>
+                    </button>
+                </div>
+            </div>
+
             <!-- Members List Card -->
             <div class="bg-white border border-slate-200/80 shadow-sm rounded-xl overflow-hidden">
                 <div class="p-6 border-b border-slate-100 flex items-center justify-between">
