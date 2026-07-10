@@ -100,6 +100,14 @@ class User extends Authenticatable
     }
 
     /**
+     * The organizations that belong to the user.
+     */
+    public function organizations()
+    {
+        return $this->belongsToMany(Organization::class, 'organization_user');
+    }
+
+    /**
      * Boot the model events.
      */
     protected static function booted(): void

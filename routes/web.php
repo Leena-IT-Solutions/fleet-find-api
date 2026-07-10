@@ -26,6 +26,7 @@ Route::middleware(['auth', 'web-roles'])->group(function () {
     })->name('administrator');
     Route::view('profile', 'profile')->name('profile');
     Volt::route('users', 'pages.users.index')->name('users.index');
+    Volt::route('organizations', 'pages.organizations.index')->name('organizations.index');
     Volt::route('settings', 'pages.settings.index')->name('settings.index');
 });
 
