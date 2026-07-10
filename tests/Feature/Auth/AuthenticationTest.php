@@ -25,7 +25,26 @@ class AuthenticationTest extends TestCase
         $user = User::factory()->create();
 
         $component = Volt::test('pages.auth.login')
-            ->set('form.email', $user->email)
+            ->set('form.login', $user->email)
+            ->set('form.password', 'password');
+
+        $component->call('login');
+
+        $component
+            ->assertHasNoErrors()
+            ->assertRedirect(route('dashboard', absolute: false));
+
+        $this->assertAuthenticated();
+    }
+
+    public function test_users_can_authenticate_using_mobile_number(): void
+    {
+        $user = User::factory()->create([
+            'mobile' => '9876543210',
+        ]);
+
+        $component = Volt::test('pages.auth.login')
+            ->set('form.login', '9876543210')
             ->set('form.password', 'password');
 
         $component->call('login');
@@ -42,7 +61,7 @@ class AuthenticationTest extends TestCase
         $user = User::factory()->create();
 
         $component = Volt::test('pages.auth.login')
-            ->set('form.email', $user->email)
+            ->set('form.login', $user->email)
             ->set('form.password', 'wrong-password');
 
         $component->call('login');
