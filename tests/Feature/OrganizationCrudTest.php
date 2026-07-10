@@ -126,12 +126,20 @@ class OrganizationCrudTest extends TestCase
 
     public function test_organization_user_can_delete_organization(): void
     {
+        \Illuminate\Support\Facades\Storage::fake('public');
+
         $orgUser = User::factory()->create();
         $orgUser->assignRole('Organization');
 
+        $fakeLogo = \Illuminate\Http\UploadedFile::fake()->image('logo.jpg');
+        $logoPath = $fakeLogo->store('logos', 'public');
+
         $org = Organization::create([
             'name' => 'Trash Academy',
+            'logo' => $logoPath,
         ]);
+
+        \Illuminate\Support\Facades\Storage::disk('public')->assertExists($logoPath);
 
         $component = Volt::actingAs($orgUser)
             ->test('pages.organization.organizations')
@@ -140,5 +148,6 @@ class OrganizationCrudTest extends TestCase
 
         $component->assertHasNoErrors();
         $this->assertDatabaseMissing('organizations', ['id' => $org->id]);
+        \Illuminate\Support\Facades\Storage::disk('public')->assertMissing($logoPath);
     }
 }

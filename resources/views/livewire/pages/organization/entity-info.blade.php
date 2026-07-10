@@ -102,6 +102,9 @@ new class extends Component
         ];
 
         if ($this->logoFile) {
+            if ($this->organization->logo) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($this->organization->logo);
+            }
             $path = $this->logoFile->store('logos', 'public');
             $updateData['logo'] = $path;
             $this->logoPath = $path;

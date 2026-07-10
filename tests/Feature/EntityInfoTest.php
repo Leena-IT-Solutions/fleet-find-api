@@ -79,4 +79,40 @@ class EntityInfoTest extends TestCase
         $this->assertTrue($org->display_attendant_phone);
         $this->assertEquals('attendant', $org->share_location_by);
     }
+
+    public function test_entity_info_page_deletes_old_logo_when_new_logo_is_uploaded(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+
+        $user = User::factory()->create();
+        $user->assignRole('Organization');
+
+        $oldFile = \Illuminate\Http\UploadedFile::fake()->image('old_logo.jpg');
+        $oldPath = $oldFile->store('logos', 'public');
+
+        $org = Organization::create([
+            'name' => 'Starlight Secondary School',
+            'logo' => $oldPath,
+        ]);
+
+        $user->organizations()->sync([$org->id => ['access' => 'owner']]);
+        session(['active_organization_id' => $org->id]);
+
+        \Illuminate\Support\Facades\Storage::disk('public')->assertExists($oldPath);
+
+        $newFile = \Illuminate\Http\UploadedFile::fake()->image('new_logo.jpg');
+
+        Volt::actingAs($user)
+            ->test('pages.organization.entity-info')
+            ->set('logoFile', $newFile)
+            ->call('updateEntityInfo')
+            ->assertHasNoErrors();
+
+        \Illuminate\Support\Facades\Storage::disk('public')->assertMissing($oldPath);
+        
+        $org->refresh();
+        $this->assertNotNull($org->logo);
+        $this->assertNotEquals($oldPath, $org->logo);
+        \Illuminate\Support\Facades\Storage::disk('public')->assertExists($org->logo);
+    }
 }

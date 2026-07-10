@@ -199,6 +199,9 @@ new class extends Component
     public function deleteOrganization(): void
     {
         $org = Organization::findOrFail($this->deletingOrgId);
+        if ($org->logo) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($org->logo);
+        }
         $org->delete();
         $this->closeDeleteModal();
         session()->flash('success', 'Organization deleted successfully.');
