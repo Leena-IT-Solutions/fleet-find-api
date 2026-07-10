@@ -127,6 +127,17 @@ new class extends Component
                         <span>Dashboard</span>
                     </a>
 
+                    <a href="{{ route('organization.profile-settings') }}" wire:navigate class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition duration-150 {{ request()->routeIs('organization.profile-settings') ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
+                        <svg class="w-5 h-5 {{ request()->routeIs('organization.profile-settings') ? 'text-indigo-500' : 'text-slate-400' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                        </svg>
+                        <span>Profile</span>
+                    </a>
+
+                    <div class="mt-5 mb-1.5 px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        Administration
+                    </div>
+
                     <a href="{{ route('organization.organizations') }}" wire:navigate class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition duration-150 {{ request()->routeIs('organization.organizations') ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
                         <svg class="w-5 h-5 {{ request()->routeIs('organization.organizations') ? 'text-indigo-500' : 'text-slate-400' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h16.5M5.25 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 16.5h1.5M13.5 16.5H15" />
@@ -149,12 +160,9 @@ new class extends Component
                         <span>Access Control</span>
                     </a>
 
-                    <a href="{{ route('organization.profile-settings') }}" wire:navigate class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition duration-150 {{ request()->routeIs('organization.profile-settings') ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
-                        <svg class="w-5 h-5 {{ request()->routeIs('organization.profile-settings') ? 'text-indigo-500' : 'text-slate-400' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                        </svg>
-                        <span>Profile</span>
-                    </a>
+                    <div class="mt-5 mb-1.5 px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        Operations
+                    </div>
                 @endif
             </nav>
         </div>
@@ -288,6 +296,17 @@ new class extends Component
                         <span>Dashboard</span>
                     </a>
 
+                    <a href="{{ route('organization.profile-settings') }}" wire:navigate class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition duration-150 {{ request()->routeIs('organization.profile-settings') ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
+                        <svg class="w-5 h-5 {{ request()->routeIs('organization.profile-settings') ? 'text-indigo-500' : 'text-slate-400' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                        </svg>
+                        <span>Profile</span>
+                    </a>
+
+                    <div class="mt-5 mb-1.5 px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        Administration
+                    </div>
+
                     <a href="{{ route('organization.organizations') }}" wire:navigate class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition duration-150 {{ request()->routeIs('organization.organizations') ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
                         <svg class="w-5 h-5 {{ request()->routeIs('organization.organizations') ? 'text-indigo-500' : 'text-slate-400' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h16.5M5.25 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 16.5h1.5M13.5 16.5H15" />
@@ -310,12 +329,9 @@ new class extends Component
                         <span>Access Control</span>
                     </a>
 
-                    <a href="{{ route('organization.profile-settings') }}" wire:navigate class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition duration-150 {{ request()->routeIs('organization.profile-settings') ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
-                        <svg class="w-5 h-5 {{ request()->routeIs('organization.profile-settings') ? 'text-indigo-500' : 'text-slate-400' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                        </svg>
-                        <span>Profile</span>
-                    </a>
+                    <div class="mt-5 mb-1.5 px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        Operations
+                    </div>
                 @endif
             </nav>
         </div>
