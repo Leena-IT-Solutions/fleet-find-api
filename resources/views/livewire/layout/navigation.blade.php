@@ -5,6 +5,36 @@ use Livewire\Volt\Component;
 
 new class extends Component
 {
+    public $activeOrgId;
+
+    public function mount(): void
+    {
+        $user = auth()->user();
+        if ($user && $user->hasRole('Organization')) {
+            $userOrgs = $user->organizations;
+            $this->activeOrgId = session('active_organization_id');
+            if (!$this->activeOrgId && $userOrgs->isNotEmpty()) {
+                $this->activeOrgId = $userOrgs->first()->id;
+                session(['active_organization_id' => $this->activeOrgId]);
+            }
+        }
+    }
+
+    public function selectOrganization($orgId): void
+    {
+        $user = auth()->user();
+        if ($user && $user->hasRole('Organization')) {
+            $exists = $user->organizations()->where('organizations.id', $orgId)->exists();
+            if ($exists) {
+                session(['active_organization_id' => $orgId]);
+                $this->activeOrgId = $orgId;
+                
+                $this->dispatch('active-organization-changed', $orgId);
+                $this->redirect(request()->header('Referer') ?: route('organization.dashboard'), navigate: true);
+            }
+        }
+    }
+
     /**
      * Log the current user out of the application.
      */
@@ -26,6 +56,27 @@ new class extends Component
                 <x-application-logo class="h-9 w-auto logo-spin" />
                 <span class="text-xl font-bold tracking-tight text-slate-900">FleetFind</span>
             </div>
+
+            <!-- Organization Selector -->
+            @if (auth()->user()->hasRole('Organization'))
+                @php
+                    $userOrgs = auth()->user()->organizations;
+                @endphp
+                @if ($userOrgs->isNotEmpty())
+                    <div class="px-2 mb-2">
+                        <label for="org-select-desktop" class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Active Organization</label>
+                        <select id="org-select-desktop" 
+                                wire:change="selectOrganization($event.target.value)" 
+                                class="block w-full border border-slate-200 rounded-lg text-xs bg-slate-50/50 text-slate-700 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition duration-150 shadow-sm cursor-pointer font-medium">
+                            @foreach($userOrgs as $org)
+                                <option value="{{ $org->id }}" {{ $org->id == $activeOrgId ? 'selected' : '' }}>
+                                    {{ $org->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                @endif
+            @endif
 
             <!-- Navigation Links -->
             <nav class="flex flex-col gap-1.5">
@@ -152,6 +203,29 @@ new class extends Component
                 </button>
             </div>
 
+            <!-- Organization Selector Mobile -->
+            @if (auth()->user()->hasRole('Organization'))
+                @php
+                    $userOrgs = auth()->user()->organizations;
+                @endphp
+                @if ($userOrgs->isNotEmpty())
+                    <div class="px-2 mb-2">
+                        <label for="org-select-mobile" class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Active Organization</label>
+                        <select id="org-select-mobile" 
+                                wire:change="selectOrganization($event.target.value)" 
+                                class="block w-full border border-slate-200 rounded-lg text-xs bg-slate-50/50 text-slate-700 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition duration-150 shadow-sm cursor-pointer font-medium">
+                            @foreach($userOrgs as $org)
+                                <option value="{{ $org->id }}" {{ $org->id == $activeOrgId ? 'selected' : '' }}>
+                                    {{ $org->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                @endif
+            @endif
+
+            <!-- Navigation Links -->
+            <nav class="flex flex-col gap-1.5">
                 <!-- Admin Block -->
                 @if (auth()->user()->hasRole('Admin'))
                     <a href="{{ route('administrator') }}" wire:navigate class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition duration-150 {{ request()->routeIs('administrator') ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
