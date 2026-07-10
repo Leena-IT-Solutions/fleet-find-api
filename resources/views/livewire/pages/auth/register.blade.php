@@ -17,9 +17,18 @@ new #[Layout('layouts.guest')] class extends Component
     public string $password = '';
     public string $password_confirmation = '';
     
+    public bool $otpEnabled = false;
     public bool $otpSent = false;
     public string $otp = '';
     public string $errorMessage = '';
+
+    /**
+     * Mount component and load OTP configuration.
+     */
+    public function mount(): void
+    {
+        $this->otpEnabled = (bool) config('services.msg91.otp_enabled', false);
+    }
 
     /**
      * Handle sending registration OTP.
@@ -60,35 +69,39 @@ new #[Layout('layouts.guest')] class extends Component
      */
     public function register(Msg91Service $msg91Service): void
     {
-        if (!$this->otpSent) {
-            $this->sendOtp($msg91Service);
-            return;
-        }
+        if ($this->otpEnabled) {
+            if (!$this->otpSent) {
+                $this->sendOtp($msg91Service);
+                return;
+            }
 
-        $this->validate([
-            'otp' => ['required', 'string', 'min:4', 'max:6'],
-        ]);
-
-        $this->errorMessage = '';
-
-        if ($msg91Service->verifyOtp($this->mobile, $this->otp)) {
-            $validated = $this->validate([
-                'name' => ['required', 'string', 'max:255'],
-                'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-                'mobile' => ['required', 'string', 'max:255', 'unique:'.User::class],
-                'password' => ['required', 'string', Rules\Password::defaults()],
+            $this->validate([
+                'otp' => ['required', 'string', 'min:4', 'max:6'],
             ]);
 
-            $validated['password'] = Hash::make($validated['password']);
+            $this->errorMessage = '';
 
-            event(new Registered($user = User::create($validated)));
-
-            Auth::login($user);
-
-            $this->redirect(route('dashboard', absolute: false), navigate: true);
-        } else {
-            $this->errorMessage = 'The OTP code is invalid. Please try again.';
+            if (!$msg91Service->verifyOtp($this->mobile, $this->otp)) {
+                $this->errorMessage = 'The OTP code is invalid. Please try again.';
+                return;
+            }
         }
+
+        // Proceed with user creation
+        $validated = $this->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'mobile' => ['required', 'string', 'max:255', 'unique:'.User::class],
+            'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
+        ]);
+
+        $validated['password'] = Hash::make($validated['password']);
+
+        event(new Registered($user = User::create($validated)));
+
+        Auth::login($user);
+
+        $this->redirect(route('dashboard', absolute: false), navigate: true);
     }
 
     /**
@@ -164,7 +177,7 @@ new #[Layout('layouts.guest')] class extends Component
                 </a>
 
                 <x-primary-button class="ms-4">
-                    {{ __('Send OTP') }}
+                    {{ $otpEnabled ? __('Send OTP') : __('Register') }}
                 </x-primary-button>
             </div>
         @else
