@@ -52,4 +52,23 @@ class OrganizationProfileTest extends TestCase
         $this->assertEquals('updatedorg@example.com', $org->email);
         $this->assertEquals('8888877777', $org->mobile);
     }
+
+    public function test_non_organization_user_blocked_from_profile_settings(): void
+    {
+        $parent = User::factory()->create();
+
+        $this->actingAs($parent)
+            ->get(route('organization.profile-settings'))
+            ->assertStatus(403);
+    }
+
+    public function test_organization_user_can_access_profile_settings(): void
+    {
+        $org = User::factory()->create();
+        $org->assignRole('Organization');
+
+        $this->actingAs($org)
+            ->get(route('organization.profile-settings'))
+            ->assertStatus(200);
+    }
 }
