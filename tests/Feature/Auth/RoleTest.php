@@ -60,4 +60,38 @@ class RoleTest extends TestCase
         $this->assertTrue($user->hasRole('Driver'));
         $this->assertCount(3, $user->refresh()->roles);
     }
+
+    public function test_admin_can_access_dashboard_and_see_admin_portal(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole('Admin');
+
+        $response = $this->actingAs($user)->get('/dashboard');
+
+        $response->assertStatus(200);
+        $response->assertSee('Admin Dashboard');
+        $response->assertSee('Welcome to the Admin Portal');
+    }
+
+    public function test_organization_can_access_dashboard_and_see_organization_panel(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole('Organization');
+
+        $response = $this->actingAs($user)->get('/dashboard');
+
+        $response->assertStatus(200);
+        $response->assertSee('Organization Dashboard');
+        $response->assertSee('Organization Fleet Panel');
+    }
+
+    public function test_user_without_admin_or_organization_role_is_denied_access(): void
+    {
+        // Default user only has the Parent role
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get('/dashboard');
+
+        $response->assertStatus(403);
+    }
 }

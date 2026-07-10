@@ -76,6 +76,7 @@ class AuthenticationTest extends TestCase
     public function test_navigation_menu_can_be_rendered(): void
     {
         $user = User::factory()->create();
+        $user->assignRole('Admin');
 
         $this->actingAs($user);
 
