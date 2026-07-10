@@ -1,1 +1,1 @@
-<img src="{{ asset('logo.png') }}" {{ $attributes }} alt="FleetFind Logo" />
+<img src="{{ asset('logo.png') }}" {{ $attributes->merge(['class' => 'logo-spin']) }} alt="FleetFind Logo" />

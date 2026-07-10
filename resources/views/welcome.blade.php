@@ -2,7 +2,7 @@
     <!-- Header -->
     <header class="relative w-full max-w-7xl mx-auto px-6 py-6 flex items-center justify-between z-10">
         <div class="flex items-center gap-3">
-            <img src="{{ asset('logo.png') }}" class="h-10 w-auto rounded-lg shadow-lg border border-slate-200" alt="FleetFind Logo">
+            <img src="{{ asset('logo.png') }}" class="h-10 w-auto rounded-lg shadow-lg border border-slate-200 logo-spin" alt="FleetFind Logo">
             <span class="text-xl font-bold tracking-tight bg-gradient-to-r from-indigo-600 to-cyan-600 bg-clip-text text-transparent">FleetFind</span>
         </div>
 
