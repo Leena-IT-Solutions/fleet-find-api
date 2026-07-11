@@ -6,16 +6,25 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Route extends Model
+class SubscriptionPlan extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'organization_id',
         'name',
-        'description',
+        'registration_start_date',
+        'registration_end_date',
+        'valid_till',
+        'amount',
+    ];
+
+    protected $casts = [
+        'registration_start_date' => 'date',
+        'registration_end_date' => 'date',
+        'valid_till' => 'date',
+        'amount' => 'decimal:2',
     ];
 
     public function organization(): BelongsTo
@@ -23,13 +32,8 @@ class Route extends Model
         return $this->belongsTo(Organization::class);
     }
 
-    public function stops(): HasMany
+    public function routes(): BelongsToMany
     {
-        return $this->hasMany(Stop::class)->orderBy('sequence_order', 'asc');
-    }
-
-    public function subscriptionPlans(): BelongsToMany
-    {
-        return $this->belongsToMany(SubscriptionPlan::class, 'subscription_plan_route');
+        return $this->belongsToMany(Route::class, 'subscription_plan_route');
     }
 }

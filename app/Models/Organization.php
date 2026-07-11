@@ -61,4 +61,9 @@ class Organization extends Model
     {
         return $this->hasMany(Attendant::class);
     }
+
+    public function subscriptionPlans()
+    {
+        return $this->hasMany(SubscriptionPlan::class);
+    }
 }
