@@ -393,6 +393,7 @@ new class extends Component
                             @foreach ($trips as $trip)
                                 @php $status = $this->getTripStatus($trip); @endphp
                                 <div wire:click="selectTrip({{ $trip->id }})" 
+                                     wire:key="trip-card-{{ $trip->id }}"
                                      class="w-full text-left p-4 rounded-xl border transition-all cursor-pointer bg-white {{ $selectedTripId === $trip->id ? 'border-indigo-500 ring-2 ring-indigo-500/10 shadow-sm' : 'border-slate-200 hover:bg-slate-50/50 hover:border-slate-300' }}">
                                     <div class="flex items-start justify-between gap-2">
                                         <div class="min-w-0">
@@ -458,6 +459,7 @@ new class extends Component
                                             <nav class="flex flex-wrap gap-2 -mb-px">
                                                 @foreach ($routes as $route)
                                                     <button wire:click="selectRoute({{ $route->id }})" 
+                                                            wire:key="route-tab-{{ $route->id }}"
                                                             class="pb-3 px-4 text-xs font-semibold uppercase tracking-wider transition-all border-b-2 {{ $selectedRouteId === $route->id ? 'border-indigo-600 text-indigo-700 font-bold' : 'border-transparent text-slate-400 hover:text-slate-700 hover:border-slate-300' }}">
                                                         {{ $route->name }}
                                                     </button>
@@ -556,7 +558,7 @@ new class extends Component
                                                                     : $activeRoute->stops->sortBy('sequence_order');
                                                             @endphp
                                                             @foreach ($orderedStops->values() as $stopIndex => $stop)
-                                                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 hover:bg-slate-50/30 transition">
+                                                                <div wire:key="trip-stop-{{ $activeTrip->id }}-{{ $stop->id }}-{{ $stopIndex }}" class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 hover:bg-slate-50/30 transition">
                                                                     <div class="flex items-center gap-3">
                                                                         <div class="w-6 h-6 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-[10px] font-bold text-indigo-700 shadow-sm shrink-0">
                                                                             {{ $stopIndex + 1 }}
