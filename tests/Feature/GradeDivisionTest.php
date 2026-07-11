@@ -186,8 +186,10 @@ class GradeDivisionTest extends TestCase
 
         Volt::actingAs($user)
             ->test('pages.organization.grades-divisions')
-            ->set('newDivisionNames.' . $grade->id, 'A')
-            ->call('addDivision', $grade->id)
+            ->call('openEditGradeModal', $grade->id)
+            ->set('editingDivisionInput', 'A')
+            ->call('addDivisionToEditForm')
+            ->call('updateGrade')
             ->assertHasNoErrors();
 
         $this->assertDatabaseHas('divisions', [
@@ -211,7 +213,9 @@ class GradeDivisionTest extends TestCase
 
         Volt::actingAs($user)
             ->test('pages.organization.grades-divisions')
-            ->call('deleteDivision', $division->id)
+            ->call('openEditGradeModal', $grade->id)
+            ->call('removeDivisionFromEditForm', 0)
+            ->call('updateGrade')
             ->assertHasNoErrors();
 
         $this->assertDatabaseMissing('divisions', ['id' => $division->id]);

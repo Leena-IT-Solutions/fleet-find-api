@@ -5,6 +5,7 @@ use App\Models\Grade;
 use App\Models\Division;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
+use Illuminate\Support\Facades\DB;
 
 new class extends Component
 {
@@ -16,19 +17,20 @@ new class extends Component
 
     // Add Grade Form
     public string $newGradeName = '';
+    public string $newDivisionInput = '';
+    public array $newDivisions = []; // Array of strings
     public bool $showAddGradeModal = false;
 
     // Edit Grade Form
     public ?int $editingGradeId = null;
     public string $editingGradeName = '';
+    public string $editingDivisionInput = '';
+    public array $editingDivisions = []; // Array of ['id' => int|null, 'name' => string]
     public bool $showEditGradeModal = false;
 
     // Delete Grade Form
     public ?int $deletingGradeId = null;
     public bool $showDeleteGradeModal = false;
-
-    // Add Division Form (indexed or stored by grade_id key)
-    public array $newDivisionNames = [];
 
     public function rendering($view)
     {
@@ -56,11 +58,11 @@ new class extends Component
         $this->perPage += 6;
     }
 
-    // --- Grade CRUD ---
+    // --- Add Grade Form Actions ---
 
     public function openAddGradeModal(): void
     {
-        $this->reset(['newGradeName']);
+        $this->reset(['newGradeName', 'newDivisionInput', 'newDivisions']);
         $this->showAddGradeModal = true;
         $this->dispatch('open-modal', 'add-grade-modal');
     }
@@ -69,6 +71,32 @@ new class extends Component
     {
         $this->showAddGradeModal = false;
         $this->dispatch('close-modal', 'add-grade-modal');
+    }
+
+    public function addDivisionToAddForm(): void
+    {
+        $val = trim($this->newDivisionInput);
+        if (empty($val)) {
+            $this->addError('newDivisionInput', 'Division name cannot be empty.');
+            return;
+        }
+
+        if (in_array(strtolower($val), array_map('strtolower', $this->newDivisions))) {
+            $this->addError('newDivisionInput', 'This division is already added.');
+            return;
+        }
+
+        $this->newDivisions[] = $val;
+        $this->newDivisionInput = '';
+        $this->resetErrorBag('newDivisionInput');
+    }
+
+    public function removeDivisionFromAddForm(int $index): void
+    {
+        if (isset($this->newDivisions[$index])) {
+            unset($this->newDivisions[$index]);
+            $this->newDivisions = array_values($this->newDivisions);
+        }
     }
 
     public function createGrade(): void
@@ -82,7 +110,6 @@ new class extends Component
                 'required',
                 'string',
                 'max:255',
-                // Unique per organization
                 \Illuminate\Validation\Rule::unique('grades', 'name')
                     ->where('organization_id', $this->organization->id),
             ],
@@ -90,19 +117,35 @@ new class extends Component
             'newGradeName.unique' => 'This grade has already been added to this organization.',
         ]);
 
-        $this->organization->grades()->create([
-            'name' => $this->newGradeName,
-        ]);
+        DB::transaction(function () {
+            $grade = $this->organization->grades()->create([
+                'name' => $this->newGradeName,
+            ]);
+
+            foreach ($this->newDivisions as $divName) {
+                $grade->divisions()->create([
+                    'name' => $divName,
+                ]);
+            }
+        });
 
         $this->closeAddGradeModal();
-        session()->flash('success', 'Grade created successfully.');
+        session()->flash('success', 'Grade and divisions created successfully.');
     }
+
+    // --- Edit Grade Form Actions ---
 
     public function openEditGradeModal(int $id): void
     {
-        $grade = Grade::findOrFail($id);
+        $grade = Grade::with('divisions')->findOrFail($id);
         $this->editingGradeId = $grade->id;
         $this->editingGradeName = $grade->name;
+        $this->editingDivisionInput = '';
+        $this->editingDivisions = $grade->divisions->map(fn($d) => [
+            'id' => $d->id,
+            'name' => $d->name,
+        ])->toArray();
+
         $this->showEditGradeModal = true;
         $this->dispatch('open-modal', 'edit-grade-modal');
     }
@@ -111,7 +154,37 @@ new class extends Component
     {
         $this->showEditGradeModal = false;
         $this->dispatch('close-modal', 'edit-grade-modal');
-        $this->reset(['editingGradeId', 'editingGradeName']);
+        $this->reset(['editingGradeId', 'editingGradeName', 'editingDivisionInput', 'editingDivisions']);
+    }
+
+    public function addDivisionToEditForm(): void
+    {
+        $val = trim($this->editingDivisionInput);
+        if (empty($val)) {
+            $this->addError('editingDivisionInput', 'Division name cannot be empty.');
+            return;
+        }
+
+        $existingNames = array_map('strtolower', array_column($this->editingDivisions, 'name'));
+        if (in_array(strtolower($val), $existingNames)) {
+            $this->addError('editingDivisionInput', 'This division is already added.');
+            return;
+        }
+
+        $this->editingDivisions[] = [
+            'id' => null,
+            'name' => $val,
+        ];
+        $this->editingDivisionInput = '';
+        $this->resetErrorBag('editingDivisionInput');
+    }
+
+    public function removeDivisionFromEditForm(int $index): void
+    {
+        if (isset($this->editingDivisions[$index])) {
+            unset($this->editingDivisions[$index]);
+            $this->editingDivisions = array_values($this->editingDivisions);
+        }
     }
 
     public function updateGrade(): void
@@ -135,13 +208,32 @@ new class extends Component
             'editingGradeName.unique' => 'This grade name is already in use.',
         ]);
 
-        $grade->update([
-            'name' => $this->editingGradeName,
-        ]);
+        DB::transaction(function () use ($grade) {
+            $grade->update([
+                'name' => $this->editingGradeName,
+            ]);
+
+            // Sync divisions
+            $keepIds = array_filter(array_column($this->editingDivisions, 'id'));
+            
+            // Delete divisions that are removed
+            $grade->divisions()->whereNotIn('id', $keepIds)->delete();
+
+            // Insert new divisions
+            foreach ($this->editingDivisions as $div) {
+                if (is_null($div['id'])) {
+                    $grade->divisions()->create([
+                        'name' => $div['name'],
+                    ]);
+                }
+            }
+        });
 
         $this->closeEditGradeModal();
         session()->flash('success', 'Grade updated successfully.');
     }
+
+    // --- Delete Grade Actions ---
 
     public function openDeleteGradeModal(int $id): void
     {
@@ -163,42 +255,6 @@ new class extends Component
         $grade->delete();
         $this->closeDeleteGradeModal();
         session()->flash('success', 'Grade and its divisions deleted successfully.');
-    }
-
-    // --- Division Actions ---
-
-    public function addDivision(int $gradeId): void
-    {
-        $grade = Grade::findOrFail($gradeId);
-        $divisionName = trim($this->newDivisionNames[$gradeId] ?? '');
-
-        if (empty($divisionName)) {
-            $this->addError("division.{$gradeId}", 'The division name field is required.');
-            return;
-        }
-
-        // Validate uniqueness of division name under this specific grade
-        $exists = $grade->divisions()->where('name', $divisionName)->exists();
-        if ($exists) {
-            $this->addError("division.{$gradeId}", 'This division already exists for this grade.');
-            return;
-        }
-
-        $grade->divisions()->create([
-            'name' => $divisionName,
-        ]);
-
-        $this->newDivisionNames[$gradeId] = '';
-        $this->resetErrorBag("division.{$gradeId}");
-        session()->flash('success', "Division '{$divisionName}' added successfully.");
-    }
-
-    public function deleteDivision(int $divisionId): void
-    {
-        $division = Division::findOrFail($divisionId);
-        $divisionName = $division->name;
-        $division->delete();
-        session()->flash('success', "Division '{$divisionName}' removed successfully.");
     }
 
     public function resetFilters(): void
@@ -254,7 +310,7 @@ new class extends Component
         @if (!$organization)
             <div class="bg-white border border-slate-200/80 shadow-sm rounded-xl p-12 text-center flex flex-col items-center justify-center">
                 <svg class="w-12 h-12 text-slate-300 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.142|M12 21a9.003 9.003 0 008.361-5.639M12 21a9.003 9.003 0 01-8.361-5.639M12 21V12.75M12.75 3a9 9 0 019 9M12.75 3a9 9 0 00-9 9m18 0h-18" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.142" />
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0v6.75M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75" />
                 </svg>
                 <h4 class="text-base font-semibold text-slate-800">No Active Organization Selected</h4>
@@ -306,18 +362,17 @@ new class extends Component
                     @foreach ($grades as $grade)
                         <div wire:key="grade-card-{{ $grade->id }}" class="bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col justify-between overflow-hidden">
                             <!-- Card Header -->
-                            <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+                            <div class="p-5 flex items-center justify-between">
                                 <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
                                     <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M12 14l9-5-9-5-9 5 9 5z"></path>
-                                        <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
                                     </svg>
                                     <span>{{ $grade->name }}</span>
                                 </h3>
                                 
                                 <div class="flex items-center gap-1">
                                     <button wire:click="openEditGradeModal({{ $grade->id }})" 
-                                            title="Edit Grade Name"
+                                            title="Edit Grade & Divisions"
                                             class="p-1.5 hover:bg-slate-100 text-slate-400 hover:text-slate-700 rounded-lg transition focus:outline-none">
                                         <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
@@ -334,44 +389,18 @@ new class extends Component
                             </div>
 
                             <!-- Card Body: Divisions list -->
-                            <div class="p-5 flex-grow">
+                            <div class="px-5 pb-5">
                                 <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Divisions</div>
-                                <div class="flex flex-wrap gap-2">
+                                <div class="flex flex-wrap gap-1.5">
                                     @forelse ($grade->divisions as $division)
                                         <span wire:key="division-tag-{{ $division->id }}" 
-                                              class="inline-flex items-center gap-1.5 pl-2.5 pr-1 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100 transition group hover:bg-rose-50 hover:text-rose-700 hover:border-rose-100">
-                                            <span>{{ $division->name }}</span>
-                                            <button wire:click="deleteDivision({{ $division->id }})" 
-                                                    title="Remove Division" 
-                                                    class="p-0.5 rounded-full hover:bg-rose-200 text-indigo-400 group-hover:text-rose-600 transition">
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                </svg>
-                                            </button>
+                                              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                            {{ $division->name }}
                                         </span>
                                     @empty
-                                        <span class="text-xs text-slate-400 italic">No divisions added yet.</span>
+                                        <span class="text-xs text-slate-400 italic">No divisions assigned.</span>
                                     @endforelse
                                 </div>
-                            </div>
-
-                            <!-- Card Footer: Add division form -->
-                            <div class="p-4 bg-slate-50/50 border-t border-slate-100">
-                                <form wire:submit.prevent="addDivision({{ $grade->id }})" class="flex gap-2 items-center">
-                                    <div class="flex-grow">
-                                        <input type="text" 
-                                               wire:model="newDivisionNames.{{ $grade->id }}" 
-                                               placeholder="e.g. A" 
-                                               class="block w-full border border-slate-200 rounded-lg text-xs bg-white text-slate-800 px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition duration-150">
-                                    </div>
-                                    <button type="submit" 
-                                            class="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-semibold transition duration-150 shadow-sm focus:outline-none">
-                                        Add
-                                    </button>
-                                </form>
-                                @error("division.{$grade->id}")
-                                    <span class="text-[10px] text-rose-600 font-medium mt-1 block">{{ $message }}</span>
-                                @enderror
                             </div>
                         </div>
                     @endforeach
@@ -396,16 +425,60 @@ new class extends Component
             </h2>
 
             <p class="mt-1 text-sm text-slate-500">
-                {{ __('Specify a name for the new grade level (e.g. Grade 1, Grade 2).') }}
+                {{ __('Specify a name for the new grade and add its divisions.') }}
             </p>
 
-            <div class="mt-6">
-                <x-input-label for="newGradeName" :value="__('Grade Name')" />
-                <x-text-input wire:model="newGradeName" id="newGradeName" type="text" class="mt-1 block w-full" placeholder="e.g. Grade 1" required />
-                <x-input-error :messages="$errors->get('newGradeName')" class="mt-2" />
+            <div class="mt-6 flex flex-col gap-4">
+                <div>
+                    <x-input-label for="newGradeName" :value="__('Grade Name')" />
+                    <x-text-input wire:model="newGradeName" id="newGradeName" type="text" class="mt-1 block w-full" placeholder="e.g. Grade 1" required />
+                    <x-input-error :messages="$errors->get('newGradeName')" class="mt-2" />
+                </div>
+
+                <div class="border-t border-slate-100 pt-4">
+                    <x-input-label :value="__('Divisions')" />
+                    
+                    <!-- Division Pills Input & Display -->
+                    <div class="mt-2 flex flex-wrap gap-1.5 p-3 border border-slate-200 rounded-lg bg-slate-50/50 min-h-[48px]">
+                        @forelse ($newDivisions as $index => $divName)
+                            <span wire:key="new-div-pill-{{ $index }}" 
+                                  class="inline-flex items-center gap-1.5 pl-2.5 pr-1 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                <span>{{ $divName }}</span>
+                                <button type="button" 
+                                        wire:click="removeDivisionFromAddForm({{ $index }})" 
+                                        class="p-0.5 rounded-full hover:bg-indigo-100 text-indigo-400 hover:text-indigo-600 transition">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </span>
+                        @empty
+                            <span class="text-xs text-slate-400 italic">No divisions added yet. Use the field below to add divisions.</span>
+                        @endforelse
+                    </div>
+
+                    <!-- Add Division Form field inside modal -->
+                    <div class="mt-3 flex gap-2 items-center">
+                        <div class="flex-grow">
+                            <input type="text" 
+                                   wire:model="newDivisionInput" 
+                                   wire:keydown.enter.prevent="addDivisionToAddForm"
+                                   placeholder="Add division (e.g. A)" 
+                                   class="block w-full border border-slate-200 rounded-lg text-sm bg-white text-slate-800 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition duration-150">
+                        </div>
+                        <button type="button" 
+                                wire:click="addDivisionToAddForm" 
+                                class="px-4 py-2 bg-slate-850 hover:bg-slate-900 text-white rounded-lg text-sm font-semibold transition duration-150 shadow-sm focus:outline-none">
+                            Add
+                        </button>
+                    </div>
+                    @error('newDivisionInput')
+                        <span class="text-xs text-rose-600 font-medium mt-1 block">{{ $message }}</span>
+                    @enderror
+                </div>
             </div>
 
-            <div class="mt-6 flex justify-end gap-3">
+            <div class="mt-6 flex justify-end gap-3 border-t border-slate-100 pt-4">
                 <x-secondary-button wire:click="closeAddGradeModal">
                     {{ __('Cancel') }}
                 </x-secondary-button>
@@ -421,20 +494,64 @@ new class extends Component
     <x-modal name="edit-grade-modal" :show="$showEditGradeModal" focusable>
         <form wire:submit.prevent="updateGrade" class="p-6">
             <h2 class="text-lg font-medium text-slate-900">
-                {{ __('Edit Grade Name') }}
+                {{ __('Edit Grade & Divisions') }}
             </h2>
 
             <p class="mt-1 text-sm text-slate-500">
-                {{ __('Change the name for this grade level.') }}
+                {{ __('Modify the grade name and manage its divisions.') }}
             </p>
 
-            <div class="mt-6">
-                <x-input-label for="editingGradeName" :value="__('Grade Name')" />
-                <x-text-input wire:model="editingGradeName" id="editingGradeName" type="text" class="mt-1 block w-full" required />
-                <x-input-error :messages="$errors->get('editingGradeName')" class="mt-2" />
+            <div class="mt-6 flex flex-col gap-4">
+                <div>
+                    <x-input-label for="editingGradeName" :value="__('Grade Name')" />
+                    <x-text-input wire:model="editingGradeName" id="editingGradeName" type="text" class="mt-1 block w-full" required />
+                    <x-input-error :messages="$errors->get('editingGradeName')" class="mt-2" />
+                </div>
+
+                <div class="border-t border-slate-100 pt-4">
+                    <x-input-label :value="__('Divisions')" />
+                    
+                    <!-- Division Pills display inside Edit modal -->
+                    <div class="mt-2 flex flex-wrap gap-1.5 p-3 border border-slate-200 rounded-lg bg-slate-50/50 min-h-[48px]">
+                        @forelse ($editingDivisions as $index => $div)
+                            <span wire:key="edit-div-pill-{{ $index }}" 
+                                  class="inline-flex items-center gap-1.5 pl-2.5 pr-1 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                <span>{{ $div['name'] }}</span>
+                                <button type="button" 
+                                        wire:click="removeDivisionFromEditForm({{ $index }})" 
+                                        class="p-0.5 rounded-full hover:bg-indigo-100 text-indigo-400 hover:text-indigo-600 transition">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </span>
+                        @empty
+                            <span class="text-xs text-slate-400 italic">No divisions added yet. Use the field below to add divisions.</span>
+                        @endforelse
+                    </div>
+
+                    <!-- Add Division Form field inside Edit modal -->
+                    <div class="mt-3 flex gap-2 items-center">
+                        <div class="flex-grow">
+                            <input type="text" 
+                                   wire:model="editingDivisionInput" 
+                                   wire:keydown.enter.prevent="addDivisionToEditForm"
+                                   placeholder="Add division (e.g. A)" 
+                                   class="block w-full border border-slate-200 rounded-lg text-sm bg-white text-slate-800 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition duration-150">
+                        </div>
+                        <button type="button" 
+                                wire:click="addDivisionToEditForm" 
+                                class="px-4 py-2 bg-slate-850 hover:bg-slate-900 text-white rounded-lg text-sm font-semibold transition duration-150 shadow-sm focus:outline-none">
+                            Add
+                        </button>
+                    </div>
+                    @error('editingDivisionInput')
+                        <span class="text-xs text-rose-600 font-medium mt-1 block">{{ $message }}</span>
+                    @enderror
+                </div>
             </div>
 
-            <div class="mt-6 flex justify-end gap-3">
+            <div class="mt-6 flex justify-end gap-3 border-t border-slate-100 pt-4">
                 <x-secondary-button wire:click="closeEditGradeModal">
                     {{ __('Cancel') }}
                 </x-secondary-button>
