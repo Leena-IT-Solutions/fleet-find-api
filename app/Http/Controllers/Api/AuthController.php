@@ -418,4 +418,23 @@ class AuthController extends Controller
             ]
         ]);
     }
+
+    public function searchOrganizations(\Illuminate\Http\Request $request)
+    {
+        $query = $request->input('q', '');
+
+        $organizations = \App\Models\Organization::query()
+            ->when($query, function ($q) use ($query) {
+                $q->where('name', 'like', '%' . $query . '%')
+                  ->orWhere('address', 'like', '%' . $query . '%')
+                  ->orWhere('email', 'like', '%' . $query . '%');
+            })
+            ->limit(20)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'organizations' => $organizations
+        ]);
+    }
 }

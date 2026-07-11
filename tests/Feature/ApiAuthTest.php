@@ -327,4 +327,35 @@ class ApiAuthTest extends TestCase
                 ]
             ]);
     }
+
+    public function test_user_can_search_organizations()
+    {
+        $user = User::factory()->create();
+        $token = $user->createToken('test-token')->plainTextToken;
+
+        Organization::create([
+            'name' => 'Acme Transit',
+            'email' => 'acme@example.com',
+            'address' => '123 Acme Way'
+        ]);
+        Organization::create([
+            'name' => 'Globe Bus Service',
+            'email' => 'globe@example.com',
+            'address' => '456 Globe Blvd'
+        ]);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson('/api/organizations/search?q=Acme');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('success', true)
+            ->assertJsonCount(1, 'organizations')
+            ->assertJsonPath('organizations.0.name', 'Acme Transit');
+
+        $responseEmpty = $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson('/api/organizations/search?q=XYZNonExistent');
+
+        $responseEmpty->assertStatus(200)
+            ->assertJsonCount(0, 'organizations');
+    }
 }
