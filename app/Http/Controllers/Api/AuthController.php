@@ -250,6 +250,9 @@ class AuthController extends Controller
         $user->email = $request->email;
         $user->mobile = $request->mobile;
 
+        $oldPhoto = $user->profile_photo;
+        $updatedPhoto = false;
+
         if ($request->has('profile_photo') && !empty($request->profile_photo)) {
             $photoData = $request->profile_photo;
             
@@ -261,25 +264,39 @@ class AuthController extends Controller
                 if (in_array($type, ['jpg', 'jpeg', 'gif', 'png'])) {
                     $photoData = base64_decode($photoData);
                     if ($photoData !== false) {
-                        $fileName = 'profile_' . $user->id . '_' . time() . '.' . $type;
+                        $fileName = 'profile_' . $user->id . '_' . time() . '_' . uniqid() . '.' . $type;
                         $path = public_path('profile_photos');
                         if (!file_exists($path)) {
                             mkdir($path, 0777, true);
                         }
                         file_put_contents($path . '/' . $fileName, $photoData);
                         $user->profile_photo = 'profile_photos/' . $fileName;
+                        $updatedPhoto = true;
                     }
                 }
             } else if ($request->file('profile_photo')) {
                 // Support normal file uploads
                 $file = $request->file('profile_photo');
-                $fileName = 'profile_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $fileName = 'profile_' . $user->id . '_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                 $file->move(public_path('profile_photos'), $fileName);
                 $user->profile_photo = 'profile_photos/' . $fileName;
+                $updatedPhoto = true;
             } else {
                 // Direct relative path or raw string
                 if (str_starts_with($photoData, 'profile_photos/')) {
                     $user->profile_photo = $photoData;
+                    $updatedPhoto = true;
+                } else if (filter_var($photoData, FILTER_VALIDATE_URL)) {
+                    $user->profile_photo = $photoData;
+                    $updatedPhoto = true;
+                }
+            }
+
+            // Delete old photo if it was updated and was a local file
+            if ($updatedPhoto && $oldPhoto && $oldPhoto !== $user->profile_photo && str_starts_with($oldPhoto, 'profile_photos/')) {
+                $oldPath = public_path($oldPhoto);
+                if (file_exists($oldPath) && is_file($oldPath)) {
+                    @unlink($oldPath);
                 }
             }
         }
@@ -334,6 +351,15 @@ class AuthController extends Controller
         
         // Revoke tokens
         $user->tokens()->delete();
+        
+        // Delete profile photo if it exists locally
+        $photo = $user->profile_photo;
+        if ($photo && str_starts_with($photo, 'profile_photos/')) {
+            $path = public_path($photo);
+            if (file_exists($path) && is_file($path)) {
+                @unlink($path);
+            }
+        }
         
         // Delete user
         $user->delete();

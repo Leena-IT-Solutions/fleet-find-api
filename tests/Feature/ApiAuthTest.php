@@ -247,4 +247,53 @@ class ApiAuthTest extends TestCase
             'id' => $user->id,
         ]);
     }
+
+    public function test_updating_profile_photo_removes_old_file(): void
+    {
+        $user = User::factory()->create([
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'mobile' => '1234567890',
+        ]);
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        // 1. Upload first base64 photo
+        $base64_1 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/profile/update', [
+                'name' => 'Test User',
+                'email' => 'test@example.com',
+                'mobile' => '1234567890',
+                'profile_photo' => $base64_1,
+            ]);
+
+        $response->assertStatus(200);
+        $user->refresh();
+        $this->assertNotNull($user->profile_photo);
+        $firstPath = public_path($user->profile_photo);
+        $this->assertFileExists($firstPath);
+
+        // 2. Upload second base64 photo - this should delete the first file
+        $base64_2 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+        $response2 = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/profile/update', [
+                'name' => 'Test User',
+                'email' => 'test@example.com',
+                'mobile' => '1234567890',
+                'profile_photo' => $base64_2,
+            ]);
+
+        $response2->assertStatus(200);
+        $user->refresh();
+        $secondPath = public_path($user->profile_photo);
+        $this->assertFileExists($secondPath);
+        $this->assertFileDoesNotExist($firstPath);
+
+        // 3. Delete account - this should delete the second file
+        $deleteResponse = $this->withHeader('Authorization', "Bearer {$token}")
+            ->deleteJson('/api/profile/delete');
+
+        $deleteResponse->assertStatus(200);
+        $this->assertFileDoesNotExist($secondPath);
+    }
 }
