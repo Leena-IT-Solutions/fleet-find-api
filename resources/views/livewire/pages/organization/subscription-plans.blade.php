@@ -412,7 +412,7 @@ new class extends Component
                     </div>
 
                     <div>
-                        <x-input-label for="newAmount" :value="__('Amount ($)')" />
+                        <x-input-label for="newAmount" :value="__('Amount (₹)')" />
                         <x-text-input wire:model="newAmount" id="newAmount" type="number" step="0.01" min="0" class="mt-1 block w-full" placeholder="e.g. 50.00" required />
                         <x-input-error :messages="$errors->get('newAmount')" class="mt-2" />
                     </div>
@@ -486,7 +486,7 @@ new class extends Component
                     </div>
 
                     <div>
-                        <x-input-label for="editingAmount" :value="__('Amount ($)')" />
+                        <x-input-label for="editingAmount" :value="__('Amount (₹)')" />
                         <x-text-input wire:model="editingAmount" id="editingAmount" type="number" step="0.01" min="0" class="mt-1 block w-full" required />
                         <x-input-error :messages="$errors->get('editingAmount')" class="mt-2" />
                     </div>
