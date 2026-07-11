@@ -324,7 +324,7 @@ new class extends Component
                                             <span>{{ $plan->valid_till->format('M d, Y') }}</span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="text-sm font-bold text-indigo-600">${{ number_format($plan->amount, 2) }}</span>
+                                            <span class="text-sm font-bold text-indigo-600">₹{{ number_format($plan->amount, 2) }}</span>
                                         </td>
                                         <td class="px-6 py-4">
                                             <div class="flex flex-wrap gap-1.5 max-w-[240px]">
