@@ -471,6 +471,7 @@ class AuthController extends Controller
             'dob' => ['nullable', 'date'],
             'gender' => ['nullable', 'string', 'in:Male,Female,Other'],
             'photo' => ['nullable', 'string'], // base64 representation
+            'relationship_type' => ['nullable', 'string', 'in:Mother,Father,Guardian,Other'],
         ]);
 
         $user = $request->user();
@@ -509,13 +510,15 @@ class AuthController extends Controller
         $child->save();
 
         // Attach relationship to current user safely
-        $relationship = $user->relationship_type ?: 'Other';
+        $relationship = $request->relationship_type ?: ($user->relationship_type ?: 'Other');
         $user->children()->syncWithoutDetaching([$child->id => ['relationship_type' => $relationship]]);
 
         // Auto-attach relationship to co-parent if linked
         if ($user->co_parent_id) {
             $coParent = User::find($user->co_parent_id);
             if ($coParent) {
+                // If the user specified a specific relationship (like Father), we can deduce the co-parent's relationship,
+                // or just fall back to co-parent's own default relationship type.
                 $coParentRelationship = $coParent->relationship_type ?: 'Other';
                 $coParent->children()->syncWithoutDetaching([$child->id => ['relationship_type' => $coParentRelationship]]);
             }
@@ -553,6 +556,7 @@ class AuthController extends Controller
             'dob' => ['nullable', 'date'],
             'gender' => ['nullable', 'string', 'in:Male,Female,Other'],
             'photo' => ['nullable', 'string'], // base64 representation or path
+            'relationship_type' => ['nullable', 'string', 'in:Mother,Father,Guardian,Other'],
         ]);
 
         $child->name = $request->name;
@@ -596,6 +600,12 @@ class AuthController extends Controller
 
         $child->save();
 
+        if ($request->has('relationship_type')) {
+            $user->children()->updateExistingPivot($child->id, ['relationship_type' => $request->relationship_type]);
+        }
+
+        $relationship = $user->children()->find($child->id)?->pivot?->relationship_type ?: 'Other';
+
         return response()->json([
             'success' => true,
             'message' => 'Child updated successfully.',
@@ -606,6 +616,7 @@ class AuthController extends Controller
                 'dob' => $child->dob,
                 'gender' => $child->gender,
                 'photo' => $child->photo ? url($child->photo) : null,
+                'relationship_type' => $relationship,
             ]
         ]);
     }
