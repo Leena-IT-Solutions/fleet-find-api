@@ -263,6 +263,63 @@ new class extends Component
                         </div>
                     </div>
 
+                    <!-- Parent Deep Link Card -->
+                    <div class="bg-white border border-slate-200/80 shadow-sm rounded-xl p-6">
+                        <h3 class="text-base font-bold text-slate-800 mb-2 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                            </svg>
+                            <span>Parent App Invitation Link</span>
+                        </h3>
+                        <p class="text-xs text-slate-500 mb-4 leading-normal">
+                            Share this link with parents. It opens the FleetFind app if installed, or redirects to download it from the store, pre-linked to your organization.
+                        </p>
+
+                        <div x-data="{ copied: false, shareUrl: '{{ route('org.join', $organization->id) }}' }" class="flex flex-col gap-3">
+                            <div class="flex gap-2">
+                                <input type="text" :value="shareUrl" readonly class="block w-full border border-slate-200 rounded-lg text-xs bg-slate-50 text-slate-500 px-3 py-2.5 focus:outline-none">
+                                <button type="button" 
+                                        @click="navigator.clipboard.writeText(shareUrl).then(() => { copied = true; setTimeout(() => copied = false, 2000) })"
+                                        class="px-4 py-2 border border-slate-200 rounded-lg text-xs font-semibold bg-slate-50 hover:bg-slate-100 text-slate-700 transition flex items-center gap-1.5 focus:outline-none select-none shrink-0">
+                                    <span x-show="!copied" class="flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m-6 4h10m-5-5h5M11 12h5m-5 4h5" />
+                                        </svg>
+                                        <span>Copy</span>
+                                    </span>
+                                    <span x-show="copied" class="flex items-center gap-1 text-emerald-600 font-bold" style="display: none;">
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        <span>Copied!</span>
+                                    </span>
+                                </button>
+                            </div>
+                            
+                            <div class="flex gap-2">
+                                <!-- Share on WhatsApp -->
+                                <a :href="'https://api.whatsapp.com/send?text=Please%20download%20the%20FleetFind%20app%20to%20track%20our%20bus%20routes%20live.%20Join%20our%20network%20via%20this%20link:%20' + encodeURIComponent(shareUrl)" 
+                                   target="_blank"
+                                   class="flex-grow text-center py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5 focus:outline-none select-none shadow-sm shadow-emerald-600/10">
+                                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.665.989 3.3 1.563 5.361 1.564 5.429 0 9.849-4.417 9.852-9.848.002-2.63-1.018-5.1-2.868-6.95C17.093 2.07 14.621.982 12.01.982c-5.432 0-9.853 4.419-9.856 9.852-.001 2.076.547 4.104 1.585 5.9l-.993 3.626 3.71-.974zm12.08-6.945c-.273-.137-1.611-.795-1.86-.884-.249-.09-.43-.136-.61.137-.18.272-.696.884-.853 1.066-.157.18-.314.202-.587.066-.273-.136-1.15-.425-2.193-1.355-.808-.722-1.353-1.616-1.512-1.888-.159-.272-.017-.419.12-.555.123-.122.273-.318.41-.477.136-.159.182-.272.273-.454.09-.18.045-.34-.023-.477-.068-.136-.61-1.477-.835-2.022-.22-.527-.44-.454-.61-.464-.157-.01-.337-.01-.518-.01-.18 0-.476.068-.724.34-.249.273-.951.93-1.951 2.268.22.527-.44-.454-.61-.464-.157-.01-.337-.01-.518-.01-.18 0-.476.068-.724.34-.249.273-.951.93-1.951 2.268 0 .272.362.454.545.681.18.228.362.454.545.681.045.068.09.136.136.204-.317-.454-1.043-1.159-2.043-.659-.545-.228-1.09-.454-1.635-.681.272-.18.454-.363.681-.545.228-.18.454-.363.681-.545.068-.045.136-.09.204-.136z"/>
+                                    </svg>
+                                    <span>WhatsApp</span>
+                                </a>
+
+                                <!-- Share Native -->
+                                <button type="button"
+                                        @click="if (navigator.share) { navigator.share({ title: 'FleetFind Invitation', text: 'Please download the FleetFind app to track school bus routes live.', url: shareUrl }) } else { alert('Native sharing is not supported in this browser. Please use Copy Link.') }"
+                                        class="flex-grow text-center py-2 px-3 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5 focus:outline-none select-none shadow-sm">
+                                    <svg class="w-3.5 h-3.5 text-slate-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 10.742l5.084-2.542m0 0a3 3 0 10-1.242-2.484m1.242 2.484L8.684 13.258m0 0a3 3 0 101.242 2.484m-1.242-2.484l5.084 2.542m0 0a3 3 0 101.242-2.484" />
+                                    </svg>
+                                    <span>Share</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Config / settings Card -->
                     <div class="bg-white border border-slate-200/80 shadow-sm rounded-xl p-6">
                         <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">

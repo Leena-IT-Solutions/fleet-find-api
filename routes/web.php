@@ -6,6 +6,8 @@ Route::view('/', 'welcome');
 
 use Livewire\Volt\Volt;
 
+Volt::route('org/{organization}/join', 'pages.public.org-join')->name('org.join');
+
 Route::middleware(['auth', 'web-roles'])->group(function () {
     Route::get('administrator', function () {
         $totalUsers = \App\Models\User::count();
