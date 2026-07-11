@@ -305,7 +305,7 @@ new class extends Component
                         <div class="flex-grow min-w-0 flex flex-col gap-3">
                             <!-- User Identity Details -->
                             <div class="flex items-center gap-4 min-w-0">
-                                <!-- Initials Avatar -->
+                                <!-- User Avatar (Photo or Initials) -->
                                 @php
                                     $initials = collect(explode(' ', $u->name))->map(fn($n) => mb_substr($n, 0, 1))->take(2)->join('');
                                     $colors = [
@@ -317,9 +317,13 @@ new class extends Component
                                     ];
                                     $avatarColor = $colors[$u->id % count($colors)];
                                 @endphp
-                                <div class="w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm {{ $avatarColor }} shrink-0">
-                                    {{ strtoupper($initials) }}
-                                </div>
+                                @if($u->profile_photo)
+                                    <img src="{{ url($u->profile_photo) }}" alt="{{ $u->name }}" class="w-11 h-11 rounded-full object-cover shrink-0 border border-slate-200">
+                                @else
+                                    <div class="w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm {{ $avatarColor }} shrink-0">
+                                        {{ strtoupper($initials) }}
+                                    </div>
+                                @endif
 
                                 <div class="min-w-0 flex-1">
                                     <h3 class="font-semibold text-base text-slate-800 truncate" title="{{ $u->name }}">{{ $u->name }}</h3>
