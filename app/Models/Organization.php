@@ -66,4 +66,9 @@ class Organization extends Model
     {
         return $this->hasMany(SubscriptionPlan::class);
     }
+
+    public function grades()
+    {
+        return $this->hasMany(Grade::class);
+    }
 }

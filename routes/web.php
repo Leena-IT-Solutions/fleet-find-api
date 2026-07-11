@@ -33,6 +33,7 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('organization/dashboard', 'pages.organization.dashboard')->name('organization.dashboard');
     Volt::route('organization/organizations', 'pages.organization.organizations')->name('organization.organizations');
     Volt::route('organization/entity-info', 'pages.organization.entity-info')->name('organization.entity-info');
+    Volt::route('organization/grades-divisions', 'pages.organization.grades-divisions')->name('organization.grades-divisions');
     Volt::route('organization/access-control', 'pages.organization.access-control')->name('organization.access-control');
     Volt::route('organization/vehicles', 'pages.organization.vehicles')->name('organization.vehicles');
     Volt::route('organization/routes', 'pages.organization.routes-and-stops')->name('organization.routes');

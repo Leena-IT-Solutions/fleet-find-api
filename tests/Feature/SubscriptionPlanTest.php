@@ -70,8 +70,8 @@ class SubscriptionPlanTest extends TestCase
             ->test('pages.organization.subscription-plans')
             ->assertSee('Monthly Standard Pass')
             ->assertSee('Weekly Express Pass')
-            ->assertSee('$50.00')
-            ->assertSee('$15.50');
+            ->assertSee('₹50.00')
+            ->assertSee('₹15.50');
     }
 
     public function test_plans_search_works_correctly(): void
