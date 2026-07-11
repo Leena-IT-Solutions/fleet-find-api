@@ -11,7 +11,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'mobile', 'password', 'profile_photo', 'latitude', 'longitude', 'location_sharing_enabled', 'location_updated_at', 'relationship_type', 'co_parent_id', 'pending_co_parent_link'])]
+#[Fillable(['name', 'email', 'mobile', 'password', 'profile_photo', 'latitude', 'longitude', 'location_sharing_enabled', 'location_updated_at'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -113,13 +113,7 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
-    /**
-     * Get the linked co-parent user.
-     */
-    public function coParent()
-    {
-        return $this->belongsTo(User::class, 'co_parent_id');
-    }
+
 
     /**
      * The organizations that belong to the user.

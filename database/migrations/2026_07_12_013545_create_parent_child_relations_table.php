@@ -12,11 +12,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // 1. Add fields to users table
+        // 1. Add fields to users table (relationship_type removed per request)
+        // keeping migration shell intact to preserve existing database setup sequence
         Schema::table('users', function (Blueprint $table) {
-            $table->string('relationship_type')->nullable(); // Mother, Father, Guardian, Other
-            $table->foreignId('co_parent_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->string('pending_co_parent_link')->nullable();
+            // No columns added here now
         });
 
         // 2. Create child_user pivot table
@@ -33,11 +32,7 @@ return new class extends Migration
         // 3. Migrate existing data from children.parent_id
         $children = DB::table('children')->select('id', 'parent_id')->get();
         foreach ($children as $child) {
-            $user = DB::table('users')->where('id', $child->parent_id)->first();
             $relation = 'Other';
-            if ($user && !empty($user->relationship_type)) {
-                $relation = $user->relationship_type;
-            }
             DB::table('child_user')->insert([
                 'user_id' => $child->parent_id,
                 'child_id' => $child->id,
@@ -87,10 +82,7 @@ return new class extends Migration
         Schema::dropIfExists('child_user');
 
         Schema::table('users', function (Blueprint $table) {
-            if (DB::getDriverName() !== 'sqlite') {
-                $table->dropForeign(['co_parent_id']);
-            }
-            $table->dropColumn(['relationship_type', 'co_parent_id', 'pending_co_parent_link']);
+            // Keep empty as columns are no longer created
         });
     }
 };

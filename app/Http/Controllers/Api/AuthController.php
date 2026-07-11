@@ -22,8 +22,6 @@ class AuthController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'mobile' => ['required', 'string', 'max:20'],
             'password' => ['required', 'confirmed', Password::defaults()],
-            'relationship_type' => ['nullable', 'string', 'in:Mother,Father,Guardian,Other'],
-            'co_parent_phone_or_email' => ['nullable', 'string'],
         ]);
 
         if ($validator->fails()) {
@@ -38,13 +36,7 @@ class AuthController extends Controller
             'email' => $request->email,
             'mobile' => $request->mobile,
             'password' => Hash::make($request->password),
-            'relationship_type' => $request->relationship_type ?: 'Other',
         ]);
-
-        $this->checkPendingCoParentLink($user);
-        if ($request->co_parent_phone_or_email) {
-            $this->syncCoParentRelations($user, $request->co_parent_phone_or_email);
-        }
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -226,8 +218,6 @@ class AuthController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'mobile' => ['required', 'string', 'max:20', 'unique:users,mobile,' . $user->id],
             'profile_photo' => ['nullable', 'string'],
-            'relationship_type' => ['nullable', 'string', 'in:Mother,Father,Guardian,Other'],
-            'co_parent_phone_or_email' => ['nullable', 'string'],
         ]);
 
         if ($validator->fails()) {
@@ -240,9 +230,6 @@ class AuthController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
         $user->mobile = $request->mobile;
-        if ($request->has('relationship_type')) {
-            $user->relationship_type = $request->relationship_type;
-        }
 
         $oldPhoto = $user->profile_photo;
         $updatedPhoto = false;
@@ -296,10 +283,6 @@ class AuthController extends Controller
         }
 
         $user->save();
-
-        if ($request->has('co_parent_phone_or_email')) {
-            $this->syncCoParentRelations($user, $request->co_parent_phone_or_email);
-        }
 
         return response()->json([
             'message' => 'Profile updated successfully.',
@@ -510,19 +493,8 @@ class AuthController extends Controller
         $child->save();
 
         // Attach relationship to current user safely
-        $relationship = $request->relationship_type ?: ($user->relationship_type ?: 'Other');
+        $relationship = $request->relationship_type ?: 'Other';
         $user->children()->syncWithoutDetaching([$child->id => ['relationship_type' => $relationship]]);
-
-        // Auto-attach relationship to co-parent if linked
-        if ($user->co_parent_id) {
-            $coParent = User::find($user->co_parent_id);
-            if ($coParent) {
-                // If the user specified a specific relationship (like Father), we can deduce the co-parent's relationship,
-                // or just fall back to co-parent's own default relationship type.
-                $coParentRelationship = $coParent->relationship_type ?: 'Other';
-                $coParent->children()->syncWithoutDetaching([$child->id => ['relationship_type' => $coParentRelationship]]);
-            }
-        }
 
         return response()->json([
             'success' => true,
@@ -649,108 +621,14 @@ class AuthController extends Controller
         ]);
     }
 
-    private function syncCoParentRelations(User $user, $coParentPhoneOrEmail)
-    {
-        if (empty($coParentPhoneOrEmail)) {
-            return;
-        }
-
-        $coParent = User::where('email', $coParentPhoneOrEmail)
-            ->orWhere('mobile', $coParentPhoneOrEmail)
-            ->first();
-
-        if ($coParent) {
-            $user->co_parent_id = $coParent->id;
-            $user->pending_co_parent_link = null;
-            $user->save();
-
-            $coParent->co_parent_id = $user->id;
-            $coParent->pending_co_parent_link = null;
-            $coParent->save();
-
-            // Sync children mapping in pivot
-            $coParentChildren = DB::table('child_user')->where('user_id', $coParent->id)->get();
-            foreach ($coParentChildren as $c) {
-                DB::table('child_user')->updateOrInsert(
-                    ['user_id' => $user->id, 'child_id' => $c->child_id],
-                    ['relationship_type' => $user->relationship_type ?: 'Other', 'created_at' => now(), 'updated_at' => now()]
-                );
-            }
-
-            $userChildren = DB::table('child_user')->where('user_id', $user->id)->get();
-            foreach ($userChildren as $c) {
-                DB::table('child_user')->updateOrInsert(
-                    ['user_id' => $coParent->id, 'child_id' => $c->child_id],
-                    ['relationship_type' => $coParent->relationship_type ?: 'Other', 'created_at' => now(), 'updated_at' => now()]
-                );
-            }
-
-            // Sync organization mappings
-            $coParentOrgs = $coParent->organizations()->pluck('organizations.id')->toArray();
-            if (!empty($coParentOrgs)) {
-                $user->organizations()->syncWithoutDetaching($coParentOrgs);
-            }
-
-            $userOrgs = $user->organizations()->pluck('organizations.id')->toArray();
-            if (!empty($userOrgs)) {
-                $coParent->organizations()->syncWithoutDetaching($userOrgs);
-            }
-        } else {
-            $user->pending_co_parent_link = $coParentPhoneOrEmail;
-            $user->co_parent_id = null;
-            $user->save();
-        }
-    }
-
-    private function checkPendingCoParentLink(User $newUser)
-    {
-        $pendingInviter = User::where('pending_co_parent_link', $newUser->email)
-            ->orWhere('pending_co_parent_link', $newUser->mobile)
-            ->first();
-
-        if ($pendingInviter) {
-            $newUser->co_parent_id = $pendingInviter->id;
-            $newUser->pending_co_parent_link = null;
-            $newUser->save();
-
-            $pendingInviter->co_parent_id = $newUser->id;
-            $pendingInviter->pending_co_parent_link = null;
-            $pendingInviter->save();
-
-            $inviterChildren = DB::table('child_user')->where('user_id', $pendingInviter->id)->get();
-            foreach ($inviterChildren as $c) {
-                DB::table('child_user')->updateOrInsert(
-                    ['user_id' => $newUser->id, 'child_id' => $c->child_id],
-                    ['relationship_type' => $newUser->relationship_type ?: 'Other', 'created_at' => now(), 'updated_at' => now()]
-                );
-            }
-
-            $inviterOrgs = $pendingInviter->organizations()->pluck('organizations.id')->toArray();
-            if (!empty($inviterOrgs)) {
-                $newUser->organizations()->syncWithoutDetaching($inviterOrgs);
-            }
-        }
-    }
-
     private function formatUserResponse(User $user)
     {
-        $coParent = $user->coParent;
-
         return [
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
             'mobile' => $user->mobile,
             'profile_photo' => $user->profile_photo ? url($user->profile_photo) : null,
-            'relationship_type' => $user->relationship_type,
-            'co_parent' => $coParent ? [
-                'id' => $coParent->id,
-                'name' => $coParent->name,
-                'email' => $coParent->email,
-                'mobile' => $coParent->mobile,
-                'relationship_type' => $coParent->relationship_type,
-            ] : null,
-            'co_parent_phone_or_email' => $coParent ? ($coParent->email ?: $coParent->mobile) : $user->pending_co_parent_link,
         ];
     }
 }
