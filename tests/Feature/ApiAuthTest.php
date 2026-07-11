@@ -358,4 +358,43 @@ class ApiAuthTest extends TestCase
         $responseEmpty->assertStatus(200)
             ->assertJsonCount(0, 'organizations');
     }
+
+    public function test_user_can_manage_children()
+    {
+        $user = User::factory()->create();
+        $token = $user->createToken('test-token')->plainTextToken;
+
+        // Create initial child
+        \App\Models\Child::create([
+            'parent_id' => $user->id,
+            'name' => 'Existing Kid',
+            'dob' => '2018-05-12',
+            'gender' => 'Male'
+        ]);
+
+        // Get children list
+        $responseGet = $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson('/api/children');
+
+        $responseGet->assertStatus(200)
+            ->assertJsonPath('success', true)
+            ->assertJsonCount(1, 'children')
+            ->assertJsonPath('children.0.name', 'Existing Kid');
+
+        // Add a new child
+        $responseAdd = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/children', [
+                'name' => 'New Kid',
+                'dob' => '2020-09-21',
+                'gender' => 'Female'
+            ]);
+
+        $responseAdd->assertStatus(200)
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('child.name', 'New Kid')
+            ->assertJsonPath('child.gender', 'Female');
+
+        // Check if database contains both
+        $this->assertDatabaseCount('children', 2);
+    }
 }

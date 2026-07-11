@@ -18,4 +18,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/profile/delete', [AuthController::class, 'deleteAccount']);
     Route::get('/organization', [AuthController::class, 'organization']);
     Route::get('/organizations/search', [AuthController::class, 'searchOrganizations']);
+    Route::get('/children', [AuthController::class, 'getChildren']);
+    Route::post('/children', [AuthController::class, 'addChild']);
 });

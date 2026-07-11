@@ -447,4 +447,82 @@ class AuthController extends Controller
             'organizations' => $organizations
         ]);
     }
+
+    public function getChildren(Request $request)
+    {
+        $user = $request->user();
+        $children = $user->children()->orderBy('id', 'desc')->get();
+
+        // Format photo URL if present
+        $children = $children->map(function ($child) {
+            return [
+                'id' => $child->id,
+                'parent_id' => $child->parent_id,
+                'name' => $child->name,
+                'dob' => $child->dob,
+                'gender' => $child->gender,
+                'photo' => $child->photo ? url($child->photo) : null,
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'children' => $children
+        ]);
+    }
+
+    public function addChild(Request $request)
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'dob' => ['nullable', 'date'],
+            'gender' => ['nullable', 'string', 'in:Male,Female,Other'],
+            'photo' => ['nullable', 'string'], // base64 representation
+        ]);
+
+        $user = $request->user();
+        $child = new \App\Models\Child();
+        $child->parent_id = $user->id;
+        $child->name = $request->name;
+        $child->dob = $request->dob;
+        $child->gender = $request->gender;
+
+        if ($request->has('photo') && !empty($request->photo)) {
+            $photoData = $request->photo;
+            
+            // Check if it's base64 data URL
+            if (preg_match('/^data:image\/(\w+);base64,/', $photoData, $type)) {
+                $photoData = substr($photoData, strpos($photoData, ',') + 1);
+                $type = strtolower($type[1]); // png, jpg, jpeg
+                
+                if (in_array($type, ['jpg', 'jpeg', 'gif', 'png'])) {
+                    $photoData = base64_decode($photoData);
+                    if ($photoData !== false) {
+                        $fileName = 'child_' . $user->id . '_' . time() . '_' . uniqid() . '.' . $type;
+                        $path = public_path('child_photos');
+                        if (!file_exists($path)) {
+                            mkdir($path, 0777, true);
+                        }
+                        file_put_contents($path . '/' . $fileName, $photoData);
+                        $child->photo = 'child_photos/' . $fileName;
+                    }
+                }
+            }
+        }
+
+        $child->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Child added successfully.',
+            'child' => [
+                'id' => $child->id,
+                'parent_id' => $child->parent_id,
+                'name' => $child->name,
+                'dob' => $child->dob,
+                'gender' => $child->gender,
+                'photo' => $child->photo ? url($child->photo) : null,
+            ]
+        ]);
+    }
 }
