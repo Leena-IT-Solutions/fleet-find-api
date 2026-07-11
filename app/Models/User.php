@@ -11,7 +11,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'mobile', 'password', 'profile_photo'])]
+#[Fillable(['name', 'email', 'mobile', 'password', 'profile_photo', 'latitude', 'longitude', 'location_sharing_enabled', 'location_updated_at'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -28,6 +28,10 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'location_sharing_enabled' => 'boolean',
+            'latitude' => 'float',
+            'longitude' => 'float',
+            'location_updated_at' => 'datetime',
         ];
     }
 
@@ -37,6 +41,14 @@ class User extends Authenticatable
     public function roles()
     {
         return $this->belongsToMany(Role::class);
+    }
+
+    /**
+     * The groups that the user belongs to.
+     */
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class)->withPivot('role')->withTimestamps();
     }
 
     /**
