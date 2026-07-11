@@ -372,12 +372,18 @@ class AuthController extends Controller
     public function organization(Request $request)
     {
         $user = $request->user();
-        $organization = $user->organizations()->first();
+        $orgId = $request->query('organization_id');
+
+        if ($orgId) {
+            $organization = $user->organizations()->where('organizations.id', $orgId)->first();
+        } else {
+            $organization = $user->organizations()->first();
+        }
 
         if (!$organization) {
             return response()->json([
                 'success' => false,
-                'message' => 'User is not associated with any organization.'
+                'message' => 'User is not associated with this organization.'
             ], 404);
         }
 
@@ -397,6 +403,9 @@ class AuthController extends Controller
             ->join('users', 'attendants.user_id', '=', 'users.id')
             ->get(['attendants.id', 'users.name as attendant_name']);
 
+        // Get all organizations of this user
+        $allOrganizations = $user->organizations()->get(['organizations.id', 'organizations.name']);
+
         return response()->json([
             'success' => true,
             'organization' => [
@@ -415,7 +424,8 @@ class AuthController extends Controller
                 'vehicles' => $vehicles,
                 'drivers' => $drivers,
                 'attendants' => $attendants,
-            ]
+            ],
+            'organizations' => $allOrganizations
         ]);
     }
 
