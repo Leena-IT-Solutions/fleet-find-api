@@ -33,6 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/groups/{id}/members', [GroupController::class, 'addMember']);
     Route::delete('/groups/{id}/members/{userId}', [GroupController::class, 'removeMember']);
     Route::patch('/groups/{id}/members/{userId}/role', [GroupController::class, 'updateMemberRole']);
+    Route::patch('/groups/{id}/location-sharing', [GroupController::class, 'toggleGroupLocationSharing']);
 
     // Location
     Route::patch('/location', [GroupController::class, 'updateLocation']);

@@ -231,4 +231,71 @@ class GroupTest extends TestCase
         $response->assertJsonPath('success', true);
         $response->assertJsonPath('location_update_interval_seconds', 15);
     }
+
+    /** @test */
+    public function test_a_user_can_toggle_location_sharing_for_a_specific_group()
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $group = Group::create([
+            'name' => 'Test Group',
+            'created_by' => $user->id,
+        ]);
+        $group->members()->attach($user->id, ['role' => 'admin', 'location_sharing_enabled' => false]);
+
+        $response = $this->patchJson("/api/groups/{$group->id}/location-sharing", [
+            'location_sharing_enabled' => true,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('success', true);
+        $response->assertJsonPath('location_sharing_enabled', true);
+
+        $this->assertDatabaseHas('group_user', [
+            'group_id' => $group->id,
+            'user_id' => $user->id,
+            'location_sharing_enabled' => true,
+        ]);
+    }
+
+    /** @test */
+    public function test_group_members_list_only_shows_coordinates_for_sharing_members()
+    {
+        $userA = User::factory()->create(['latitude' => 23.1, 'longitude' => 72.1, 'location_sharing_enabled' => true]);
+        $userB = User::factory()->create(['latitude' => 23.2, 'longitude' => 72.2, 'location_sharing_enabled' => true]);
+
+        $group = Group::create([
+            'name' => 'Test Group',
+            'created_by' => $userA->id,
+        ]);
+
+        // User A shares location with group; User B does not share with group
+        $group->members()->attach($userA->id, ['role' => 'admin', 'location_sharing_enabled' => true]);
+        $group->members()->attach($userB->id, ['role' => 'member', 'location_sharing_enabled' => false]);
+
+        Sanctum::actingAs($userA);
+
+        $response = $this->getJson("/api/groups/{$group->id}");
+        $response->assertStatus(200);
+
+        // User A's location should be returned; User B's location should be null
+        $response->assertJson([
+            'success' => true,
+            'members' => [
+                [
+                    'id' => $userA->id,
+                    'location_sharing_enabled' => true,
+                    'latitude' => 23.1,
+                    'longitude' => 72.1,
+                ],
+                [
+                    'id' => $userB->id,
+                    'location_sharing_enabled' => false,
+                    'latitude' => null,
+                    'longitude' => null,
+                ]
+            ]
+        ]);
+    }
 }

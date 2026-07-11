@@ -16,7 +16,7 @@ class Group extends Model
      */
     public function members()
     {
-        return $this->belongsToMany(User::class)->withPivot('role')->withTimestamps();
+        return $this->belongsToMany(User::class)->withPivot('role', 'location_sharing_enabled')->withTimestamps();
     }
 
     /**

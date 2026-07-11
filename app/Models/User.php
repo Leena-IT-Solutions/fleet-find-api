@@ -48,7 +48,7 @@ class User extends Authenticatable
      */
     public function groups()
     {
-        return $this->belongsToMany(Group::class)->withPivot('role')->withTimestamps();
+        return $this->belongsToMany(Group::class)->withPivot('role', 'location_sharing_enabled')->withTimestamps();
     }
 
     /**

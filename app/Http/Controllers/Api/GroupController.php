@@ -17,7 +17,10 @@ class GroupController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $groups = $user->groups()->withCount('members')->get();
+        $groups = $user->groups()->withCount('members')->get()->map(function ($group) {
+            $group->user_sharing_enabled = (bool) $group->pivot->location_sharing_enabled;
+            return $group;
+        });
 
         return response()->json([
             'success' => true,
@@ -78,9 +81,9 @@ class GroupController extends Controller
             ], 403);
         }
 
-        // Return members with location info only if they have sharing enabled
+        // Return members with location info only if they have sharing enabled for this group
         $members = $group->members()->get()->map(function ($member) {
-            $isSharing = (bool) $member->location_sharing_enabled;
+            $isSharing = (bool) $member->pivot->location_sharing_enabled;
             return [
                 'id' => $member->id,
                 'name' => $member->name,
@@ -408,6 +411,43 @@ class GroupController extends Controller
         return response()->json([
             'success' => true,
             'location_update_interval_seconds' => (int) $interval
+        ]);
+    }
+
+    /**
+     * Toggle location sharing for a specific group.
+     */
+    public function toggleGroupLocationSharing(Request $request, $id)
+    {
+        $request->validate([
+            'location_sharing_enabled' => 'required|boolean',
+        ]);
+
+        $user = Auth::user();
+        $group = Group::find($id);
+
+        if (!$group) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Group not found.'
+            ], 404);
+        }
+
+        if (!$group->isMember($user)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You are not a member of this group.'
+            ], 403);
+        }
+
+        $group->members()->updateExistingPivot($user->id, [
+            'location_sharing_enabled' => $request->location_sharing_enabled,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Group location sharing updated successfully.',
+            'location_sharing_enabled' => $request->location_sharing_enabled,
         ]);
     }
 }
