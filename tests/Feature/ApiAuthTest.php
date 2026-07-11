@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Models\Organization;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -295,5 +296,35 @@ class ApiAuthTest extends TestCase
 
         $deleteResponse->assertStatus(200);
         $this->assertFileDoesNotExist($secondPath);
+    }
+
+    public function test_user_can_retrieve_organization_details(): void
+    {
+        $user = User::factory()->create();
+        $organization = Organization::create([
+            'name' => 'Test Org',
+            'contact_name' => 'Org Contact',
+            'number' => '9999999999',
+            'email' => 'org@example.com',
+            'address' => '123 Test St',
+        ]);
+        $organization->users()->attach($user->id, ['access' => 'owner']);
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson('/api/organization');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('organization.name', 'Test Org')
+            ->assertJsonStructure([
+                'success',
+                'organization' => [
+                    'id', 'name', 'contact_name', 'number', 'email', 'address',
+                    'vehicles_count', 'drivers_count', 'attendants_count', 'routes_count', 'trips_count',
+                    'vehicles', 'drivers', 'attendants'
+                ]
+            ]);
     }
 }

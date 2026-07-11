@@ -368,4 +368,54 @@ class AuthController extends Controller
             'message' => 'Account deleted successfully.'
         ]);
     }
+
+    public function organization(Request $request)
+    {
+        $user = $request->user();
+        $organization = $user->organizations()->first();
+
+        if (!$organization) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User is not associated with any organization.'
+            ], 404);
+        }
+
+        // Load counts
+        $organization->loadCount(['vehicles', 'drivers', 'attendants', 'routes', 'trips']);
+
+        // Load vehicles list
+        $vehicles = $organization->vehicles()->get(['id', 'registration_number', 'model', 'capacity']);
+
+        // Load drivers with their user names
+        $drivers = $organization->drivers()
+            ->join('users', 'drivers.user_id', '=', 'users.id')
+            ->get(['drivers.id', 'users.name as driver_name', 'drivers.license']);
+
+        // Load attendants with their user names
+        $attendants = $organization->attendants()
+            ->join('users', 'attendants.user_id', '=', 'users.id')
+            ->get(['attendants.id', 'users.name as attendant_name']);
+
+        return response()->json([
+            'success' => true,
+            'organization' => [
+                'id' => $organization->id,
+                'name' => $organization->name,
+                'contact_name' => $organization->contact_name,
+                'number' => $organization->number,
+                'email' => $organization->email,
+                'address' => $organization->address,
+                'logo' => $organization->logo ? url($organization->logo) : null,
+                'vehicles_count' => $organization->vehicles_count,
+                'drivers_count' => $organization->drivers_count,
+                'attendants_count' => $organization->attendants_count,
+                'routes_count' => $organization->routes_count,
+                'trips_count' => $organization->trips_count,
+                'vehicles' => $vehicles,
+                'drivers' => $drivers,
+                'attendants' => $attendants,
+            ]
+        ]);
+    }
 }
