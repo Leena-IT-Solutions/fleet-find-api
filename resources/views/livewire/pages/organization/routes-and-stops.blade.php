@@ -1025,16 +1025,42 @@ new class extends Component
                     });
 
                     if (coordinates.length > 1) {
-                        this.polyline = L.polyline(coordinates, {
-                            color: '#4f46e5',
-                            weight: 4,
-                            opacity: 0.8,
-                            dashArray: '8, 8'
-                        }).addTo(this.map);
-
-                        if (!isNewStopAdded) {
-                            this.map.fitBounds(this.polyline.getBounds(), { padding: [40, 40] });
-                        }
+                        let osrmCoords = coordinates.map(c => `${c[1]},${c[0]}`).join(';');
+                        fetch(`https://router.project-osrm.org/route/v1/driving/${osrmCoords}?overview=full&geometries=geojson`)
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
+                                    let routeCoords = data.routes[0].geometry.coordinates.map(coord => [coord[1], coord[0]]);
+                                    this.polyline = L.polyline(routeCoords, {
+                                        color: '#4f46e5',
+                                        weight: 4,
+                                        opacity: 0.8,
+                                        dashArray: '8, 8'
+                                    }).addTo(this.map);
+                                } else {
+                                    this.polyline = L.polyline(coordinates, {
+                                        color: '#4f46e5',
+                                        weight: 4,
+                                        opacity: 0.8,
+                                        dashArray: '8, 8'
+                                    }).addTo(this.map);
+                                }
+                                if (!isNewStopAdded) {
+                                    this.map.fitBounds(this.polyline.getBounds(), { padding: [40, 40] });
+                                }
+                            })
+                            .catch(err => {
+                                console.error("OSRM Route request failed:", err);
+                                this.polyline = L.polyline(coordinates, {
+                                    color: '#4f46e5',
+                                    weight: 4,
+                                    opacity: 0.8,
+                                    dashArray: '8, 8'
+                                }).addTo(this.map);
+                                if (!isNewStopAdded) {
+                                    this.map.fitBounds(this.polyline.getBounds(), { padding: [40, 40] });
+                                }
+                            });
                     }
 
                     // Auto-focus and open popup if a new stop was added
@@ -1087,15 +1113,43 @@ new class extends Component
                     });
 
                     if (pathCoordinates.length > 1) {
-                        this.googlePolyline = new google.maps.Polyline({
-                            path: pathCoordinates,
-                            geodesic: true,
-                            strokeColor: '#4f46e5',
-                            strokeOpacity: 0.8,
-                            strokeWeight: 4
+                        let directionsService = new google.maps.DirectionsService();
+                        let waypoints = [];
+                        for (let i = 1; i < pathCoordinates.length - 1; i++) {
+                            waypoints.push({
+                                location: pathCoordinates[i],
+                                stopover: true
+                            });
+                        }
+                        
+                        directionsService.route({
+                            origin: pathCoordinates[0],
+                            destination: pathCoordinates[pathCoordinates.length - 1],
+                            waypoints: waypoints,
+                            travelMode: google.maps.TravelMode.DRIVING
+                        }, (response, status) => {
+                            if (status === 'OK') {
+                                let routePath = response.routes[0].overview_path;
+                                this.googlePolyline = new google.maps.Polyline({
+                                    path: routePath,
+                                    geodesic: true,
+                                    strokeColor: '#4f46e5',
+                                    strokeOpacity: 0.8,
+                                    strokeWeight: 4
+                                });
+                                this.googlePolyline.setMap(this.gmap);
+                            } else {
+                                console.warn("Google Directions Service failed: ", status);
+                                this.googlePolyline = new google.maps.Polyline({
+                                    path: pathCoordinates,
+                                    geodesic: true,
+                                    strokeColor: '#4f46e5',
+                                    strokeOpacity: 0.8,
+                                    strokeWeight: 4
+                                });
+                                this.googlePolyline.setMap(this.gmap);
+                            }
                         });
-
-                        this.googlePolyline.setMap(this.gmap);
                         
                         if (!isNewStopAdded) {
                             this.gmap.fitBounds(bounds);
