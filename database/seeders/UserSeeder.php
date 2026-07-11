@@ -26,12 +26,8 @@ class UserSeeder extends Seeder
 
         // Seed some children for the parent Sandeep
         \App\Models\Child::firstOrCreate(
-            ['parent_id' => $user->id, 'name' => 'Aarav Rathod'],
-            ['gender' => 'Male', 'dob' => '2016-05-15']
-        );
-        \App\Models\Child::firstOrCreate(
-            ['parent_id' => $user->id, 'name' => 'Kiara Rathod'],
-            ['gender' => 'Female', 'dob' => '2019-10-20']
+            ['parent_id' => $user->id, 'name' => 'Royce Rathod'],
+            ['gender' => 'Male', 'dob' => '2017-04-07']
         );
 
         // Seed Leena Adam
