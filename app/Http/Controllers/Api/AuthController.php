@@ -46,6 +46,7 @@ class AuthController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'mobile' => $user->mobile,
+                'profile_photo' => null,
             ],
             'roles' => ['Parent'],
             'access_token' => $token,
@@ -92,6 +93,7 @@ class AuthController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'mobile' => $user->mobile,
+                'profile_photo' => $user->profile_photo ? url($user->profile_photo) : null,
             ],
             'roles' => empty($roles) ? ['Parent'] : $roles,
             'access_token' => $token,
@@ -220,8 +222,124 @@ class AuthController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'mobile' => $user->mobile,
+                'profile_photo' => $user->profile_photo ? url($user->profile_photo) : null,
             ],
             'roles' => empty($roles) ? ['Parent'] : $roles,
+        ]);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+
+        $validator = Validator::make($request->all(), [
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'mobile' => ['required', 'string', 'max:20', 'unique:users,mobile,' . $user->id],
+            'profile_photo' => ['nullable', 'string'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->mobile = $request->mobile;
+
+        if ($request->has('profile_photo') && !empty($request->profile_photo)) {
+            $photoData = $request->profile_photo;
+            
+            // Check if it's base64 data URL
+            if (preg_match('/^data:image\/(\w+);base64,/', $photoData, $type)) {
+                $photoData = substr($photoData, strpos($photoData, ',') + 1);
+                $type = strtolower($type[1]); // png, jpg, jpeg
+                
+                if (in_array($type, ['jpg', 'jpeg', 'gif', 'png'])) {
+                    $photoData = base64_decode($photoData);
+                    if ($photoData !== false) {
+                        $fileName = 'profile_' . $user->id . '_' . time() . '.' . $type;
+                        $path = public_path('profile_photos');
+                        if (!file_exists($path)) {
+                            mkdir($path, 0777, true);
+                        }
+                        file_put_contents($path . '/' . $fileName, $photoData);
+                        $user->profile_photo = 'profile_photos/' . $fileName;
+                    }
+                }
+            } else if ($request->file('profile_photo')) {
+                // Support normal file uploads
+                $file = $request->file('profile_photo');
+                $fileName = 'profile_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('profile_photos'), $fileName);
+                $user->profile_photo = 'profile_photos/' . $fileName;
+            } else {
+                // Direct relative path or raw string
+                if (str_starts_with($photoData, 'profile_photos/')) {
+                    $user->profile_photo = $photoData;
+                }
+            }
+        }
+
+        $user->save();
+
+        return response()->json([
+            'message' => 'Profile updated successfully.',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'mobile' => $user->mobile,
+                'profile_photo' => $user->profile_photo ? url($user->profile_photo) : null,
+            ]
+        ]);
+    }
+
+    public function changePassword(Request $request)
+    {
+        $user = $request->user();
+
+        $validator = Validator::make($request->all(), [
+            'current_password' => ['required', 'string'],
+            'password' => ['required', 'confirmed', Password::defaults()],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json([
+                'message' => 'The provided password does not match your current password.'
+            ], 422);
+        }
+
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        return response()->json([
+            'message' => 'Password updated successfully.'
+        ]);
+    }
+
+    public function deleteAccount(Request $request)
+    {
+        $user = $request->user();
+        
+        // Revoke tokens
+        $user->tokens()->delete();
+        
+        // Delete user
+        $user->delete();
+
+        return response()->json([
+            'message' => 'Account deleted successfully.'
         ]);
     }
 }

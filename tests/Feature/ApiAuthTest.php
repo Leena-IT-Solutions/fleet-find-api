@@ -178,4 +178,73 @@ class ApiAuthTest extends TestCase
                 'message' => 'Successfully logged out.'
             ]);
     }
+
+    public function test_user_can_update_profile_via_api(): void
+    {
+        $user = User::factory()->create([
+            'name' => 'Old Name',
+            'email' => 'old@example.com',
+            'mobile' => '1111111111',
+        ]);
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/profile/update', [
+                'name' => 'New Name',
+                'email' => 'new@example.com',
+                'mobile' => '2222222222',
+            ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('user.name', 'New Name')
+            ->assertJsonPath('user.email', 'new@example.com')
+            ->assertJsonPath('user.mobile', '2222222222');
+
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'name' => 'New Name',
+            'email' => 'new@example.com',
+            'mobile' => '2222222222',
+        ]);
+    }
+
+    public function test_user_can_change_password_via_api(): void
+    {
+        $user = User::factory()->create([
+            'password' => Hash::make('oldpassword'),
+        ]);
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/profile/password', [
+                'current_password' => 'oldpassword',
+                'password' => 'newpassword123',
+                'password_confirmation' => 'newpassword123',
+            ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'message' => 'Password updated successfully.'
+            ]);
+
+        $this->assertTrue(Hash::check('newpassword123', $user->refresh()->password));
+    }
+
+    public function test_user_can_delete_account_via_api(): void
+    {
+        $user = User::factory()->create();
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->deleteJson('/api/profile/delete');
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'message' => 'Account deleted successfully.'
+            ]);
+
+        $this->assertDatabaseMissing('users', [
+            'id' => $user->id,
+        ]);
+    }
 }
