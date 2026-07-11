@@ -396,5 +396,30 @@ class ApiAuthTest extends TestCase
 
         // Check if database contains both
         $this->assertDatabaseCount('children', 2);
+
+        $newChildId = $responseAdd->json('child.id');
+
+        // Update child details
+        $responseUpdate = $this->withHeader('Authorization', "Bearer {$token}")
+            ->putJson("/api/children/{$newChildId}", [
+                'name' => 'New Kid Updated',
+                'dob' => '2020-09-22',
+                'gender' => 'Other'
+            ]);
+
+        $responseUpdate->assertStatus(200)
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('child.name', 'New Kid Updated')
+            ->assertJsonPath('child.gender', 'Other');
+
+        // Delete child
+        $responseDelete = $this->withHeader('Authorization', "Bearer {$token}")
+            ->deleteJson("/api/children/{$newChildId}");
+
+        $responseDelete->assertStatus(200)
+            ->assertJsonPath('success', true);
+
+        // Check if database contains only 1 child
+        $this->assertDatabaseCount('children', 1);
     }
 }

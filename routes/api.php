@@ -20,4 +20,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/organizations/search', [AuthController::class, 'searchOrganizations']);
     Route::get('/children', [AuthController::class, 'getChildren']);
     Route::post('/children', [AuthController::class, 'addChild']);
+    Route::put('/children/{id}', [AuthController::class, 'updateChild']);
+    Route::delete('/children/{id}', [AuthController::class, 'deleteChild']);
 });

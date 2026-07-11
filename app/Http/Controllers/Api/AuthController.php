@@ -525,4 +525,106 @@ class AuthController extends Controller
             ]
         ]);
     }
+
+    public function updateChild(Request $request, $id)
+    {
+        $user = $request->user();
+        $child = $user->children()->find($id);
+
+        if (!$child) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Child not found.'
+            ], 404);
+        }
+
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'dob' => ['nullable', 'date'],
+            'gender' => ['nullable', 'string', 'in:Male,Female,Other'],
+            'photo' => ['nullable', 'string'], // base64 representation or path
+        ]);
+
+        $child->name = $request->name;
+        $child->dob = $request->dob;
+        $child->gender = $request->gender;
+
+        if ($request->has('photo') && !empty($request->photo)) {
+            $photoData = $request->photo;
+            
+            // Check if it's base64 data URL
+            if (preg_match('/^data:image\/(\w+);base64,/', $photoData, $type)) {
+                $photoData = substr($photoData, strpos($photoData, ',') + 1);
+                $type = strtolower($type[1]); // png, jpg, jpeg
+                
+                if (in_array($type, ['jpg', 'jpeg', 'gif', 'png'])) {
+                    $photoData = base64_decode($photoData);
+                    if ($photoData !== false) {
+                        // Delete old child photo if exists
+                        if ($child->photo && str_starts_with($child->photo, 'child_photos/')) {
+                            $oldPath = public_path($child->photo);
+                            if (file_exists($oldPath) && is_file($oldPath)) {
+                                @unlink($oldPath);
+                            }
+                        }
+
+                        $fileName = 'child_' . $user->id . '_' . time() . '_' . uniqid() . '.' . $type;
+                        $path = public_path('child_photos');
+                        if (!file_exists($path)) {
+                            mkdir($path, 0777, true);
+                        }
+                        file_put_contents($path . '/' . $fileName, $photoData);
+                        $child->photo = 'child_photos/' . $fileName;
+                    }
+                }
+            } else {
+                if (str_starts_with($photoData, 'child_photos/')) {
+                    $child->photo = $photoData;
+                }
+            }
+        }
+
+        $child->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Child updated successfully.',
+            'child' => [
+                'id' => $child->id,
+                'parent_id' => $child->parent_id,
+                'name' => $child->name,
+                'dob' => $child->dob,
+                'gender' => $child->gender,
+                'photo' => $child->photo ? url($child->photo) : null,
+            ]
+        ]);
+    }
+
+    public function deleteChild(Request $request, $id)
+    {
+        $user = $request->user();
+        $child = $user->children()->find($id);
+
+        if (!$child) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Child not found.'
+            ], 404);
+        }
+
+        // Delete photo if exists
+        if ($child->photo && str_starts_with($child->photo, 'child_photos/')) {
+            $oldPath = public_path($child->photo);
+            if (file_exists($oldPath) && is_file($oldPath)) {
+                @unlink($oldPath);
+            }
+        }
+
+        $child->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Child deleted successfully.'
+        ]);
+    }
 }
