@@ -11,7 +11,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'mobile', 'password', 'profile_photo', 'latitude', 'longitude', 'location_sharing_enabled', 'location_updated_at'])]
+#[Fillable(['name', 'email', 'mobile', 'password', 'profile_photo', 'latitude', 'longitude', 'location_sharing_enabled', 'location_updated_at', 'relationship_type', 'co_parent_id', 'pending_co_parent_link'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -108,7 +108,17 @@ class User extends Authenticatable
      */
     public function children()
     {
-        return $this->hasMany(Child::class, 'parent_id');
+        return $this->belongsToMany(Child::class, 'child_user')
+            ->withPivot('relationship_type')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the linked co-parent user.
+     */
+    public function coParent()
+    {
+        return $this->belongsTo(User::class, 'co_parent_id');
     }
 
     /**

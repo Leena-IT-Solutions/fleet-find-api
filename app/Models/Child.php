@@ -6,16 +6,52 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['parent_id', 'name', 'photo', 'dob', 'gender'])]
+#[Fillable(['name', 'photo', 'dob', 'gender', 'parent_id'])]
 class Child extends Model
 {
     use HasFactory;
 
     /**
-     * Get the parent user that owns the child.
+     * Get the parents associated with the child.
      */
-    public function parent()
+    public function parents()
     {
-        return $this->belongsTo(User::class, 'parent_id');
+        return $this->belongsToMany(User::class, 'child_user')
+            ->withPivot('relationship_type')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the parent_id for backward compatibility.
+     */
+    public function getParentIdAttribute()
+    {
+        return $this->parents()->first()?->id;
+    }
+
+    /**
+     * Boot the model events.
+     */
+    protected static function booted(): void
+    {
+        static::created(function (Child $child) {
+            // Retrieve parent_id directly from raw attributes to bypass the getParentIdAttribute accessor
+            $parentId = $child->getAttributes()['parent_id'] ?? null;
+            if ($parentId) {
+                $user = User::find($parentId);
+                if ($user) {
+                    $relationship = $user->relationship_type ?: 'Other';
+                    $child->parents()->syncWithoutDetaching([$user->id => ['relationship_type' => $relationship]]);
+
+                    if ($user->co_parent_id) {
+                        $coParent = User::find($user->co_parent_id);
+                        if ($coParent) {
+                            $coParentRelationship = $coParent->relationship_type ?: 'Other';
+                            $child->parents()->syncWithoutDetaching([$coParent->id => ['relationship_type' => $coParentRelationship]]);
+                        }
+                    }
+                }
+            }
+        });
     }
 }
