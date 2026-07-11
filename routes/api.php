@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\GroupController;
 use Illuminate\Support\Facades\Route;
 
 // Public auth routes
@@ -22,4 +23,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/children', [AuthController::class, 'addChild']);
     Route::put('/children/{id}', [AuthController::class, 'updateChild']);
     Route::delete('/children/{id}', [AuthController::class, 'deleteChild']);
+
+    // Groups
+    Route::get('/groups', [GroupController::class, 'index']);
+    Route::post('/groups', [GroupController::class, 'store']);
+    Route::get('/groups/{id}', [GroupController::class, 'show']);
+    Route::put('/groups/{id}', [GroupController::class, 'update']);
+    Route::delete('/groups/{id}', [GroupController::class, 'destroy']);
+    Route::post('/groups/{id}/members', [GroupController::class, 'addMember']);
+    Route::delete('/groups/{id}/members/{userId}', [GroupController::class, 'removeMember']);
+    Route::patch('/groups/{id}/members/{userId}/role', [GroupController::class, 'updateMemberRole']);
+
+    // Location
+    Route::patch('/location', [GroupController::class, 'updateLocation']);
+    Route::get('/settings/location-interval', [GroupController::class, 'getLocationInterval']);
 });
