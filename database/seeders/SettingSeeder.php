@@ -24,6 +24,7 @@ class SettingSeeder extends Seeder
             'mailgun_domain' => env('MAILGUN_DOMAIN', ''),
             'mailgun_secret' => env('MAILGUN_SECRET', ''),
             'mailgun_endpoint' => env('MAILGUN_ENDPOINT', 'api.mailgun.net'),
+            'location_update_interval_seconds' => '10',
         ];
 
         foreach ($defaults as $key => $value) {
