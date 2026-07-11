@@ -631,4 +631,110 @@ class AuthController extends Controller
             'profile_photo' => $user->profile_photo ? url($user->profile_photo) : null,
         ];
     }
+
+    public function getChild(Request $request, $id)
+    {
+        $user = $request->user();
+        $child = $user->children()->find($id);
+
+        if (!$child) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Child not found or you do not have permission to view this child.'
+            ], 404);
+        }
+
+        // Load all linked parents with pivot data
+        $relationships = $child->parents()->get()->map(function ($parent) {
+            return [
+                'id' => $parent->id,
+                'name' => $parent->name,
+                'email' => $parent->email,
+                'mobile' => $parent->mobile,
+                'relationship_type' => $parent->pivot?->relationship_type ?: 'Other',
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'child' => [
+                'id' => $child->id,
+                'name' => $child->name,
+                'dob' => $child->dob,
+                'gender' => $child->gender,
+                'photo' => $child->photo ? url($child->photo) : null,
+                'relationships' => $relationships,
+            ]
+        ]);
+    }
+
+    public function addChildRelationship(Request $request, $id)
+    {
+        $user = $request->user();
+        $child = $user->children()->find($id);
+
+        if (!$child) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Child not found or you do not have permission to modify this child.'
+            ], 404);
+        }
+
+        $request->validate([
+            'email_or_mobile' => ['required', 'string'],
+            'relationship_type' => ['required', 'string', 'in:Mother,Father,Guardian,Other,Aunt,Uncle'],
+        ]);
+
+        $input = $request->email_or_mobile;
+
+        // Search for user by email or mobile
+        $foundUser = User::where('email', $input)
+            ->orWhere('mobile', $input)
+            ->first();
+
+        if (!$foundUser) {
+            return response()->json([
+                'success' => false,
+                'message' => 'We could not find a registered parent with that email address or mobile number.'
+            ], 404);
+        }
+
+        // Attach user to child with relationship type
+        $child->parents()->syncWithoutDetaching([
+            $foundUser->id => ['relationship_type' => $request->relationship_type]
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Relationship added successfully.'
+        ]);
+    }
+
+    public function removeChildRelationship(Request $request, $id, $userId)
+    {
+        $user = $request->user();
+        $child = $user->children()->find($id);
+
+        if (!$child) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Child not found or you do not have permission to modify this child.'
+            ], 404);
+        }
+
+        // Prevent unlinking the last parent to avoid orphan children profiles
+        if ($child->parents()->count() <= 1 && $child->parents()->where('users.id', $userId)->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'A child profile must have at least one linked parent or guardian.'
+            ], 422);
+        }
+
+        $child->parents()->detach($userId);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Relationship removed successfully.'
+        ]);
+    }
 }

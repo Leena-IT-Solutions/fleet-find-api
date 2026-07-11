@@ -23,6 +23,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/children', [AuthController::class, 'addChild']);
     Route::put('/children/{id}', [AuthController::class, 'updateChild']);
     Route::delete('/children/{id}', [AuthController::class, 'deleteChild']);
+    Route::get('/children/{id}', [AuthController::class, 'getChild']);
+    Route::post('/children/{id}/relationships', [AuthController::class, 'addChildRelationship']);
+    Route::delete('/children/{id}/relationships/{userId}', [AuthController::class, 'removeChildRelationship']);
 
     // Groups
     Route::get('/groups', [GroupController::class, 'index']);

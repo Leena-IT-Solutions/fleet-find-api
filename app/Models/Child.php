@@ -40,16 +40,7 @@ class Child extends Model
             if ($parentId) {
                 $user = User::find($parentId);
                 if ($user) {
-                    $relationship = $user->relationship_type ?: 'Other';
-                    $child->parents()->syncWithoutDetaching([$user->id => ['relationship_type' => $relationship]]);
-
-                    if ($user->co_parent_id) {
-                        $coParent = User::find($user->co_parent_id);
-                        if ($coParent) {
-                            $coParentRelationship = $coParent->relationship_type ?: 'Other';
-                            $child->parents()->syncWithoutDetaching([$coParent->id => ['relationship_type' => $coParentRelationship]]);
-                        }
-                    }
+                    $child->parents()->syncWithoutDetaching([$user->id => ['relationship_type' => 'Other']]);
                 }
             }
         });
