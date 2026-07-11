@@ -385,7 +385,7 @@ class AuthController extends Controller
         $organization->loadCount(['vehicles', 'drivers', 'attendants', 'routes', 'trips']);
 
         // Load vehicles list
-        $vehicles = $organization->vehicles()->get(['id', 'registration_number', 'model', 'capacity']);
+        $vehicles = $organization->vehicles()->get(['id', 'registration_number', 'type']);
 
         // Load drivers with their user names
         $drivers = $organization->drivers()
