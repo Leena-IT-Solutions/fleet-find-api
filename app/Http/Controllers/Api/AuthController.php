@@ -407,19 +407,25 @@ class AuthController extends Controller
     public function searchOrganizations(\Illuminate\Http\Request $request)
     {
         $query = $request->input('q', '');
+        $perPage = $request->input('per_page', 20);
 
-        $organizations = \App\Models\Organization::query()
+        $paginator = \App\Models\Organization::query()
             ->when($query, function ($q) use ($query) {
                 $q->where('name', 'like', '%' . $query . '%')
                   ->orWhere('address', 'like', '%' . $query . '%')
                   ->orWhere('email', 'like', '%' . $query . '%');
             })
-            ->limit(20)
-            ->get();
+            ->paginate($perPage);
 
         return response()->json([
             'success' => true,
-            'organizations' => $organizations
+            'organizations' => $paginator->items(),
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'total' => $paginator->total(),
+                'has_more' => $paginator->hasMorePages(),
+            ]
         ]);
     }
 
