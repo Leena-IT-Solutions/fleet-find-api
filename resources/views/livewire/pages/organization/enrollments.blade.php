@@ -276,13 +276,15 @@ new class extends Component
                                             <div class="flex items-center justify-end gap-2">
                                                 @if($sub->status !== 'approved')
                                                     <button wire:click="approveSubscription({{ $sub->id }})" 
-                                                            class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-xs font-semibold shadow-sm transition focus:outline-none">
+                                                            class="px-3 py-1 text-white rounded-md text-xs font-semibold shadow-sm transition focus:outline-none hover:opacity-90"
+                                                            style="background-color: #059669;">
                                                         Approve
                                                     </button>
                                                 @endif
                                                 @if($sub->status !== 'disapproved')
                                                     <button wire:click="disapproveSubscription({{ $sub->id }})" 
-                                                            class="px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-md text-xs font-semibold shadow-sm transition focus:outline-none">
+                                                            class="px-3 py-1 text-white rounded-md text-xs font-semibold shadow-sm transition focus:outline-none hover:opacity-90"
+                                                            style="background-color: #e11d48;">
                                                         Disapprove
                                                     </button>
                                                 @endif
