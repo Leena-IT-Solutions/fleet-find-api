@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (\Illuminate\Support\Facades\DB::getDriverName() !== 'sqlite') {
+        if (Schema::hasColumn('users', 'co_parent_id')) {
             Schema::table('users', function (Blueprint $table) {
-                $table->dropForeign(['co_parent_id']);
+                if (\Illuminate\Support\Facades\DB::getDriverName() !== 'sqlite') {
+                    $table->dropForeign(['co_parent_id']);
+                }
                 $table->dropColumn(['relationship_type', 'co_parent_id', 'pending_co_parent_link']);
             });
         }

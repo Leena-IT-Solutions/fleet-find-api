@@ -25,10 +25,14 @@ class UserSeeder extends Seeder
         $user->syncRoles(['Admin', 'Organization', 'Driver', 'Attendant', 'Parent']);
 
         // Seed some children for the parent Sandeep
-        \App\Models\Child::firstOrCreate(
-            ['parent_id' => $user->id, 'name' => 'Royce Rathod'],
+        $child = \App\Models\Child::firstOrCreate(
+            ['name' => 'Royce Rathod'],
             ['gender' => 'Male', 'dob' => '2017-04-07']
         );
+
+        $child->parents()->syncWithoutDetaching([
+            $user->id => ['relationship_type' => 'Father']
+        ]);
 
         // Seed Leena Adam
         $leena = User::firstOrCreate(
@@ -41,5 +45,9 @@ class UserSeeder extends Seeder
         );
 
         $leena->syncRoles(['Parent', 'Organization']);
+
+        $child->parents()->syncWithoutDetaching([
+            $leena->id => ['relationship_type' => 'Mother']
+        ]);
     }
 }
