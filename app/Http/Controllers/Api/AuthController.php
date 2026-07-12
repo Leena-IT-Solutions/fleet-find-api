@@ -737,4 +737,200 @@ class AuthController extends Controller
             'message' => 'Relationship removed successfully.'
         ]);
     }
+
+    public function getSubscriptionEnrollmentOptions(Request $request, $id)
+    {
+        $user = $request->user();
+        $plan = \App\Models\SubscriptionPlan::with(['organization', 'routes.stops'])->find($id);
+
+        if (!$plan) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Subscription plan not found.'
+            ], 404);
+        }
+
+        // Get organization
+        $organization = $plan->organization;
+
+        // Children of the parent user
+        $children = $user->children()->get()->map(function ($child) {
+            return [
+                'id' => $child->id,
+                'name' => $child->name,
+                'gender' => $child->gender,
+                'photo' => $child->photo ? url($child->photo) : null,
+            ];
+        });
+
+        // Grades and Divisions of the organization
+        $grades = \App\Models\Grade::where('organization_id', $organization->id)
+            ->with('divisions')
+            ->get()
+            ->map(function ($grade) {
+                return [
+                    'id' => $grade->id,
+                    'name' => $grade->name,
+                    'divisions' => $grade->divisions->map(function ($division) {
+                        return [
+                            'id' => $division->id,
+                            'name' => $division->name,
+                        ];
+                    }),
+                ];
+            });
+
+        // Routes and Stops of the subscription plan
+        $routes = $plan->routes->map(function ($route) {
+            return [
+                'id' => $route->id,
+                'name' => $route->name,
+                'description' => $route->description,
+                'stops' => $route->stops->map(function ($stop) {
+                    return [
+                        'id' => $stop->id,
+                        'name' => $stop->name,
+                        'latitude' => $stop->latitude,
+                        'longitude' => $stop->longitude,
+                    ];
+                }),
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'children' => $children,
+            'grades' => $grades,
+            'routes' => $routes,
+        ]);
+    }
+
+    public function enrollSubscription(Request $request, $id)
+    {
+        $user = $request->user();
+        $plan = \App\Models\SubscriptionPlan::find($id);
+
+        if (!$plan) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Subscription plan not found.'
+            ], 404);
+        }
+
+        // Validate registration window
+        $today = now()->startOfDay();
+        $start = \Illuminate\Support\Carbon::parse($plan->registration_start_date)->startOfDay();
+        $end = \Illuminate\Support\Carbon::parse($plan->registration_end_date)->endOfDay();
+
+        if ($today->lt($start)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Registration has not started yet.'
+            ], 422);
+        }
+
+        if ($today->gt($end)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Registration is closed.'
+            ], 422);
+        }
+
+        // Validation of request fields
+        $request->validate([
+            'child_id' => ['required', 'exists:children,id'],
+            'grade_id' => ['required', 'exists:grades,id'],
+            'division_id' => ['required', 'exists:divisions,id'],
+            'route_id' => ['required', 'exists:routes,id'],
+            'pickup_stop_id' => ['required', 'exists:stops,id'],
+            'drop_stop_id' => ['required', 'exists:stops,id'],
+        ]);
+
+        // Further validations to ensure data integrity:
+        // 1. Verify child belongs to this parent
+        $child = $user->children()->find($request->child_id);
+        if (!$child) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid child selected.'
+            ], 422);
+        }
+
+        // 2. Prevent duplicate active/pending subscription of the same child to the same plan
+        $existing = \App\Models\ChildSubscription::where('child_id', $request->child_id)
+            ->where('subscription_plan_id', $plan->id)
+            ->exists();
+
+        if ($existing) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This child is already enrolled or has a pending enrollment in this plan.'
+            ], 422);
+        }
+
+        // 3. Verify grade belongs to the organization
+        $grade = \App\Models\Grade::where('id', $request->grade_id)
+            ->where('organization_id', $plan->organization_id)
+            ->first();
+        if (!$grade) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Selected grade does not belong to this organization.'
+            ], 422);
+        }
+
+        // 4. Verify division belongs to the selected grade
+        $division = \App\Models\Division::where('id', $request->division_id)
+            ->where('grade_id', $grade->id)
+            ->first();
+        if (!$division) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Selected division does not belong to the selected grade.'
+            ], 422);
+        }
+
+        // 5. Verify route belongs to the subscription plan
+        $routeLink = $plan->routes()->where('routes.id', $request->route_id)->exists();
+        if (!$routeLink) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Selected route is not available for this subscription plan.'
+            ], 422);
+        }
+
+        // 6. Verify stops belong to the selected route
+        $pickupStop = \App\Models\Stop::where('id', $request->pickup_stop_id)
+            ->where('route_id', $request->route_id)
+            ->first();
+        $dropStop = \App\Models\Stop::where('id', $request->drop_stop_id)
+            ->where('route_id', $request->route_id)
+            ->first();
+
+        if (!$pickupStop || !$dropStop) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Selected stops do not belong to the selected route.'
+            ], 422);
+        }
+
+        // Store subscription
+        $subscription = \App\Models\ChildSubscription::create([
+            'child_id' => $request->child_id,
+            'subscription_plan_id' => $plan->id,
+            'grade_id' => $request->grade_id,
+            'division_id' => $request->division_id,
+            'route_id' => $request->route_id,
+            'pickup_stop_id' => $request->pickup_stop_id,
+            'drop_stop_id' => $request->drop_stop_id,
+            'parent_id' => $user->id,
+            'status' => 'pending', // Pending approval / payment confirmation
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Subscription request submitted successfully.',
+            'subscription' => $subscription,
+        ]);
+    }
 }

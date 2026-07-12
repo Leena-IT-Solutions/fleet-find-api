@@ -41,4 +41,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Location
     Route::patch('/location', [GroupController::class, 'updateLocation']);
     Route::get('/settings/location-interval', [GroupController::class, 'getLocationInterval']);
+
+    // Subscriptions
+    Route::get('/subscription-plans/{id}/enrollment-options', [AuthController::class, 'getSubscriptionEnrollmentOptions']);
+    Route::post('/subscription-plans/{id}/enroll', [AuthController::class, 'enrollSubscription']);
 });
