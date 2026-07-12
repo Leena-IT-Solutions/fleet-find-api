@@ -33,6 +33,7 @@ new class extends Component
         $this->mapTileUrl = Setting::get('map_tile_url', 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
         $this->mapDefaultZoom = Setting::get('map_default_zoom', '14');
         $this->mapProvider = Setting::get('map_provider', 'leaflet');
+        $this->locationUpdateIntervalSeconds = Setting::get('location_update_interval_seconds', '10');
     }
 
     public string $companyName = '';
@@ -52,6 +53,7 @@ new class extends Component
     public string $mapTileUrl = '';
     public string $mapDefaultZoom = '';
     public string $mapProvider = 'leaflet';
+    public string $locationUpdateIntervalSeconds = '10';
 
     public function saveSettings(): void
     {
@@ -70,6 +72,7 @@ new class extends Component
             'mapTileUrl' => ['required', 'string', 'max:255'],
             'mapDefaultZoom' => ['required', 'integer', 'between:1,20'],
             'mapProvider' => ['required', 'string', 'in:google_maps,mapbox,leaflet'],
+            'locationUpdateIntervalSeconds' => ['required', 'integer', 'between:5,300'],
         ]);
 
         Setting::set('company_name', $this->companyName);
@@ -89,6 +92,7 @@ new class extends Component
         Setting::set('map_tile_url', $this->mapTileUrl);
         Setting::set('map_default_zoom', $this->mapDefaultZoom);
         Setting::set('map_provider', $this->mapProvider);
+        Setting::set('location_update_interval_seconds', $this->locationUpdateIntervalSeconds);
 
         // Dynamically update config in current request scope
         config([
@@ -280,6 +284,12 @@ new class extends Component
                         <x-input-label for="mapDefaultZoom" value="{{ __('Default Zoom Level (1-20)') }}" />
                         <x-text-input id="mapDefaultZoom" type="number" min="1" max="20" class="mt-1 block w-full" wire:model="mapDefaultZoom" required />
                         <x-input-error :messages="$errors->get('mapDefaultZoom')" class="mt-2" />
+                    </div>
+
+                    <div>
+                        <x-input-label for="locationUpdateIntervalSeconds" value="{{ __('Location Update Interval (Seconds)') }}" />
+                        <x-text-input id="locationUpdateIntervalSeconds" type="number" min="5" max="300" class="mt-1 block w-full" wire:model="locationUpdateIntervalSeconds" required />
+                        <x-input-error :messages="$errors->get('locationUpdateIntervalSeconds')" class="mt-2" />
                     </div>
                 </div>
             </div>

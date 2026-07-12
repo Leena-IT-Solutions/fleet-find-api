@@ -51,4 +51,8 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Attendant trips
     Route::get('/attendant/trips', [AuthController::class, 'getAttendantTrips']);
+
+    // Trip Tracking
+    Route::post('/trip/{tripId}/toggle-tracking', [\App\Http\Controllers\Api\TripTrackingController::class, 'toggleTracking']);
+    Route::post('/trip/{tripId}/location', [\App\Http\Controllers\Api\TripTrackingController::class, 'updateLocation']);
 });
