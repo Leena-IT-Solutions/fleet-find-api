@@ -167,13 +167,27 @@ new class extends Component
                         <span>Access Control</span>
                     </a>
 
+                    <a href="{{ route('organization.subscription-plans') }}" wire:navigate class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition duration-150 {{ request()->routeIs('organization.subscription-plans') ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
+                        <svg class="w-5 h-5 {{ request()->routeIs('organization.subscription-plans') ? 'text-indigo-500' : 'text-slate-400' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
+                        </svg>
+                        <span>Subscription Plans</span>
+                    </a>
+
+                    <a href="{{ route('organization.enrollments') }}" wire:navigate class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition duration-150 {{ request()->routeIs('organization.enrollments') ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
+                        <svg class="w-5 h-5 {{ request()->routeIs('organization.enrollments') ? 'text-indigo-500' : 'text-slate-400' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A9.642 9.642 0 0012 24c-.885-.01-1.748-.128-2.58-.352v-.003c0-1.113.285-2.16.786-3.07M15 19.128c-.015-.072-.03-.146-.046-.22M9.42 19.128A9.642 9.642 0 0112 24c-.885-.01-1.748-.128-2.58-.352v-.003M6.75 19.5a4.5 4.5 0 01-1.41-4.09 4.5 4.5 0 013.91-3.91 4.5 4.5 0 014.09 1.41M12 9.75a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5z" />
+                        </svg>
+                        <span>Enrollments</span>
+                    </a>
+
                     <div class="mt-5 mb-1.5 px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                         Operations
                     </div>
 
                     <a href="{{ route('organization.crew') }}" wire:navigate class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition duration-150 {{ request()->routeIs('organization.crew') ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
                         <svg class="w-5 h-5 {{ request()->routeIs('organization.crew') ? 'text-indigo-500' : 'text-slate-400' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m0 0L6 18.72a9.094 9.094 0 01-3.741-.479 3 3 0 014.682-2.72m.94 3.198l-.001.031c0 .225.012.447.037.666A11.944 11.944 0 0012 21c2.17 0 4.207-.576 5.963-1.584A6.062 6.062 0 0018 18.72M12 12.75a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m0 0L6 18.72a9.094 9.094 0 01-3.741-.479 3 3 0 014.682-2.72m.94 3.198l-.001.031c0 .225.012.447.037.666A11.944 11.944 0 0012 21c2.17 0 4.207-.576-5.963-1.584A6.062 6.062 0 0018 18.72M12 12.75a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5z" />
                         </svg>
                         <span>Crew & Roster</span>
                     </a>
@@ -204,20 +218,6 @@ new class extends Component
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
                         </svg>
                         <span>Trip Mapping</span>
-                    </a>
-
-                    <a href="{{ route('organization.subscription-plans') }}" wire:navigate class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition duration-150 {{ request()->routeIs('organization.subscription-plans') ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
-                        <svg class="w-5 h-5 {{ request()->routeIs('organization.subscription-plans') ? 'text-indigo-500' : 'text-slate-400' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
-                        </svg>
-                        <span>Subscription Plans</span>
-                    </a>
-
-                    <a href="{{ route('organization.enrollments') }}" wire:navigate class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition duration-150 {{ request()->routeIs('organization.enrollments') ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
-                        <svg class="w-5 h-5 {{ request()->routeIs('organization.enrollments') ? 'text-indigo-500' : 'text-slate-400' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A9.642 9.642 0 0012 24c-.885-.01-1.748-.128-2.58-.352v-.003c0-1.113.285-2.16.786-3.07M15 19.128c-.015-.072-.03-.146-.046-.22M9.42 19.128A9.642 9.642 0 0112 24c-.885-.01-1.748-.128-2.58-.352v-.003M6.75 19.5a4.5 4.5 0 01-1.41-4.09 4.5 4.5 0 013.91-3.91 4.5 4.5 0 014.09 1.41M12 9.75a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5z" />
-                        </svg>
-                        <span>Enrollments</span>
                     </a>
                 @endif
             </nav>
@@ -392,6 +392,20 @@ new class extends Component
                         <span>Access Control</span>
                     </a>
 
+                    <a href="{{ route('organization.subscription-plans') }}" wire:navigate class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition duration-150 {{ request()->routeIs('organization.subscription-plans') ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
+                        <svg class="w-5 h-5 {{ request()->routeIs('organization.subscription-plans') ? 'text-indigo-500' : 'text-slate-400' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
+                        </svg>
+                        <span>Subscription Plans</span>
+                    </a>
+
+                    <a href="{{ route('organization.enrollments') }}" wire:navigate class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition duration-150 {{ request()->routeIs('organization.enrollments') ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
+                        <svg class="w-5 h-5 {{ request()->routeIs('organization.enrollments') ? 'text-indigo-500' : 'text-slate-400' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A9.642 9.642 0 0012 24c-.885-.01-1.748-.128-2.58-.352v-.003c0-1.113.285-2.16.786-3.07M15 19.128c-.015-.072-.03-.146-.046-.22M9.42 19.128A9.642 9.642 0 0112 24c-.885-.01-1.748-.128-2.58-.352v-.003M6.75 19.5a4.5 4.5 0 01-1.41-4.09 4.5 4.5 0 013.91-3.91 4.5 4.5 0 014.09 1.41M12 9.75a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5z" />
+                        </svg>
+                        <span>Enrollments</span>
+                    </a>
+
                     <div class="mt-5 mb-1.5 px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                         Operations
                     </div>
@@ -431,19 +445,7 @@ new class extends Component
                         <span>Trip Mapping</span>
                     </a>
 
-                    <a href="{{ route('organization.subscription-plans') }}" wire:navigate class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition duration-150 {{ request()->routeIs('organization.subscription-plans') ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
-                        <svg class="w-5 h-5 {{ request()->routeIs('organization.subscription-plans') ? 'text-indigo-500' : 'text-slate-400' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
-                        </svg>
-                        <span>Subscription Plans</span>
-                    </a>
 
-                    <a href="{{ route('organization.enrollments') }}" wire:navigate class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition duration-150 {{ request()->routeIs('organization.enrollments') ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
-                        <svg class="w-5 h-5 {{ request()->routeIs('organization.enrollments') ? 'text-indigo-500' : 'text-slate-400' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A9.642 9.642 0 0012 24c-.885-.01-1.748-.128-2.58-.352v-.003c0-1.113.285-2.16.786-3.07M15 19.128c-.015-.072-.03-.146-.046-.22M9.42 19.128A9.642 9.642 0 0112 24c-.885-.01-1.748-.128-2.58-.352v-.003M6.75 19.5a4.5 4.5 0 01-1.41-4.09 4.5 4.5 0 013.91-3.91 4.5 4.5 0 014.09 1.41M12 9.75a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5z" />
-                        </svg>
-                        <span>Enrollments</span>
-                    </a>
                 @endif
             </nav>
         </div>
