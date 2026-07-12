@@ -48,4 +48,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Driver trips
     Route::get('/driver/trips', [AuthController::class, 'getDriverTrips']);
+    
+    // Attendant trips
+    Route::get('/attendant/trips', [AuthController::class, 'getAttendantTrips']);
 });

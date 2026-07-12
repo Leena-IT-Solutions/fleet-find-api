@@ -321,4 +321,55 @@ class TripsAndCrewTest extends TestCase
         $response->assertJsonPath('trips.0.stops.0.name', 'Stop One');
         $response->assertJsonPath('trips.0.stops.0.time', '08:00:00');
     }
+
+    public function test_attendant_can_get_assigned_trips(): void
+    {
+        $attendantUser = User::factory()->create(['name' => 'Jane Attendant']);
+        $attendantUser->assignRole('Attendant');
+
+        $org = Organization::create(['name' => 'Main Org']);
+        $attendant = Attendant::create([
+            'user_id' => $attendantUser->id,
+            'organization_id' => $org->id,
+        ]);
+
+        $vehicle = $org->vehicles()->create([
+            'registration_number' => 'ATT-202',
+            'type' => 'Bus',
+            'model' => 'Tata Starbus',
+        ]);
+
+        $route = $org->routes()->create(['name' => 'Route C']);
+        $stop1 = $route->stops()->create(['name' => 'Stop One', 'latitude' => 19.0, 'longitude' => 73.0, 'sequence_order' => 1]);
+        $stop2 = $route->stops()->create(['name' => 'Stop Two', 'latitude' => 19.1, 'longitude' => 73.1, 'sequence_order' => 2]);
+
+        // Another route stop that should be filtered out
+        $otherRoute = $org->routes()->create(['name' => 'Route D']);
+        $otherStop = $otherRoute->stops()->create(['name' => 'Other Stop', 'latitude' => 19.2, 'longitude' => 73.2, 'sequence_order' => 1]);
+
+        $trip = $org->trips()->create(['name' => 'Morning Route']);
+        $trip->tripStops()->create(['stop_id' => $stop1->id, 'time' => '08:00:00']);
+        $trip->tripStops()->create(['stop_id' => $stop2->id, 'time' => '08:30:00']);
+        $trip->tripStops()->create(['stop_id' => $otherStop->id, 'time' => '08:45:00']);
+
+        TripRouteLogistics::create([
+            'trip_id' => $trip->id,
+            'route_id' => $route->id,
+            'vehicle_id' => $vehicle->id,
+            'attendant_id' => $attendant->id,
+            'stops_order' => 'asc',
+        ]);
+
+        $response = $this->actingAs($attendantUser)->getJson('/api/attendant/trips');
+        $response->assertStatus(200);
+
+        $response->assertJsonPath('success', true);
+        $response->assertJsonPath('attendant.name', 'Jane Attendant');
+        $response->assertJsonCount(1, 'trips');
+        $response->assertJsonPath('trips.0.name', 'Morning Route');
+        $response->assertJsonPath('trips.0.vehicle.registration_number', 'ATT-202');
+        $response->assertJsonCount(2, 'trips.0.stops');
+        $response->assertJsonPath('trips.0.stops.0.name', 'Stop One');
+        $response->assertJsonPath('trips.0.stops.0.time', '08:00:00');
+    }
 }
