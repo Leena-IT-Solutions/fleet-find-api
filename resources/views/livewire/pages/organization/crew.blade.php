@@ -61,32 +61,50 @@ new class extends Component
         }
 
         if ($this->crewType === 'driver') {
-            $driver = Driver::firstOrCreate(
-                ['user_id' => $user->id],
-                ['name' => $user->name, 'email' => $user->email, 'number' => $user->mobile]
-            );
-            $user->assignRole('Driver');
+            // Check if already hired in this organization
+            $exists = Driver::where('user_id', $user->id)
+                ->where('organization_id', $this->organization->id)
+                ->exists();
 
-            if ($driver->organization_id === $this->organization->id) {
+            if ($exists) {
                 $this->addError('crewIdentity', 'This driver is already hired by this organization.');
                 return;
             }
 
-            $driver->update(['organization_id' => $this->organization->id]);
+            // Create link
+            Driver::create([
+                'user_id' => $user->id,
+                'organization_id' => $this->organization->id,
+            ]);
+
+            // Auto-assign Driver role if missing
+            if (!$user->hasRole('Driver')) {
+                $user->assignRole('Driver');
+            }
+
             $this->dispatch('show-toast', message: 'Driver hired successfully.', type: 'success');
         } else {
-            $attendant = Attendant::firstOrCreate(
-                ['user_id' => $user->id],
-                ['name' => $user->name, 'email' => $user->email, 'number' => $user->mobile]
-            );
-            $user->assignRole('Attendant');
+            // Check if already hired in this organization
+            $exists = Attendant::where('user_id', $user->id)
+                ->where('organization_id', $this->organization->id)
+                ->exists();
 
-            if ($attendant->organization_id === $this->organization->id) {
+            if ($exists) {
                 $this->addError('crewIdentity', 'This attendant is already hired by this organization.');
                 return;
             }
 
-            $attendant->update(['organization_id' => $this->organization->id]);
+            // Create link
+            Attendant::create([
+                'user_id' => $user->id,
+                'organization_id' => $this->organization->id,
+            ]);
+
+            // Auto-assign Attendant role if missing
+            if (!$user->hasRole('Attendant')) {
+                $user->assignRole('Attendant');
+            }
+
             $this->dispatch('show-toast', message: 'Attendant hired successfully.', type: 'success');
         }
 
@@ -97,11 +115,11 @@ new class extends Component
     {
         if ($type === 'driver') {
             $driver = Driver::findOrFail($id);
-            $driver->update(['organization_id' => null]);
+            $driver->delete();
             $this->dispatch('show-toast', message: 'Driver removed successfully.', type: 'warning');
         } else {
             $attendant = Attendant::findOrFail($id);
-            $attendant->update(['organization_id' => null]);
+            $attendant->delete();
             $this->dispatch('show-toast', message: 'Attendant removed successfully.', type: 'warning');
         }
     }

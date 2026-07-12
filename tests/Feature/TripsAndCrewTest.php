@@ -141,7 +141,6 @@ class TripsAndCrewTest extends TestCase
         $this->assertDatabaseHas('drivers', [
             'user_id' => $pilotUser->id,
             'organization_id' => $org->id,
-            'name' => 'John Pilot',
         ]);
 
         $this->assertTrue($pilotUser->fresh()->hasRole('Driver'));
@@ -156,8 +155,10 @@ class TripsAndCrewTest extends TestCase
         $user->organizations()->sync([$org->id => ['access' => 'owner']]);
         session(['active_organization_id' => $org->id]);
 
+        $driverUser = User::factory()->create(['name' => 'Hired Driver']);
+
         $driver = Driver::create([
-            'name' => 'Hired Driver',
+            'user_id' => $driverUser->id,
             'organization_id' => $org->id,
         ]);
 
@@ -166,7 +167,7 @@ class TripsAndCrewTest extends TestCase
             ->call('unhireCrew', 'driver', $driver->id)
             ->assertHasNoErrors();
 
-        $this->assertNull($driver->fresh()->organization_id);
+        $this->assertNull(Driver::find($driver->id));
     }
 
     public function test_logistics_can_be_saved(): void
@@ -180,8 +181,12 @@ class TripsAndCrewTest extends TestCase
 
         $route = $org->routes()->create(['name' => 'School Route A']);
         $vehicle = $org->vehicles()->create(['registration_number' => 'MH12AA1111', 'type' => 'Bus']);
-        $driver = Driver::create(['name' => 'John Pilot', 'organization_id' => $org->id]);
-        $attendant = Attendant::create(['name' => 'Jane Crew', 'organization_id' => $org->id]);
+
+        $driverUser = User::factory()->create(['name' => 'John Pilot']);
+        $attendantUser = User::factory()->create(['name' => 'Jane Crew']);
+
+        $driver = Driver::create(['user_id' => $driverUser->id, 'organization_id' => $org->id]);
+        $attendant = Attendant::create(['user_id' => $attendantUser->id, 'organization_id' => $org->id]);
         $trip = $org->trips()->create(['name' => 'Main Shift']);
 
         Volt::actingAs($user)

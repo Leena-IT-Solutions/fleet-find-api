@@ -371,7 +371,7 @@ class AuthController extends Controller
         // Load drivers with their user names
         $drivers = $organization->drivers()
             ->join('users', 'drivers.user_id', '=', 'users.id')
-            ->get(['drivers.id', 'users.name as driver_name', 'drivers.license']);
+            ->get(['drivers.id', 'users.name as driver_name']);
 
         // Load attendants with their user names
         $attendants = $organization->attendants()

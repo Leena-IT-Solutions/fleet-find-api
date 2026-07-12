@@ -13,12 +13,22 @@ class Attendant extends Model
     protected $fillable = [
         'user_id',
         'organization_id',
-        'name',
-        'number',
-        'email',
-        'address',
-        'aadhar_photo',
     ];
+
+    public function getNameAttribute(): string
+    {
+        return $this->user->name ?? '';
+    }
+
+    public function getEmailAttribute(): ?string
+    {
+        return $this->user->email ?? null;
+    }
+
+    public function getNumberAttribute(): ?string
+    {
+        return $this->user->mobile ?? null;
+    }
 
     public function user(): BelongsTo
     {
