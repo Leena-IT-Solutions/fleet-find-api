@@ -305,8 +305,8 @@ new class extends Component
         return [
             'trips' => $this->organization->trips()->with(['tripStops', 'routeLogistics'])->latest()->get(),
             'vehicles' => $this->organization->vehicles()->orderBy('registration_number')->get(),
-            'drivers' => $this->organization->drivers()->orderBy('name')->get(),
-            'attendants' => $this->organization->attendants()->orderBy('name')->get(),
+            'drivers' => $this->organization->drivers()->with('user')->get()->sortBy('name'),
+            'attendants' => $this->organization->attendants()->with('user')->get()->sortBy('name'),
             'routes' => $this->organization->routes()->with('stops')->get(),
         ];
     }
