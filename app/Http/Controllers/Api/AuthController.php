@@ -955,16 +955,42 @@ class AuthController extends Controller
             $trip = $logistic->trip;
             $routeId = $logistic->route_id;
             
+            $divisionIds = $trip->divisions()->pluck('divisions.id')->toArray();
+            $subscriptionsQuery = \App\Models\ChildSubscription::where('route_id', $routeId)
+                ->whereIn('status', ['active', 'pending', 'hold']);
+
+            if (!empty($divisionIds)) {
+                $subscriptionsQuery->whereIn('division_id', $divisionIds);
+            }
+            $subscriptions = $subscriptionsQuery->with(['child', 'grade', 'division'])->get();
+
             $stops = $trip->tripStops
                 ->filter(function ($ts) use ($routeId) {
                     return $ts->stop && $ts->stop->route_id == $routeId;
                 })
-                ->map(function ($ts) {
+                ->map(function ($ts) use ($subscriptions) {
+                    $stopId = $ts->stop_id;
+                    $stopChildren = $subscriptions->filter(function ($sub) use ($stopId) {
+                        return $sub->pickup_stop_id == $stopId || $sub->drop_stop_id == $stopId;
+                    })->map(function ($sub) use ($stopId) {
+                        return [
+                            'id' => $sub->child->id,
+                            'name' => $sub->child->name,
+                            'status' => $sub->status,
+                            'grade' => $sub->grade->name ?? 'N/A',
+                            'division' => $sub->division->name ?? 'N/A',
+                            'is_pickup' => $sub->pickup_stop_id == $stopId,
+                            'is_drop' => $sub->drop_stop_id == $stopId,
+                        ];
+                    })->values()->all();
+
                     return [
                         'id' => $ts->id,
+                        'stop_id' => $ts->stop_id,
                         'name' => $ts->stop->name ?? 'Unknown Stop',
                         'time' => $ts->time,
                         'sequence_order' => $ts->stop->sequence_order ?? 0,
+                        'children' => $stopChildren,
                     ];
                 })->sortBy('time')->values()->all();
 
@@ -1025,16 +1051,42 @@ class AuthController extends Controller
             $trip = $logistic->trip;
             $routeId = $logistic->route_id;
             
+            $divisionIds = $trip->divisions()->pluck('divisions.id')->toArray();
+            $subscriptionsQuery = \App\Models\ChildSubscription::where('route_id', $routeId)
+                ->whereIn('status', ['active', 'pending', 'hold']);
+
+            if (!empty($divisionIds)) {
+                $subscriptionsQuery->whereIn('division_id', $divisionIds);
+            }
+            $subscriptions = $subscriptionsQuery->with(['child', 'grade', 'division'])->get();
+
             $stops = $trip->tripStops
                 ->filter(function ($ts) use ($routeId) {
                     return $ts->stop && $ts->stop->route_id == $routeId;
                 })
-                ->map(function ($ts) {
+                ->map(function ($ts) use ($subscriptions) {
+                    $stopId = $ts->stop_id;
+                    $stopChildren = $subscriptions->filter(function ($sub) use ($stopId) {
+                        return $sub->pickup_stop_id == $stopId || $sub->drop_stop_id == $stopId;
+                    })->map(function ($sub) use ($stopId) {
+                        return [
+                            'id' => $sub->child->id,
+                            'name' => $sub->child->name,
+                            'status' => $sub->status,
+                            'grade' => $sub->grade->name ?? 'N/A',
+                            'division' => $sub->division->name ?? 'N/A',
+                            'is_pickup' => $sub->pickup_stop_id == $stopId,
+                            'is_drop' => $sub->drop_stop_id == $stopId,
+                        ];
+                    })->values()->all();
+
                     return [
                         'id' => $ts->id,
+                        'stop_id' => $ts->stop_id,
                         'name' => $ts->stop->name ?? 'Unknown Stop',
                         'time' => $ts->time,
                         'sequence_order' => $ts->stop->sequence_order ?? 0,
+                        'children' => $stopChildren,
                     ];
                 })->sortBy('time')->values()->all();
 
