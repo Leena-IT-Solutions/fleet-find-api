@@ -962,7 +962,7 @@ class AuthController extends Controller
             if (!empty($divisionIds)) {
                 $subscriptionsQuery->whereIn('division_id', $divisionIds);
             }
-            $subscriptions = $subscriptionsQuery->with(['child', 'grade', 'division'])->get();
+            $subscriptions = $subscriptionsQuery->with(['child.parents', 'grade', 'division'])->get();
 
             $stops = $trip->tripStops
                 ->filter(function ($ts) use ($routeId) {
@@ -973,6 +973,7 @@ class AuthController extends Controller
                     $stopChildren = $subscriptions->filter(function ($sub) use ($stopId) {
                         return $sub->pickup_stop_id == $stopId || $sub->drop_stop_id == $stopId;
                     })->map(function ($sub) use ($stopId) {
+                        $parent = $sub->child->parents->first();
                         return [
                             'id' => $sub->child->id,
                             'name' => $sub->child->name,
@@ -981,6 +982,8 @@ class AuthController extends Controller
                             'division' => $sub->division->name ?? 'N/A',
                             'is_pickup' => $sub->pickup_stop_id == $stopId,
                             'is_drop' => $sub->drop_stop_id == $stopId,
+                            'parent_name' => $parent->name ?? 'N/A',
+                            'parent_phone' => $parent->mobile ?? '',
                         ];
                     })->values()->all();
 
@@ -1058,7 +1061,7 @@ class AuthController extends Controller
             if (!empty($divisionIds)) {
                 $subscriptionsQuery->whereIn('division_id', $divisionIds);
             }
-            $subscriptions = $subscriptionsQuery->with(['child', 'grade', 'division'])->get();
+            $subscriptions = $subscriptionsQuery->with(['child.parents', 'grade', 'division'])->get();
 
             $stops = $trip->tripStops
                 ->filter(function ($ts) use ($routeId) {
@@ -1069,6 +1072,7 @@ class AuthController extends Controller
                     $stopChildren = $subscriptions->filter(function ($sub) use ($stopId) {
                         return $sub->pickup_stop_id == $stopId || $sub->drop_stop_id == $stopId;
                     })->map(function ($sub) use ($stopId) {
+                        $parent = $sub->child->parents->first();
                         return [
                             'id' => $sub->child->id,
                             'name' => $sub->child->name,
@@ -1077,6 +1081,8 @@ class AuthController extends Controller
                             'division' => $sub->division->name ?? 'N/A',
                             'is_pickup' => $sub->pickup_stop_id == $stopId,
                             'is_drop' => $sub->drop_stop_id == $stopId,
+                            'parent_name' => $parent->name ?? 'N/A',
+                            'parent_phone' => $parent->mobile ?? '',
                         ];
                     })->values()->all();
 
