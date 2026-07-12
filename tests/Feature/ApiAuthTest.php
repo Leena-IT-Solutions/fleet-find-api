@@ -368,7 +368,6 @@ class ApiAuthTest extends TestCase
         \App\Models\Child::create([
             'parent_id' => $user->id,
             'name' => 'Existing Kid',
-            'dob' => '2018-05-12',
             'gender' => 'Male'
         ]);
 
@@ -385,7 +384,6 @@ class ApiAuthTest extends TestCase
         $responseAdd = $this->withHeader('Authorization', "Bearer {$token}")
             ->postJson('/api/children', [
                 'name' => 'New Kid',
-                'dob' => '2020-09-21',
                 'gender' => 'Female'
             ]);
 
@@ -403,7 +401,6 @@ class ApiAuthTest extends TestCase
         $responseUpdate = $this->withHeader('Authorization', "Bearer {$token}")
             ->putJson("/api/children/{$newChildId}", [
                 'name' => 'New Kid Updated',
-                'dob' => '2020-09-22',
                 'gender' => 'Other'
             ]);
 

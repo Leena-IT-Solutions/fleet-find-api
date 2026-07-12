@@ -441,7 +441,6 @@ class AuthController extends Controller
                 'id' => $child->id,
                 'parent_id' => $child->parent_id,
                 'name' => $child->name,
-                'dob' => $child->dob,
                 'gender' => $child->gender,
                 'photo' => $child->photo ? url($child->photo) : null,
                 'relationship_type' => $child->pivot?->relationship_type ?: 'Parent',
@@ -458,7 +457,6 @@ class AuthController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'dob' => ['nullable', 'date'],
             'gender' => ['nullable', 'string', 'in:Male,Female,Other'],
             'photo' => ['nullable', 'string'], // base64 representation
             'relationship_type' => ['nullable', 'string', 'in:Mother,Father,Guardian,Other'],
@@ -467,7 +465,6 @@ class AuthController extends Controller
         $user = $request->user();
         $child = new \App\Models\Child();
         $child->name = $request->name;
-        $child->dob = $request->dob;
         $child->gender = $request->gender;
 
         if (\Illuminate\Support\Facades\Schema::hasColumn('children', 'parent_id')) {
@@ -532,14 +529,12 @@ class AuthController extends Controller
 
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'dob' => ['nullable', 'date'],
             'gender' => ['nullable', 'string', 'in:Male,Female,Other'],
             'photo' => ['nullable', 'string'], // base64 representation or path
             'relationship_type' => ['nullable', 'string', 'in:Mother,Father,Guardian,Other'],
         ]);
 
         $child->name = $request->name;
-        $child->dob = $request->dob;
         $child->gender = $request->gender;
 
         if ($request->has('photo') && !empty($request->photo)) {
@@ -592,7 +587,6 @@ class AuthController extends Controller
                 'id' => $child->id,
                 'parent_id' => $child->parent_id,
                 'name' => $child->name,
-                'dob' => $child->dob,
                 'gender' => $child->gender,
                 'photo' => $child->photo ? url($child->photo) : null,
                 'relationship_type' => $relationship,
@@ -667,7 +661,6 @@ class AuthController extends Controller
             'child' => [
                 'id' => $child->id,
                 'name' => $child->name,
-                'dob' => $child->dob,
                 'gender' => $child->gender,
                 'photo' => $child->photo ? url($child->photo) : null,
                 'relationships' => $relationships,

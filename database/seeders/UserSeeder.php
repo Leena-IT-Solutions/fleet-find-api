@@ -27,7 +27,7 @@ class UserSeeder extends Seeder
         // Seed some children for the parent Sandeep
         $child = \App\Models\Child::firstOrCreate(
             ['name' => 'Royce Rathod'],
-            ['gender' => 'Male', 'dob' => '2017-04-07']
+            ['gender' => 'Male']
         );
 
         $child->parents()->syncWithoutDetaching([

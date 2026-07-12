@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['name', 'photo', 'dob', 'gender', 'parent_id'])]
+#[Fillable(['name', 'photo', 'gender', 'parent_id'])]
 class Child extends Model
 {
     use HasFactory;

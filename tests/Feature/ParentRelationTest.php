@@ -20,7 +20,6 @@ class ParentRelationTest extends TestCase
         $child = Child::create([
             'parent_id' => $parent1->id,
             'name' => 'Tommy Doe',
-            'dob' => '2015-05-10',
             'gender' => 'Male',
         ]);
 
@@ -47,7 +46,6 @@ class ParentRelationTest extends TestCase
         $child = Child::create([
             'parent_id' => $parent1->id,
             'name' => 'Tommy Doe',
-            'dob' => '2015-05-10',
             'gender' => 'Male',
         ]);
 
@@ -75,7 +73,6 @@ class ParentRelationTest extends TestCase
         $child = Child::create([
             'parent_id' => $parent1->id,
             'name' => 'Tommy Doe',
-            'dob' => '2015-05-10',
             'gender' => 'Male',
         ]);
 
