@@ -147,9 +147,9 @@ new class extends Component
             </div>
         @else
             <!-- Search & Filter Controls -->
-            <div class="bg-white border border-slate-200/80 shadow-sm rounded-xl p-5 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+            <div class="bg-white border border-slate-200/80 shadow-sm rounded-xl p-5 flex flex-col sm:flex-row gap-4 items-center justify-between">
                 <!-- Search Box -->
-                <div class="lg:col-span-5 relative w-full">
+                <div class="w-full flex-grow relative">
                     <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                         <svg class="w-4 h-4 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
@@ -162,10 +162,10 @@ new class extends Component
                 </div>
 
                 <!-- Filters -->
-                <div class="lg:col-span-7 w-full flex flex-col sm:flex-row gap-3 items-center lg:justify-end">
+                <div class="w-full sm:w-auto flex flex-col sm:flex-row gap-3 items-center shrink-0">
                     <!-- Status Filter -->
                     <select wire:model.live="statusFilter" 
-                            class="w-full sm:w-44 px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50/50 text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition duration-150">
+                            class="w-full sm:w-40 px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50/50 text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition duration-150">
                         <option value="">All Statuses</option>
                         <option value="pending">Pending</option>
                         <option value="approved">Approved</option>
@@ -174,7 +174,7 @@ new class extends Component
 
                     <!-- Plan Filter -->
                     <select wire:model.live="planFilter" 
-                            class="w-full sm:w-56 px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50/50 text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition duration-150">
+                            class="w-full sm:w-48 px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50/50 text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition duration-150">
                         <option value="">All Subscription Plans</option>
                         @foreach ($plans as $p)
                             <option value="{{ $p->id }}">{{ $p->name }}</option>
@@ -183,7 +183,7 @@ new class extends Component
 
                     @if(!empty($search) || !empty($statusFilter) || !empty($planFilter))
                         <button wire:click="resetFilters" 
-                                class="w-full sm:w-auto px-4 py-2 bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-600 hover:text-slate-900 rounded-lg text-sm font-medium transition duration-150 flex items-center justify-center gap-2 shrink-0">
+                                class="w-full sm:w-auto px-4 py-2 bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-600 hover:text-slate-900 rounded-lg text-sm font-medium transition duration-150 flex items-center justify-center gap-2">
                             <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
                             </svg>
