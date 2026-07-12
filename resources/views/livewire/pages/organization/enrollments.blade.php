@@ -64,6 +64,13 @@ new class extends Component
         session()->flash('success', "Subscription for {$sub->child->name} disapproved successfully.");
     }
 
+    public function markAsPending(int $id): void
+    {
+        $sub = ChildSubscription::findOrFail($id);
+        $sub->update(['status' => 'pending']);
+        session()->flash('success', "Subscription for {$sub->child->name} put on hold (pending) successfully.");
+    }
+
     public function resetFilters(): void
     {
         $this->reset(['search', 'statusFilter', 'planFilter', 'gradeFilter', 'divisionFilter']);
@@ -353,6 +360,13 @@ new class extends Component
                                                             class="px-3 py-1 text-white rounded-md text-xs font-semibold shadow-sm transition focus:outline-none hover:opacity-90"
                                                             style="background-color: #059669;">
                                                         Approve
+                                                    </button>
+                                                @endif
+                                                @if($sub->status !== 'pending')
+                                                    <button wire:click="markAsPending({{ $sub->id }})" 
+                                                            class="px-3 py-1 text-white rounded-md text-xs font-semibold shadow-sm transition focus:outline-none hover:opacity-90"
+                                                            style="background-color: #d97706;">
+                                                        Hold
                                                     </button>
                                                 @endif
                                                 @if($sub->status !== 'disapproved')

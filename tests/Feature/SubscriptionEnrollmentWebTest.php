@@ -200,5 +200,12 @@ class SubscriptionEnrollmentWebTest extends TestCase
             ->assertSee('Disapproved');
 
         $this->assertEquals('disapproved', $sub->fresh()->status);
+
+        Volt::actingAs($user)
+            ->test('pages.organization.enrollments')
+            ->call('markAsPending', $sub->id)
+            ->assertSee('Pending');
+
+        $this->assertEquals('pending', $sub->fresh()->status);
     }
 }
