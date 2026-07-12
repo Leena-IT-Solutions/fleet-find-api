@@ -18,6 +18,8 @@ class Organization extends Model
         'latitude',
         'longitude',
         'logo',
+        'show_email',
+        'show_phone',
         'display_driver_phone',
         'display_attendant_phone',
         'share_location_by',
@@ -27,6 +29,8 @@ class Organization extends Model
     protected $casts = [
         'latitude' => 'decimal:8',
         'longitude' => 'decimal:8',
+        'show_email' => 'boolean',
+        'show_phone' => 'boolean',
         'display_driver_phone' => 'boolean',
         'display_attendant_phone' => 'boolean',
         'enrollment_end_date' => 'date',

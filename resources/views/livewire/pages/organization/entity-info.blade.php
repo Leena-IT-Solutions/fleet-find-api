@@ -21,6 +21,8 @@ new class extends Component
     public ?string $logoPath = null;
     public bool $displayDriverPhone = true;
     public bool $displayAttendantPhone = true;
+    public bool $showEmail = true;
+    public bool $showPhone = true;
     public string $shareLocationBy = 'driver';
     public ?string $enrollmentEndDate = null;
 
@@ -51,6 +53,8 @@ new class extends Component
                 $this->logoPath = $this->organization->logo;
                 $this->displayDriverPhone = (bool)$this->organization->display_driver_phone;
                 $this->displayAttendantPhone = (bool)$this->organization->display_attendant_phone;
+                $this->showEmail = (bool)($this->organization->show_email ?? true);
+                $this->showPhone = (bool)($this->organization->show_phone ?? true);
                 $this->shareLocationBy = $this->organization->share_location_by ?? 'driver';
                 $this->enrollmentEndDate = $this->organization->enrollment_end_date ? $this->organization->enrollment_end_date->format('Y-m-d') : null;
             } else {
@@ -64,7 +68,7 @@ new class extends Component
     private function resetForm()
     {
         $this->organization = null;
-        $this->reset(['name', 'contactName', 'number', 'email', 'address', 'latitude', 'longitude', 'logoFile', 'logoPath', 'displayDriverPhone', 'displayAttendantPhone', 'shareLocationBy', 'enrollmentEndDate']);
+        $this->reset(['name', 'contactName', 'number', 'email', 'address', 'latitude', 'longitude', 'logoFile', 'logoPath', 'displayDriverPhone', 'displayAttendantPhone', 'showEmail', 'showPhone', 'shareLocationBy', 'enrollmentEndDate']);
     }
 
     public function updateEntityInfo()
@@ -97,6 +101,8 @@ new class extends Component
             'longitude' => $this->longitude ?: null,
             'display_driver_phone' => $this->displayDriverPhone,
             'display_attendant_phone' => $this->displayAttendantPhone,
+            'show_email' => $this->showEmail,
+            'show_phone' => $this->showPhone,
             'share_location_by' => $this->shareLocationBy,
             'enrollment_end_date' => $this->enrollmentEndDate ?: null,
         ];
@@ -350,6 +356,30 @@ new class extends Component
                                 </div>
                                 <label class="inline-flex items-center cursor-pointer">
                                     <input type="checkbox" wire:model="displayAttendantPhone" class="sr-only peer">
+                                    <div class="relative w-9 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-500/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                                </label>
+                            </div>
+
+                            <!-- Show Email Toggle -->
+                            <div class="flex items-center justify-between pt-3 border-t border-slate-100">
+                                <div class="flex flex-col">
+                                    <span class="text-xs font-semibold text-slate-700">Show Email</span>
+                                    <span class="text-[10px] text-slate-400">Show email address on parent search results</span>
+                                </div>
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" wire:model="showEmail" class="sr-only peer">
+                                    <div class="relative w-9 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-500/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                                </label>
+                            </div>
+
+                            <!-- Show Phone Number Toggle -->
+                            <div class="flex items-center justify-between pt-3 border-t border-slate-100">
+                                <div class="flex flex-col">
+                                    <span class="text-xs font-semibold text-slate-700">Show Phone Number</span>
+                                    <span class="text-[10px] text-slate-400">Show phone number on parent search results</span>
+                                </div>
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" wire:model="showPhone" class="sr-only peer">
                                     <div class="relative w-9 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-500/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
                                 </label>
                             </div>
