@@ -292,9 +292,14 @@ class TripsAndCrewTest extends TestCase
         $stop1 = $route->stops()->create(['name' => 'Stop One', 'latitude' => 19.0, 'longitude' => 73.0, 'sequence_order' => 1]);
         $stop2 = $route->stops()->create(['name' => 'Stop Two', 'latitude' => 19.1, 'longitude' => 73.1, 'sequence_order' => 2]);
 
+        // Another route whose stops should be filtered out
+        $otherRoute = $org->routes()->create(['name' => 'Route C']);
+        $otherStop = $otherRoute->stops()->create(['name' => 'Other Stop', 'latitude' => 19.2, 'longitude' => 73.2, 'sequence_order' => 1]);
+
         $trip = $org->trips()->create(['name' => 'Morning Route']);
         $trip->tripStops()->create(['stop_id' => $stop1->id, 'time' => '08:00:00']);
         $trip->tripStops()->create(['stop_id' => $stop2->id, 'time' => '08:30:00']);
+        $trip->tripStops()->create(['stop_id' => $otherStop->id, 'time' => '08:45:00']);
 
         TripRouteLogistics::create([
             'trip_id' => $trip->id,
@@ -312,7 +317,7 @@ class TripsAndCrewTest extends TestCase
         $response->assertJsonCount(1, 'trips');
         $response->assertJsonPath('trips.0.name', 'Morning Route');
         $response->assertJsonPath('trips.0.vehicle.registration_number', 'DRV-101');
-        $response->assertJsonCount(2, 'trips.0.stops');
+        $response->assertJsonCount(2, 'trips.0.stops'); // Assert other route stop is filtered out
         $response->assertJsonPath('trips.0.stops.0.name', 'Stop One');
         $response->assertJsonPath('trips.0.stops.0.time', '08:00:00');
     }

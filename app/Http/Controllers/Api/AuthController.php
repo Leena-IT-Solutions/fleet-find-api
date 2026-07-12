@@ -953,15 +953,20 @@ class AuthController extends Controller
 
         $trips = $logistics->map(function ($logistic) use ($user) {
             $trip = $logistic->trip;
+            $routeId = $logistic->route_id;
             
-            $stops = $trip->tripStops->map(function ($ts) {
-                return [
-                    'id' => $ts->id,
-                    'name' => $ts->stop->name ?? 'Unknown Stop',
-                    'time' => $ts->time,
-                    'sequence_order' => $ts->stop->sequence_order ?? 0,
-                ];
-            })->sortBy('time')->values()->all();
+            $stops = $trip->tripStops
+                ->filter(function ($ts) use ($routeId) {
+                    return $ts->stop && $ts->stop->route_id == $routeId;
+                })
+                ->map(function ($ts) {
+                    return [
+                        'id' => $ts->id,
+                        'name' => $ts->stop->name ?? 'Unknown Stop',
+                        'time' => $ts->time,
+                        'sequence_order' => $ts->stop->sequence_order ?? 0,
+                    ];
+                })->sortBy('time')->values()->all();
 
             return [
                 'id' => $trip->id,
