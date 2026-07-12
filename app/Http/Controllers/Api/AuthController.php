@@ -935,4 +935,69 @@ class AuthController extends Controller
             'subscription' => $subscription,
         ]);
     }
+
+    public function getDriverTrips(Request $request)
+    {
+        $user = $request->user();
+        
+        $driverIds = \App\Models\Driver::where('user_id', $user->id)->pluck('id')->toArray();
+
+        $logistics = \App\Models\TripRouteLogistics::whereIn('driver_id', $driverIds)
+            ->with([
+                'trip.tripStops.stop',
+                'trip.organization',
+                'vehicle',
+                'attendant.user'
+            ])
+            ->get();
+
+        $trips = $logistics->map(function ($logistic) use ($user) {
+            $trip = $logistic->trip;
+            
+            $stops = $trip->tripStops->map(function ($ts) {
+                return [
+                    'id' => $ts->id,
+                    'name' => $ts->stop->name ?? 'Unknown Stop',
+                    'time' => $ts->time,
+                    'sequence_order' => $ts->stop->sequence_order ?? 0,
+                ];
+            })->sortBy('time')->values()->all();
+
+            return [
+                'id' => $trip->id,
+                'name' => $trip->name,
+                'organization' => $trip->organization->name ?? 'Unknown Organization',
+                'vehicle' => $logistic->vehicle ? [
+                    'id' => $logistic->vehicle->id,
+                    'registration_number' => $logistic->vehicle->registration_number,
+                    'model' => $logistic->vehicle->model,
+                    'type' => $logistic->vehicle->type,
+                ] : null,
+                'driver' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'mobile' => $user->mobile,
+                ],
+                'assistant' => $logistic->attendant ? [
+                    'id' => $logistic->attendant->id,
+                    'name' => $logistic->attendant->name,
+                    'mobile' => $logistic->attendant->number,
+                ] : null,
+                'stops' => $stops,
+                'is_tracking' => $logistic->is_tracking,
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'driver' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'mobile' => $user->mobile,
+                'profile_photo' => $user->profile_photo ? url($user->profile_photo) : null,
+            ],
+            'trips' => $trips,
+        ]);
+    }
 }

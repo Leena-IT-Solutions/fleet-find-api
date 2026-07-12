@@ -45,4 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Subscriptions
     Route::get('/subscription-plans/{id}/enrollment-options', [AuthController::class, 'getSubscriptionEnrollmentOptions']);
     Route::post('/subscription-plans/{id}/enroll', [AuthController::class, 'enrollSubscription']);
+
+    // Driver trips
+    Route::get('/driver/trips', [AuthController::class, 'getDriverTrips']);
 });

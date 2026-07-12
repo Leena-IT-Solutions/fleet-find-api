@@ -270,4 +270,50 @@ class TripsAndCrewTest extends TestCase
             'stops_order' => 'desc',
         ]);
     }
+
+    public function test_driver_can_get_assigned_trips(): void
+    {
+        $driverUser = User::factory()->create(['name' => 'John Driver']);
+        $driverUser->assignRole('Driver');
+
+        $org = Organization::create(['name' => 'Main Org']);
+        $driver = Driver::create([
+            'user_id' => $driverUser->id,
+            'organization_id' => $org->id,
+        ]);
+
+        $vehicle = $org->vehicles()->create([
+            'registration_number' => 'DRV-101',
+            'type' => 'Bus',
+            'model' => 'Tata Starbus',
+        ]);
+
+        $route = $org->routes()->create(['name' => 'Route B']);
+        $stop1 = $route->stops()->create(['name' => 'Stop One', 'latitude' => 19.0, 'longitude' => 73.0, 'sequence_order' => 1]);
+        $stop2 = $route->stops()->create(['name' => 'Stop Two', 'latitude' => 19.1, 'longitude' => 73.1, 'sequence_order' => 2]);
+
+        $trip = $org->trips()->create(['name' => 'Morning Route']);
+        $trip->tripStops()->create(['stop_id' => $stop1->id, 'time' => '08:00:00']);
+        $trip->tripStops()->create(['stop_id' => $stop2->id, 'time' => '08:30:00']);
+
+        TripRouteLogistics::create([
+            'trip_id' => $trip->id,
+            'route_id' => $route->id,
+            'vehicle_id' => $vehicle->id,
+            'driver_id' => $driver->id,
+            'stops_order' => 'asc',
+        ]);
+
+        $response = $this->actingAs($driverUser)->getJson('/api/driver/trips');
+        $response->assertStatus(200);
+
+        $response->assertJsonPath('success', true);
+        $response->assertJsonPath('driver.name', 'John Driver');
+        $response->assertJsonCount(1, 'trips');
+        $response->assertJsonPath('trips.0.name', 'Morning Route');
+        $response->assertJsonPath('trips.0.vehicle.registration_number', 'DRV-101');
+        $response->assertJsonCount(2, 'trips.0.stops');
+        $response->assertJsonPath('trips.0.stops.0.name', 'Stop One');
+        $response->assertJsonPath('trips.0.stops.0.time', '08:00:00');
+    }
 }
