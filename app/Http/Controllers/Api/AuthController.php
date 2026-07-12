@@ -624,12 +624,14 @@ class AuthController extends Controller
 
     private function formatUserResponse(User $user)
     {
+        $roles = $user->roles()->pluck('name')->toArray();
         return [
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
             'mobile' => $user->mobile,
             'profile_photo' => $user->profile_photo ? url($user->profile_photo) : null,
+            'roles' => empty($roles) ? ['Parent'] : $roles,
         ];
     }
 
