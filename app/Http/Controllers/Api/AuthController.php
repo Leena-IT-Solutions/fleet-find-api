@@ -410,6 +410,7 @@ class AuthController extends Controller
         $perPage = $request->input('per_page', 20);
 
         $paginator = \App\Models\Organization::query()
+            ->with('subscriptionPlans')
             ->when($query, function ($q) use ($query) {
                 $q->where('name', 'like', '%' . $query . '%')
                   ->orWhere('address', 'like', '%' . $query . '%')
