@@ -132,7 +132,20 @@ class SubscriptionEnrollmentWebTest extends TestCase
             ->set('search', '')
             ->set('planFilter', $plan2->id)
             ->assertSee('Bob Miller')
-            ->assertDontSee('Alice Brown');
+            ->assertDontSee('Alice Brown')
+            // Reset plan filter and apply grade filter
+            ->set('planFilter', '')
+            ->set('gradeFilter', $grade->id)
+            ->assertSee('Alice Brown')
+            ->assertSee('Bob Miller')
+            // Apply division filter
+            ->set('divisionFilter', $division->id)
+            ->assertSee('Alice Brown')
+            ->assertSee('Bob Miller')
+            // Apply an invalid division filter
+            ->set('divisionFilter', 9999)
+            ->assertDontSee('Alice Brown')
+            ->assertDontSee('Bob Miller');
     }
 
     public function test_can_approve_and_disapprove_enrollments(): void
