@@ -682,7 +682,7 @@ class AuthController extends Controller
 
         $request->validate([
             'email_or_mobile' => ['required', 'string'],
-            'relationship_type' => ['required', 'string', 'in:Mother,Father,Guardian,Other,Aunt,Uncle'],
+            'relationship_type' => ['required', 'string', 'in:Mother,Father,Guardian,Other'],
         ]);
 
         $input = $request->email_or_mobile;
