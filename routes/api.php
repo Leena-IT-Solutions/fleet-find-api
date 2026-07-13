@@ -65,4 +65,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Crew CRUD
     Route::post('/organization/{orgId}/crew', [\App\Http\Controllers\Api\CrewController::class, 'store']);
     Route::delete('/organization/{orgId}/crew/{type}/{id}', [\App\Http\Controllers\Api\CrewController::class, 'destroy']);
+
+    // Trip Logistics Assign
+    Route::post('/organization/{orgId}/trips/{tripId}/assign', [\App\Http\Controllers\Api\TripLogisticsController::class, 'assign']);
 });
