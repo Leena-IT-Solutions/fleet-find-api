@@ -494,7 +494,7 @@ new class extends Component
                                                         <span class="text-[9px] font-bold uppercase tracking-wider text-slate-400">Autorefreshes every 5s</span>
                                                     </div>
 
-                                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                                                    <div class="grid grid-cols-3 gap-4 text-center">
                                                         <!-- Coordinates -->
                                                         <div class="bg-white border border-slate-200/60 p-3.5 rounded-xl shadow-sm space-y-1">
                                                             <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Coordinates</span>
