@@ -50,7 +50,7 @@ class TripLogisticsController extends Controller
         ]);
     }
 
-    public function getRouteTracking(Request $request, $orgId, $routeId)
+    public function getRouteTracking(Request $request, $orgId, $tripId, $routeId)
     {
         $organization = $request->user()->organizations()->where('organizations.id', $orgId)->first();
         if (!$organization) {
@@ -60,7 +60,8 @@ class TripLogisticsController extends Controller
             ], 403);
         }
 
-        $logistics = TripRouteLogistics::where('route_id', $routeId)
+        $logistics = TripRouteLogistics::where('trip_id', $tripId)
+            ->where('route_id', $routeId)
             ->first();
 
         if (!$logistics) {
