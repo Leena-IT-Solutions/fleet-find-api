@@ -1252,6 +1252,7 @@ class AuthController extends Controller
                 'longitude' => (double) $subscription->dropStop->longitude,
             ] : null,
             'stops' => $stops,
+            'stops_order' => $logistics->stops_order ?: 'asc',
             'map_provider' => $mapProvider,
             'mapbox_access_token' => $mapboxAccessToken,
             'google_maps_api_key' => $googleMapsApiKey,
