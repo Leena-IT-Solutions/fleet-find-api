@@ -56,4 +56,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Trip Tracking
     Route::post('/trip/{tripId}/toggle-tracking', [\App\Http\Controllers\Api\TripTrackingController::class, 'toggleTracking']);
     Route::post('/trip/{tripId}/location', [\App\Http\Controllers\Api\TripTrackingController::class, 'updateLocation']);
+
+    // Vehicle CRUD
+    Route::post('/organization/{orgId}/vehicles', [\App\Http\Controllers\Api\VehicleController::class, 'store']);
+    Route::put('/organization/{orgId}/vehicles/{id}', [\App\Http\Controllers\Api\VehicleController::class, 'update']);
+    Route::delete('/organization/{orgId}/vehicles/{id}', [\App\Http\Controllers\Api\VehicleController::class, 'destroy']);
 });
