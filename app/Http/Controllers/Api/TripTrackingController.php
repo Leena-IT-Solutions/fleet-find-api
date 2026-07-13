@@ -122,7 +122,7 @@ class TripTrackingController extends Controller
         if ($request->has('speed')) {
             $logistics->speed = $request->speed;
         }
-        $logistics->save();
+        $logistics->touch();
 
         return response()->json([
             'success' => true,
