@@ -1189,8 +1189,30 @@ class AuthController extends Controller
                     'latitude' => (double) $stop->latitude,
                     'longitude' => (double) $stop->longitude,
                     'time' => $stop->time ? substr($stop->time, 0, 5) : null,
+                    'is_school' => false,
                 ];
-            });
+            })
+            ->toArray();
+
+        // Retrieve organization for school location
+        $organization = $trip->organization;
+        if ($organization && $organization->latitude && $organization->longitude) {
+            $schoolStop = [
+                'id' => -1,
+                'name' => $organization->name,
+                'latitude' => (double) $organization->latitude,
+                'longitude' => (double) $organization->longitude,
+                'time' => null,
+                'is_school' => true,
+            ];
+
+            $stopsOrder = $logistics->stops_order ?: 'asc';
+            if ($stopsOrder === 'desc') {
+                $stops[] = $schoolStop; // school at last
+            } else {
+                array_unshift($stops, $schoolStop); // school at first
+            }
+        }
 
         // Determine if actively tracking
         $isTracking = (bool) $logistics->is_tracking;
