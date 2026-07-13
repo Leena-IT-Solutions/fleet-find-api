@@ -25,7 +25,7 @@ class ResetPasswordOtpMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'FleetFind - Password Reset Verification Code',
+            subject: 'Wheels Tracker - Password Reset Verification Code',
         );
     }
 

@@ -30,7 +30,7 @@ class SettingsTest extends TestCase
         // Test saving settings
         Volt::actingAs($admin)
             ->test('pages.settings.index')
-            ->assertSet('companyName', 'Fleet Find')
+            ->assertSet('companyName', 'Wheels Tracker')
             ->set('companyName', 'New Company Name')
             ->set('companyEmail', 'new@company.com')
             ->set('companyContact', '+91 9999988888')

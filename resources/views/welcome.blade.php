@@ -2,8 +2,8 @@
     <!-- Header -->
     <header class="relative w-full max-w-7xl mx-auto px-6 py-6 flex items-center justify-between z-10">
         <div class="flex items-center gap-3">
-            <img src="{{ asset('logo.png') }}" class="h-10 w-auto logo-spin" alt="FleetFind Logo">
-            <span class="text-xl font-bold tracking-tight text-slate-900">FleetFind</span>
+            <img src="{{ asset('logo.png') }}" class="h-10 w-auto logo-spin" alt="Wheels Tracker Logo">
+            <span class="text-xl font-bold tracking-tight text-slate-900">Wheels Tracker</span>
         </div>
 
         @if (Route::has('login'))
@@ -55,6 +55,6 @@
 
     <!-- Footer -->
     <footer class="relative w-full max-w-7xl mx-auto px-6 py-6 text-center text-slate-400 text-xs z-10 border-t border-slate-200">
-        <p>&copy; {{ date('Y') }} FleetFind. All rights reserved.</p>
+        <p>&copy; {{ date('Y') }} Wheels Tracker. All rights reserved.</p>
     </footer>
 </x-guest-layout>
