@@ -1159,7 +1159,10 @@ class AuthController extends Controller
         }
 
         // Find the trip associated with this route
-        $logistics = \App\Models\TripRouteLogistics::where('route_id', $subscription->route_id)->first();
+        $logistics = \App\Models\TripRouteLogistics::where('route_id', $subscription->route_id)
+            ->orderBy('is_tracking', 'desc')
+            ->orderBy('updated_at', 'desc')
+            ->first();
         if (!$logistics) {
             return response()->json([
                 'success' => false,
