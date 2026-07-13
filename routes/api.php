@@ -68,4 +68,5 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Trip Logistics Assign
     Route::post('/organization/{orgId}/trips/{tripId}/assign', [\App\Http\Controllers\Api\TripLogisticsController::class, 'assign']);
+    Route::get('/organization/{orgId}/routes/{routeId}/tracking', [\App\Http\Controllers\Api\TripLogisticsController::class, 'getRouteTracking']);
 });
