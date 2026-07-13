@@ -1178,6 +1178,7 @@ class AuthController extends Controller
         // Fetch stops ordered by stops.sequence_order
         $stops = $trip->tripStops()
             ->join('stops', 'trip_stops.stop_id', '=', 'stops.id')
+            ->where('stops.route_id', $subscription->route_id)
             ->select('stops.*', 'trip_stops.time')
             ->orderBy('stops.sequence_order', $logistics->stops_order ?: 'asc')
             ->get()
