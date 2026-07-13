@@ -401,8 +401,10 @@ class AuthController extends Controller
                         'vehicle_number' => $rl->vehicle->registration_number ?? 'N/A',
                         'driver_id' => $rl->driver_id,
                         'driver_name' => $rl->driver->user->name ?? 'N/A',
+                        'driver_mobile' => $rl->driver->user->mobile ?? null,
                         'attendant_id' => $rl->attendant_id,
                         'attendant_name' => $rl->attendant->user->name ?? 'N/A',
+                        'attendant_mobile' => $rl->attendant->user->mobile ?? null,
                         'is_tracking' => (bool)$rl->is_tracking,
                     ];
                 })->values()->all(),
