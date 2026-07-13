@@ -438,7 +438,7 @@ class AuthController extends Controller
         // Format photo URL if present
         $children = $children->map(function ($child) {
             $activeSub = \App\Models\ChildSubscription::where('child_id', $child->id)
-                ->whereIn('status', ['approved', 'active'])
+                ->where('status', '!=', 'disapproved')
                 ->with(['subscriptionPlan.organization', 'route', 'pickupStop', 'dropStop'])
                 ->first();
 
@@ -670,7 +670,7 @@ class AuthController extends Controller
         });
 
         $activeSub = \App\Models\ChildSubscription::where('child_id', $child->id)
-            ->whereIn('status', ['approved', 'active'])
+            ->where('status', '!=', 'disapproved')
             ->with(['subscriptionPlan.organization', 'route', 'pickupStop', 'dropStop'])
             ->first();
 
