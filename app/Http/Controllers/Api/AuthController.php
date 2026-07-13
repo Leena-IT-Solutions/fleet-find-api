@@ -405,7 +405,7 @@ class AuthController extends Controller
                         'attendant_id' => $rl->attendant_id,
                         'attendant_name' => $rl->attendant->user->name ?? 'N/A',
                         'attendant_mobile' => $rl->attendant->user->mobile ?? null,
-                        'is_tracking' => (bool)$rl->is_tracking,
+                        'is_tracking' => (bool)($rl->is_tracking && $rl->updated_at && $rl->updated_at->gt(now()->subSeconds(max(30, ((int)\App\Models\Setting::get('location_update_interval_seconds', '10')) * 3)))),
                     ];
                 })->values()->all(),
             ];
