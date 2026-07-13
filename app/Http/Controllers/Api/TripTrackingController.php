@@ -22,18 +22,17 @@ class TripTrackingController extends Controller
         $driverIds = Driver::where('user_id', $user->id)->pluck('id')->toArray();
         $attendantIds = Attendant::where('user_id', $user->id)->pluck('id')->toArray();
 
-        $logistics = TripRouteLogistics::where('trip_id', $tripId)->first();
+        // Query the logistics record matching the trip ID AND assigned to the logged-in user
+        $logistics = TripRouteLogistics::where('trip_id', $tripId)
+            ->where(function ($query) use ($driverIds, $attendantIds) {
+                $query->whereIn('driver_id', $driverIds)
+                      ->orWhereIn('attendant_id', $attendantIds);
+            })
+            ->first();
 
         if (!$logistics) {
-            return null;
-        }
-
-        // Verify if user is either the assigned driver or assistant/attendant
-        $isDriver = !empty($driverIds) && in_array($logistics->driver_id, $driverIds);
-        $isAttendant = !empty($attendantIds) && in_array($logistics->attendant_id, $attendantIds);
-
-        if (!$isDriver && !$isAttendant) {
-            return false; // Unauthorized
+            $exists = TripRouteLogistics::where('trip_id', $tripId)->exists();
+            return $exists ? false : null;
         }
 
         return $logistics;
