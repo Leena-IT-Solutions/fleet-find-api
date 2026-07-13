@@ -471,6 +471,68 @@ new class extends Component
                                         @php $activeRoute = $routes->firstWhere('id', $selectedRouteId); @endphp
                                         @if ($activeRoute)
                                             <div class="space-y-6">
+                                                @php
+                                                    $logisticRecord = \App\Models\TripRouteLogistics::where('trip_id', $activeTrip->id)
+                                                        ->where('route_id', $activeRoute->id)
+                                                        ->first();
+                                                @endphp
+
+                                                <!-- Live Tracking Dashboard (Polled every 5 seconds) -->
+                                                <div wire:poll.keep-alive.5s class="bg-indigo-50/50 border border-indigo-100 p-5 rounded-2xl space-y-4">
+                                                    <div class="flex items-center justify-between">
+                                                        <div class="flex items-center gap-2">
+                                                            <span class="relative flex h-2 w-2">
+                                                                @if ($logisticRecord && $logisticRecord->is_tracking)
+                                                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                                                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                                                @else
+                                                                    <span class="relative inline-flex rounded-full h-2 w-2 bg-slate-400"></span>
+                                                                @endif
+                                                            </span>
+                                                            <h4 class="text-xs font-bold text-indigo-900 uppercase tracking-wide">Live Route Tracking Dashboard</h4>
+                                                        </div>
+                                                        <span class="text-[9px] font-bold uppercase tracking-wider text-slate-400">Autorefreshes every 5s</span>
+                                                    </div>
+
+                                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                                                        <!-- Coordinates -->
+                                                        <div class="bg-white border border-slate-200/60 p-3.5 rounded-xl shadow-sm space-y-1">
+                                                            <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Coordinates</span>
+                                                            <span class="text-xs font-extrabold text-slate-800">
+                                                                @if ($logisticRecord && $logisticRecord->is_tracking && $logisticRecord->latitude && $logisticRecord->longitude)
+                                                                    {{ number_format($logisticRecord->latitude, 6) }}, {{ number_format($logisticRecord->longitude, 6) }}
+                                                                @else
+                                                                    Offline
+                                                                @endif
+                                                            </span>
+                                                        </div>
+
+                                                        <!-- Speed -->
+                                                        <div class="bg-white border border-slate-200/60 p-3.5 rounded-xl shadow-sm space-y-1">
+                                                            <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Speed</span>
+                                                            <span class="text-xs font-extrabold text-slate-800">
+                                                                @if ($logisticRecord && $logisticRecord->is_tracking && $logisticRecord->latitude && $logisticRecord->longitude)
+                                                                    {{ $logisticRecord->speed ? number_format($logisticRecord->speed * 3.6, 1) . ' km/h' : '0.0 km/h' }}
+                                                                @else
+                                                                    Offline
+                                                                @endif
+                                                            </span>
+                                                        </div>
+
+                                                        <!-- Last Updated -->
+                                                        <div class="bg-white border border-slate-200/60 p-3.5 rounded-xl shadow-sm space-y-1">
+                                                            <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Last Updated</span>
+                                                            <span class="text-xs font-extrabold text-slate-800">
+                                                                @if ($logisticRecord && $logisticRecord->is_tracking && $logisticRecord->updated_at)
+                                                                    {{ $logisticRecord->updated_at->timezone('Asia/Kolkata')->format('h:i:s A') }}
+                                                                @else
+                                                                    Offline
+                                                                @endif
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
                                                 <!-- Card 1: Logistics Assignment -->
                                                 <div class="bg-slate-50/50 border border-slate-200/80 p-5 rounded-2xl space-y-4">
                                                     <div class="flex items-center justify-between">
