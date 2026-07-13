@@ -442,6 +442,31 @@ class AuthController extends Controller
                 ->with(['subscriptionPlan.organization', 'route', 'pickupStop', 'dropStop'])
                 ->first();
 
+            $logistics = null;
+            if ($activeSub && $activeSub->route_id) {
+                $logistics = \App\Models\TripRouteLogistics::where('route_id', $activeSub->route_id)
+                    ->with(['driver.user', 'attendant.user'])
+                    ->first();
+            }
+
+            $driverName = $logistics?->driver?->name;
+            if (empty($driverName)) {
+                $driverName = $logistics?->driver?->getRawOriginal('name') ?? 'N/A';
+            }
+            $driverPhone = $logistics?->driver?->user?->mobile;
+            if (empty($driverPhone)) {
+                $driverPhone = $logistics?->driver?->getRawOriginal('number') ?? '';
+            }
+
+            $attendantName = $logistics?->attendant?->name;
+            if (empty($attendantName)) {
+                $attendantName = $logistics?->attendant?->getRawOriginal('name') ?? 'N/A';
+            }
+            $attendantPhone = $logistics?->attendant?->user?->mobile;
+            if (empty($attendantPhone)) {
+                $attendantPhone = $logistics?->attendant?->getRawOriginal('number') ?? '';
+            }
+
             return [
                 'id' => $child->id,
                 'parent_id' => $child->parent_id,
@@ -454,6 +479,10 @@ class AuthController extends Controller
                     'route_name' => $activeSub->route?->name ?? 'N/A',
                     'pickup_stop' => $activeSub->pickupStop?->name ?? 'N/A',
                     'drop_stop' => $activeSub->dropStop?->name ?? 'N/A',
+                    'driver_name' => $driverName,
+                    'driver_phone' => $driverPhone,
+                    'attendant_name' => $attendantName,
+                    'attendant_phone' => $attendantPhone,
                 ] : null,
             ];
         });
@@ -674,6 +703,31 @@ class AuthController extends Controller
             ->with(['subscriptionPlan.organization', 'route', 'pickupStop', 'dropStop'])
             ->first();
 
+        $logistics = null;
+        if ($activeSub && $activeSub->route_id) {
+            $logistics = \App\Models\TripRouteLogistics::where('route_id', $activeSub->route_id)
+                ->with(['driver.user', 'attendant.user'])
+                ->first();
+        }
+
+        $driverName = $logistics?->driver?->name;
+        if (empty($driverName)) {
+            $driverName = $logistics?->driver?->getRawOriginal('name') ?? 'N/A';
+        }
+        $driverPhone = $logistics?->driver?->user?->mobile;
+        if (empty($driverPhone)) {
+            $driverPhone = $logistics?->driver?->getRawOriginal('number') ?? '';
+        }
+
+        $attendantName = $logistics?->attendant?->name;
+        if (empty($attendantName)) {
+            $attendantName = $logistics?->attendant?->getRawOriginal('name') ?? 'N/A';
+        }
+        $attendantPhone = $logistics?->attendant?->user?->mobile;
+        if (empty($attendantPhone)) {
+            $attendantPhone = $logistics?->attendant?->getRawOriginal('number') ?? '';
+        }
+
         return response()->json([
             'success' => true,
             'child' => [
@@ -687,6 +741,10 @@ class AuthController extends Controller
                     'route_name' => $activeSub->route?->name ?? 'N/A',
                     'pickup_stop' => $activeSub->pickupStop?->name ?? 'N/A',
                     'drop_stop' => $activeSub->dropStop?->name ?? 'N/A',
+                    'driver_name' => $driverName,
+                    'driver_phone' => $driverPhone,
+                    'attendant_name' => $attendantName,
+                    'attendant_phone' => $attendantPhone,
                 ] : null,
             ]
         ]);
