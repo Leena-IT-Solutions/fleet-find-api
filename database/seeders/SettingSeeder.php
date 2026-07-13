@@ -13,8 +13,8 @@ class SettingSeeder extends Seeder
     public function run(): void
     {
         $defaults = [
-            'company_name' => 'Fleet Find',
-            'company_email' => 'info@fleetfind.com',
+            'company_name' => 'Wheels Tracker',
+            'company_email' => 'info@wheelstracker.com',
             'company_contact' => '+91 9664588677',
             
             'msg91_auth_key' => env('MSG91_AUTH_KEY', ''),
