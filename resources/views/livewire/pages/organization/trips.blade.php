@@ -475,6 +475,13 @@ new class extends Component
                                                     $logisticRecord = \App\Models\TripRouteLogistics::where('trip_id', $activeTrip->id)
                                                         ->where('route_id', $activeRoute->id)
                                                         ->first();
+
+                                                    $isLive = false;
+                                                    if ($logisticRecord && $logisticRecord->is_tracking && $logisticRecord->updated_at) {
+                                                        $interval = (int) \App\Models\Setting::get('location_update_interval_seconds', '10');
+                                                        $thresholdSeconds = max(30, $interval * 3);
+                                                        $isLive = $logisticRecord->updated_at->gt(now()->subSeconds($thresholdSeconds));
+                                                    }
                                                 @endphp
 
                                                 <!-- Live Tracking Dashboard (Polled every 5 seconds) -->
@@ -482,7 +489,7 @@ new class extends Component
                                                     <div class="flex items-center justify-between">
                                                         <div class="flex items-center gap-2">
                                                             <span class="relative flex h-2 w-2">
-                                                                @if ($logisticRecord && $logisticRecord->is_tracking)
+                                                                @if ($isLive)
                                                                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                                                                     <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                                                                 @else
@@ -499,7 +506,7 @@ new class extends Component
                                                         <div class="bg-white border border-slate-200/60 p-3.5 rounded-xl shadow-sm space-y-1">
                                                             <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Coordinates</span>
                                                             <span class="text-xs font-extrabold text-slate-800">
-                                                                @if ($logisticRecord && $logisticRecord->is_tracking && $logisticRecord->latitude && $logisticRecord->longitude)
+                                                                @if ($isLive && $logisticRecord->latitude && $logisticRecord->longitude)
                                                                     {{ number_format($logisticRecord->latitude, 6) }}, {{ number_format($logisticRecord->longitude, 6) }}
                                                                 @else
                                                                     Offline
@@ -511,7 +518,7 @@ new class extends Component
                                                         <div class="bg-white border border-slate-200/60 p-3.5 rounded-xl shadow-sm space-y-1">
                                                             <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Speed</span>
                                                             <span class="text-xs font-extrabold text-slate-800">
-                                                                @if ($logisticRecord && $logisticRecord->is_tracking && $logisticRecord->latitude && $logisticRecord->longitude)
+                                                                @if ($isLive && $logisticRecord->latitude && $logisticRecord->longitude)
                                                                     {{ $logisticRecord->speed ? number_format($logisticRecord->speed * 3.6, 1) . ' km/h' : '0.0 km/h' }}
                                                                 @else
                                                                     Offline
@@ -523,7 +530,7 @@ new class extends Component
                                                         <div class="bg-white border border-slate-200/60 p-3.5 rounded-xl shadow-sm space-y-1">
                                                             <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Last Updated</span>
                                                             <span class="text-xs font-extrabold text-slate-800">
-                                                                @if ($logisticRecord && $logisticRecord->is_tracking && $logisticRecord->updated_at)
+                                                                @if ($isLive && $logisticRecord->updated_at)
                                                                     {{ $logisticRecord->updated_at->timezone('Asia/Kolkata')->format('h:i:s A') }}
                                                                 @else
                                                                     Offline
