@@ -1133,4 +1133,105 @@ class AuthController extends Controller
             'trips' => $trips,
         ]);
     }
+
+    public function getChildTracking(Request $request, $id)
+    {
+        $user = $request->user();
+        $child = $user->children()->find($id);
+
+        if (!$child) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Child not found or you do not have permission to view this child.'
+            ], 404);
+        }
+
+        // Get child active subscription
+        $subscription = \App\Models\ChildSubscription::where('child_id', $child->id)
+            ->with(['pickupStop', 'dropStop'])
+            ->first();
+
+        if (!$subscription) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This child is not currently enrolled in any route.'
+            ]);
+        }
+
+        // Find the trip associated with this route
+        $logistics = \App\Models\TripRouteLogistics::where('route_id', $subscription->route_id)->first();
+        if (!$logistics) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No active trip found for this child\'s route.'
+            ]);
+        }
+
+        $trip = \App\Models\Trip::find($logistics->trip_id);
+        if (!$trip) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Trip configuration not found.'
+            ]);
+        }
+
+        // Fetch stops ordered by stops.sequence_order
+        $stops = $trip->tripStops()
+            ->join('stops', 'trip_stops.stop_id', '=', 'stops.id')
+            ->select('stops.*', 'trip_stops.time')
+            ->orderBy('stops.sequence_order', $logistics->stops_order ?: 'asc')
+            ->get()
+            ->map(function ($stop) {
+                return [
+                    'id' => $stop->id,
+                    'name' => $stop->name,
+                    'latitude' => (double) $stop->latitude,
+                    'longitude' => (double) $stop->longitude,
+                    'time' => $stop->time ? substr($stop->time, 0, 5) : null,
+                ];
+            });
+
+        // Determine if actively tracking
+        $isTracking = (bool) $logistics->is_tracking;
+        if ($isTracking && $logistics->updated_at) {
+            // Check threshold (3x interval)
+            $interval = (int) \App\Models\Setting::get('location_update_interval_seconds', '10');
+            $thresholdSeconds = max(30, $interval * 3);
+            if ($logistics->updated_at->lt(now()->subSeconds($thresholdSeconds))) {
+                $isTracking = false;
+            }
+        }
+
+        $mapProvider = \App\Models\Setting::get('map_provider', 'leaflet');
+        $mapboxAccessToken = \App\Models\Setting::get('mapbox_access_token', '');
+        $googleMapsApiKey = \App\Models\Setting::get('google_maps_api_key', '');
+
+        return response()->json([
+            'success' => true,
+            'child_name' => $child->name,
+            'trip_id' => $trip->id,
+            'trip_name' => $trip->name,
+            'is_tracking' => $isTracking,
+            'latitude' => $isTracking ? (double) $logistics->latitude : null,
+            'longitude' => $isTracking ? (double) $logistics->longitude : null,
+            'speed' => $isTracking ? (double) $logistics->speed : null,
+            'updated_at' => $isTracking && $logistics->updated_at ? $logistics->updated_at->timezone('Asia/Kolkata')->toIso8601String() : null,
+            'pickup_stop' => $subscription->pickupStop ? [
+                'id' => $subscription->pickupStop->id,
+                'name' => $subscription->pickupStop->name,
+                'latitude' => (double) $subscription->pickupStop->latitude,
+                'longitude' => (double) $subscription->pickupStop->longitude,
+            ] : null,
+            'drop_stop' => $subscription->dropStop ? [
+                'id' => $subscription->dropStop->id,
+                'name' => $subscription->dropStop->name,
+                'latitude' => (double) $subscription->dropStop->latitude,
+                'longitude' => (double) $subscription->dropStop->longitude,
+            ] : null,
+            'stops' => $stops,
+            'map_provider' => $mapProvider,
+            'mapbox_access_token' => $mapboxAccessToken,
+            'google_maps_api_key' => $googleMapsApiKey,
+        ]);
+    }
 }
