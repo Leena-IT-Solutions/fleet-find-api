@@ -437,6 +437,11 @@ class AuthController extends Controller
 
         // Format photo URL if present
         $children = $children->map(function ($child) {
+            $activeSub = \App\Models\ChildSubscription::where('child_id', $child->id)
+                ->where('status', 'active')
+                ->with(['subscriptionPlan.organization', 'route', 'pickupStop', 'dropStop'])
+                ->first();
+
             return [
                 'id' => $child->id,
                 'parent_id' => $child->parent_id,
@@ -444,6 +449,12 @@ class AuthController extends Controller
                 'gender' => $child->gender,
                 'photo' => $child->photo ? url($child->photo) : null,
                 'relationship_type' => $child->pivot?->relationship_type ?: 'Parent',
+                'active_subscription' => $activeSub ? [
+                    'school_name' => $activeSub->subscriptionPlan?->organization?->name ?? 'N/A',
+                    'route_name' => $activeSub->route?->name ?? 'N/A',
+                    'pickup_stop' => $activeSub->pickupStop?->name ?? 'N/A',
+                    'drop_stop' => $activeSub->dropStop?->name ?? 'N/A',
+                ] : null,
             ];
         });
 
@@ -658,6 +669,11 @@ class AuthController extends Controller
             ];
         });
 
+        $activeSub = \App\Models\ChildSubscription::where('child_id', $child->id)
+            ->where('status', 'active')
+            ->with(['subscriptionPlan.organization', 'route', 'pickupStop', 'dropStop'])
+            ->first();
+
         return response()->json([
             'success' => true,
             'child' => [
@@ -666,6 +682,12 @@ class AuthController extends Controller
                 'gender' => $child->gender,
                 'photo' => $child->photo ? url($child->photo) : null,
                 'relationships' => $relationships,
+                'active_subscription' => $activeSub ? [
+                    'school_name' => $activeSub->subscriptionPlan?->organization?->name ?? 'N/A',
+                    'route_name' => $activeSub->route?->name ?? 'N/A',
+                    'pickup_stop' => $activeSub->pickupStop?->name ?? 'N/A',
+                    'drop_stop' => $activeSub->dropStop?->name ?? 'N/A',
+                ] : null,
             ]
         ]);
     }
