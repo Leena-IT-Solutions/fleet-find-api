@@ -61,4 +61,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/organization/{orgId}/vehicles', [\App\Http\Controllers\Api\VehicleController::class, 'store']);
     Route::put('/organization/{orgId}/vehicles/{id}', [\App\Http\Controllers\Api\VehicleController::class, 'update']);
     Route::delete('/organization/{orgId}/vehicles/{id}', [\App\Http\Controllers\Api\VehicleController::class, 'destroy']);
+
+    // Crew CRUD
+    Route::post('/organization/{orgId}/crew', [\App\Http\Controllers\Api\CrewController::class, 'store']);
+    Route::delete('/organization/{orgId}/crew/{type}/{id}', [\App\Http\Controllers\Api\CrewController::class, 'destroy']);
 });

@@ -371,12 +371,12 @@ class AuthController extends Controller
         // Load drivers with their user names
         $drivers = $organization->drivers()
             ->join('users', 'drivers.user_id', '=', 'users.id')
-            ->get(['drivers.id', 'users.name as driver_name']);
+            ->get(['drivers.id', 'users.name as driver_name', 'users.mobile as driver_mobile', 'users.email as driver_email']);
 
         // Load attendants with their user names
         $attendants = $organization->attendants()
             ->join('users', 'attendants.user_id', '=', 'users.id')
-            ->get(['attendants.id', 'users.name as attendant_name']);
+            ->get(['attendants.id', 'users.name as attendant_name', 'users.mobile as attendant_mobile', 'users.email as attendant_email']);
 
         // Load trips with their logistics, vehicle, driver, attendant, and route details
         $trips = $organization->trips()
