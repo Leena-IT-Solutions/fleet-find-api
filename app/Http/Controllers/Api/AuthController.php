@@ -378,6 +378,33 @@ class AuthController extends Controller
             ->join('users', 'attendants.user_id', '=', 'users.id')
             ->get(['attendants.id', 'users.name as attendant_name']);
 
+        // Load trips with their logistics, vehicle, driver, attendant, and route details
+        $trips = $organization->trips()
+            ->with([
+                'routeLogistics.driver.user',
+                'routeLogistics.attendant.user',
+                'routeLogistics.vehicle',
+                'routeLogistics.route'
+            ])
+            ->get();
+
+        $formattedTrips = $trips->map(function ($t) {
+            return [
+                'id' => $t->id,
+                'name' => $t->name,
+                'routes' => $t->routeLogistics->map(function ($rl) {
+                    return [
+                        'id' => $rl->id,
+                        'route_name' => $rl->route->name ?? 'N/A',
+                        'vehicle_number' => $rl->vehicle->registration_number ?? 'N/A',
+                        'driver_name' => $rl->driver->user->name ?? 'N/A',
+                        'attendant_name' => $rl->attendant->user->name ?? 'N/A',
+                        'is_tracking' => (bool)$rl->is_tracking,
+                    ];
+                })->values()->all(),
+            ];
+        })->values()->all();
+
         // Get all organizations of this user
         $allOrganizations = $user->organizations()->get(['organizations.id', 'organizations.name']);
 
@@ -399,6 +426,7 @@ class AuthController extends Controller
                 'vehicles' => $vehicles,
                 'drivers' => $drivers,
                 'attendants' => $attendants,
+                'trips' => $formattedTrips,
             ],
             'organizations' => $allOrganizations
         ]);
