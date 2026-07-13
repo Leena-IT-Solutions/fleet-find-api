@@ -395,9 +395,13 @@ class AuthController extends Controller
                 'routes' => $t->routeLogistics->map(function ($rl) {
                     return [
                         'id' => $rl->id,
+                        'route_id' => $rl->route_id,
                         'route_name' => $rl->route->name ?? 'N/A',
+                        'vehicle_id' => $rl->vehicle_id,
                         'vehicle_number' => $rl->vehicle->registration_number ?? 'N/A',
+                        'driver_id' => $rl->driver_id,
                         'driver_name' => $rl->driver->user->name ?? 'N/A',
+                        'attendant_id' => $rl->attendant_id,
                         'attendant_name' => $rl->attendant->user->name ?? 'N/A',
                         'is_tracking' => (bool)$rl->is_tracking,
                     ];
