@@ -85,7 +85,7 @@
                     <p>
                         If you have any questions or suggestions regarding this Privacy Policy, please contact us at:
                         <br>
-                        <strong>Email:</strong> support@infoleena.com
+                        <strong>Email:</strong> leenaitsolutions@gmail.com
                     </p>
                 </section>
             </div>
