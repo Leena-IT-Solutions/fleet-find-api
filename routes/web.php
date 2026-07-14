@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
+Route::view('/privacy-policy', 'privacy-policy')->name('privacy-policy');
 
 use Livewire\Volt\Volt;
 

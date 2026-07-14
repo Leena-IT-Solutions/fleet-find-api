@@ -55,6 +55,6 @@
 
     <!-- Footer -->
     <footer class="relative w-full max-w-7xl mx-auto px-6 py-6 text-center text-slate-400 text-xs z-10 border-t border-slate-200">
-        <p>&copy; {{ date('Y') }} Wheels Tracker. All rights reserved.</p>
+        <p>&copy; {{ date('Y') }} Wheels Tracker. All rights reserved. &bull; <a href="{{ route('privacy-policy') }}" class="underline hover:text-slate-600">Privacy Policy</a></p>
     </footer>
 </x-guest-layout>
