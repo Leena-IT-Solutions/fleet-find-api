@@ -11,19 +11,42 @@ Volt::route('org/{organization}/join', 'pages.public.org-join')->name('org.join'
 Route::middleware(['auth', 'web-roles'])->group(function () {
     Route::get('administrator', function () {
         $totalUsers = \App\Models\User::count();
+        $totalAdmins = \App\Models\User::whereHas('roles', fn($q) => $q->where('name', 'Admin'))->count();
         $totalOrgs = \App\Models\User::whereHas('roles', fn($q) => $q->where('name', 'Organization'))->count();
         $totalDrivers = \App\Models\User::whereHas('roles', fn($q) => $q->where('name', 'Driver'))->count();
         $totalAttendants = \App\Models\User::whereHas('roles', fn($q) => $q->where('name', 'Attendant'))->count();
         $totalParents = \App\Models\User::whereHas('roles', fn($q) => $q->where('name', 'Parent'))->count();
+
+        $totalOrgProfiles = \App\Models\Organization::count();
+        $totalVehicles = \App\Models\Vehicle::count();
+        $totalRoutes = \App\Models\Route::count();
+        $totalStops = \App\Models\Stop::count();
+        $totalTrips = \App\Models\Trip::count();
+
         $totalChildren = \App\Models\Child::count();
+        $totalGroups = \App\Models\Group::count();
+
+        $totalPlans = \App\Models\SubscriptionPlan::count();
+        $activeSubscriptions = \App\Models\ChildSubscription::where('status', 'active')->count();
+        $inactiveSubscriptions = \App\Models\ChildSubscription::where('status', '!=', 'active')->count();
 
         return view('dashboard', compact(
             'totalUsers',
+            'totalAdmins',
             'totalOrgs',
             'totalDrivers',
             'totalAttendants',
             'totalParents',
-            'totalChildren'
+            'totalOrgProfiles',
+            'totalVehicles',
+            'totalRoutes',
+            'totalStops',
+            'totalTrips',
+            'totalChildren',
+            'totalGroups',
+            'totalPlans',
+            'activeSubscriptions',
+            'inactiveSubscriptions'
         ));
     })->name('administrator');
     Route::view('profile', 'profile')->name('profile');
