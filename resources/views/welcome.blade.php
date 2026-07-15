@@ -24,13 +24,13 @@
         /* Pulse glow animation for CTA buttons and pins */
         @keyframes pulse-glow {
             0%, 100% {
-                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+                box-shadow: 0 0 0 0 rgba(163, 230, 53, 0.4);
             }
             50% {
-                box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
+                box-shadow: 0 0 0 10px rgba(163, 230, 53, 0);
             }
         }
-        .pulse-indigo {
+        .pulse-lime {
             animation: pulse-glow 2s infinite;
         }
 
@@ -57,42 +57,74 @@
             background: rgba(156, 163, 175, 0.3);
             border-radius: 2px;
         }
+
+        /* Timeline path marching ants animation */
+        @keyframes march {
+            to {
+                stroke-dashoffset: -20;
+            }
+        }
+        .marching-path {
+            stroke-dasharray: 6, 4;
+            animation: march 1s linear infinite;
+        }
+
+        /* Tab highlights for app showcase cycler */
+        .showcase-tab-active {
+            background-color: rgb(163, 230, 53);
+            color: white !important;
+            box-shadow: 0 10px 15px -3px rgba(163, 230, 53, 0.3);
+        }
+
+        /* Transition delays */
+        .showcase-screen, .story-screen {
+            opacity: 0;
+            transform: scale(0.98);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .showcase-screen.active, .story-screen.active {
+            opacity: 1;
+            transform: scale(1);
+        }
     </style>
 
     <!-- Header Navigation -->
-    <header class="sticky top-0 z-40 w-full border-b border-slate-200/80 bg-white/70 backdrop-blur-xl transition-all-300">
+    <header class="sticky top-0 z-40 w-full border-b border-slate-900/60 bg-[#080B11]/85 backdrop-blur-xl transition-all-300 text-white">
         <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
             <!-- Brand Logo -->
             <a href="/" class="flex items-center gap-3 group">
-                <div class="relative flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 shadow-md shadow-indigo-600/10 group-hover:scale-105 transition-all-300">
-                    <img src="{{ asset('logo.png') }}" class="h-6 w-auto logo-spin" alt="FleetFind Logo">
+                <div class="relative flex h-10 w-10 items-center justify-center rounded-xl bg-lime-400 shadow-md shadow-lime-500/20 group-hover:scale-105 transition-all-300">
+                    <img src="{{ asset('logo.png') }}" class="h-6 w-auto logo-spin" alt="WheelsTracker Logo">
                 </div>
-                <span class="text-xl font-bold tracking-tight text-slate-900">FleetFind</span>
+                <span class="text-xl font-bold tracking-tight text-slate-200">WheelsTracker</span>
             </a>
 
             <!-- Desktop Nav Links -->
-            <nav class="hidden md:flex items-center gap-8">
-                <a href="#features" class="text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">Features</a>
-                <a href="#simulator" class="text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">Live Demo</a>
-                <a href="#roi" class="text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">School ROI</a>
-                <a href="#testimonials" class="text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">Success Stories</a>
+            <nav class="hidden md:flex items-center gap-6 text-sm">
+                <a href="/features" class="text-slate-300 hover:text-lime-400 transition-colors">Features</a>
+                <a href="/solutions" class="text-slate-300 hover:text-lime-400 transition-colors">Solutions</a>
+                <a href="/pricing" class="text-slate-300 hover:text-lime-400 transition-colors">Pricing</a>
+                <a href="/case-studies" class="text-slate-300 hover:text-lime-400 transition-colors">Case Studies</a>
+                <a href="/blog" class="text-slate-300 hover:text-lime-400 transition-colors">Blog</a>
+                <a href="/about" class="text-slate-300 hover:text-lime-400 transition-colors">About</a>
+                <a href="/contact" class="text-slate-300 hover:text-lime-400 transition-colors">Contact</a>
             </nav>
 
             <!-- Nav Actions -->
             <div class="flex items-center gap-4">
                 @auth
-                    <a href="{{ auth()->user()->hasRole('Admin') ? route('administrator') : route('organization.dashboard') }}" class="hidden sm:inline-flex text-sm font-semibold text-slate-700 hover:text-indigo-600 transition-colors">
+                    <a href="{{ auth()->user()->hasRole('Admin') ? route('administrator') : route('organization.dashboard') }}" class="hidden sm:inline-flex text-sm font-semibold text-slate-300 hover:text-lime-400 transition-colors">
                         Go to Dashboard
                     </a>
                 @else
-                    <a href="{{ route('login') }}" class="hidden sm:inline-flex text-sm font-semibold text-slate-700 hover:text-indigo-600 transition-colors">
+                    <a href="{{ route('login') }}" class="hidden sm:inline-flex text-sm font-semibold text-slate-300 hover:text-lime-400 transition-colors">
                         Sign In
                     </a>
                 @endauth
                 
-                <button onclick="openDemoModal()" class="pulse-indigo px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold shadow-lg shadow-indigo-600/20 hover:scale-[1.02] active:scale-[0.98] transition-all-300">
-                    Book Free Demo
-                </button>
+                <a href="/book-demo" class="pulse-lime px-5 py-2.5 rounded-xl bg-lime-400 hover:bg-lime-300 text-slate-950 font-black text-sm font-semibold shadow-lg shadow-lime-500/10 hover:scale-[1.02] active:scale-[0.98] transition-all-300">
+                    Book Demo
+                </a>
 
                 <!-- Mobile Menu Button -->
                 <button onclick="toggleMobileMenu()" class="block md:hidden text-slate-600 focus:outline-none" aria-label="Toggle Navigation">
@@ -107,18 +139,18 @@
         </div>
 
         <!-- Mobile Navigation Menu -->
-        <div id="mobile-menu" class="hidden md:hidden border-t border-slate-100 bg-white px-6 py-4 shadow-xl space-y-4">
-            <a href="#features" onclick="toggleMobileMenu()" class="block text-base font-medium text-slate-600 hover:text-indigo-600">Features</a>
-            <a href="#simulator" onclick="toggleMobileMenu()" class="block text-base font-medium text-slate-600 hover:text-indigo-600">Live Demo</a>
-            <a href="#roi" onclick="toggleMobileMenu()" class="block text-base font-medium text-slate-600 hover:text-indigo-600">School ROI</a>
-            <a href="#testimonials" onclick="toggleMobileMenu()" class="block text-base font-medium text-slate-600 hover:text-indigo-600">Success Stories</a>
-            <div class="h-px bg-slate-100 my-2"></div>
+        <div id="mobile-menu" class="hidden md:hidden border-t border-slate-900/80 bg-[#080B11] px-6 py-4 shadow-xl space-y-4 text-white">
+            <a href="#features" onclick="toggleMobileMenu()" class="block text-base font-medium text-slate-600 hover:text-lime-400">Features</a>
+            <a href="#simulator" onclick="toggleMobileMenu()" class="block text-base font-medium text-slate-600 hover:text-lime-400">Live Demo</a>
+            <a href="#roi" onclick="toggleMobileMenu()" class="block text-base font-medium text-slate-600 hover:text-lime-400">School ROI</a>
+            <a href="#testimonials" onclick="toggleMobileMenu()" class="block text-base font-medium text-slate-600 hover:text-lime-400">Success Stories</a>
+            <div class="h-px bg-[#111724] my-2"></div>
             @auth
-                <a href="{{ auth()->user()->hasRole('Admin') ? route('administrator') : route('organization.dashboard') }}" class="block text-base font-semibold text-slate-700 hover:text-indigo-600">
+                <a href="{{ auth()->user()->hasRole('Admin') ? route('administrator') : route('organization.dashboard') }}" class="block text-base font-semibold text-slate-700 hover:text-lime-400">
                     Go to Dashboard
                 </a>
             @else
-                <a href="{{ route('login') }}" class="block text-base font-semibold text-slate-700 hover:text-indigo-600">
+                <a href="{{ route('login') }}" class="block text-base font-semibold text-slate-700 hover:text-lime-400">
                     Sign In
                 </a>
             @endauth
@@ -127,92 +159,297 @@
 
     <main class="flex-grow">
         <!-- Hero Section -->
-        <section class="relative overflow-hidden py-16 lg:py-24 bg-gradient-to-b from-indigo-50/40 via-white to-white">
-            <div class="mx-auto max-w-7xl px-6">
+        <section class="relative overflow-hidden py-16 lg:py-24 bg-gradient-to-b from-[#0B0F17] via-[#080B11] to-[#0A0D16] border-b border-slate-900/60 text-slate-100">
+            <div class="mx-auto max-w-7xl px-6 relative z-10">
                 <div class="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:items-center">
                     
-                    <!-- Text Content (Left Column) -->
+                    <!-- Text Content & Animated Timeline (Left Column) -->
                     <div class="lg:col-span-7 text-center lg:text-left space-y-6">
                         <!-- Upper Badge -->
-                        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 text-xs font-semibold uppercase tracking-wider">
-                            <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-lime-950/20 border border-lime-500/20 text-lime-400 text-xs font-semibold uppercase tracking-wider">
+                            <span class="w-2 h-2 rounded-full bg-lime-950/20 animate-pulse"></span>
                             Safety & Operations Platform
                         </div>
 
-                        <!-- Emotional/Action Headline -->
-                        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 leading-tight">
-                            Give Parents Complete <br class="hidden sm:inline">
-                            <span class="bg-gradient-to-r from-indigo-600 via-violet-600 to-cyan-600 bg-clip-text text-transparent">Visibility of Child's Journey</span>
+                        <!-- Main B2B Heading -->
+                        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-200 leading-tight">
+                            Transform Your School Transport <br class="hidden sm:inline">
+                            <span class="bg-gradient-to-r from-lime-450 via-emerald-400 to-cyan-400 bg-clip-text text-transparent">into a Smart, Trackable & Safer System</span>
                         </h1>
 
-                        <!-- Detailed Subtitle targeting School Owners -->
-                        <p class="text-slate-600 text-lg sm:text-xl max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal">
-                            Live GPS tracking for school buses, vans, and auto rickshaws. Improve parent trust, reduce transport queries by 90%, and build a smarter, safer school.
+                        <!-- Detailed Subtitle -->
+                        <p class="text-slate-400 text-lg sm:text-xl max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal">
+                            Real-time GPS tracking for School Buses, Vans & Auto Rickshaws that keeps parents informed and schools in control.
                         </p>
 
                         <!-- CTA Actions -->
-                        <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
-                            <button onclick="openDemoModal()" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold shadow-xl shadow-indigo-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all-300 text-center">
+                        <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+                            <button onclick="openDemoModal()" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-lime-400 hover:bg-lime-300 text-slate-950 font-black font-bold shadow-xl shadow-lime-500/10 hover:scale-[1.02] active:scale-[0.98] transition-all-300 text-center">
                                 Book Free Demo
                             </button>
-                            <button onclick="openVideoModal()" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-bold border border-slate-200/80 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all-300 flex items-center justify-center gap-2">
-                                <svg class="w-5 h-5 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                            <button onclick="openVideoModal()" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-transparent hover:bg-[#121824] text-slate-300 font-bold border border-slate-800 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all-300 flex items-center justify-center gap-2">
+                                <svg class="w-5 h-5 text-lime-400" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
                                 </svg>
-                                Watch Demo Video
+                                Watch Live Demo
                             </button>
                         </div>
 
-                        <!-- B2B Trust Badging -->
-                        <div class="pt-6 border-t border-slate-100 flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-3">
-                            <div class="flex items-center gap-1.5 text-xs font-semibold text-slate-500">
-                                <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                                Setup in Under 24 Hours
+                        <!-- Animated Pathway Flow Background representation -->
+                        <div class="relative w-full py-6 mt-10 bg-[#121824] border border-slate-900/80 rounded-2xl p-4 overflow-hidden shadow-sm">
+                            <div class="absolute top-[38px] left-[10%] right-[10%] h-0.5 pointer-events-none">
+                                <svg class="w-full h-1" fill="none">
+                                    <line x1="0" y1="0" x2="100%" y2="0" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round"/>
+                                    <line id="hero-timeline-flow" x1="0" y1="0" x2="0%" y2="0" stroke="#4f46e5" stroke-width="2.5" class="marching-path transition-all duration-1000" stroke-linecap="round"/>
+                                </svg>
                             </div>
-                            <div class="flex items-center gap-1.5 text-xs font-semibold text-slate-500">
-                                <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                                No Costly Tracker Hardware Needed
+                            
+                            <!-- Bus icon moving along path -->
+                            <div id="hero-timeline-bus" class="absolute top-[22px] h-8 w-8 text-yellow-500 transition-all duration-1000 ease-in-out pointer-events-none" style="left: 12.5%; margin-left: -16px;">
+                                <svg class="w-8 h-8 filter drop-shadow-md" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M18 11H6V6h12v5zm3 1v5c0 .55-.45 1-1 1h-1c-.55 0-1-.45-1-1v-1H6v1c0 .55-.45 1-1 1H4c-.55 0-1-.45-1-1v-5c0-1.66 1.34-3 3-3V5c0-1.1.9-2 2-2h8c1.1 0 2 .9 2 2v1c1.66 0 3 1.34 3 3v3h-1zM6.5 16c.83 0 1.5-.67 1.5-1.5S7.33 13 6.5 13 5 13.67 5 14.5 5.67 16 6.5 16zm11 0c.83 0 1.5-.67 1.5-1.5S18.33 13 17.5 13 16 13.67 16 14.5s.67 1.5 1.5 1.5z"/>
+                                </svg>
                             </div>
-                            <div class="flex items-center gap-1.5 text-xs font-semibold text-slate-500">
-                                <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                                Dedicated Driver App
+
+                            <!-- 4 Pathway Nodes -->
+                            <div class="relative grid grid-cols-4 gap-2 text-center z-10">
+                                <!-- Node 1 -->
+                                <div class="flex flex-col items-center">
+                                    <div id="hero-node-0" class="w-9 h-9 rounded-full bg-[#121824] border-2 border-lime-400 text-lime-400 flex items-center justify-center shadow-md transition-all duration-500">
+                                        <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+                                    </div>
+                                    <span id="hero-text-0" class="text-[9px] sm:text-xxs font-extrabold text-lime-400 uppercase tracking-wider mt-2.5">1. Driver starts trip</span>
+                                </div>
+                                <!-- Node 2 -->
+                                <div class="flex flex-col items-center">
+                                    <div id="hero-node-1" class="w-9 h-9 rounded-full bg-[#121824] border border-slate-800 text-slate-400 flex items-center justify-center shadow transition-all duration-500">
+                                        <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
+                                    </div>
+                                    <span id="hero-text-1" class="text-[9px] sm:text-xxs font-extrabold text-slate-450 uppercase tracking-wider mt-2.5">2. School Bus moving</span>
+                                </div>
+                                <!-- Node 3 -->
+                                <div class="flex flex-col items-center">
+                                    <div id="hero-node-2" class="w-9 h-9 rounded-full bg-[#121824] border border-slate-800 text-slate-400 flex items-center justify-center shadow transition-all duration-500">
+                                        <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                                    </div>
+                                    <span id="hero-text-2" class="text-[9px] sm:text-xxs font-extrabold text-slate-450 uppercase tracking-wider mt-2.5">3. Parent tracks live</span>
+                                </div>
+                                <!-- Node 4 -->
+                                <div class="flex flex-col items-center">
+                                    <div id="hero-node-3" class="w-9 h-9 rounded-full bg-[#121824] border border-slate-800 text-slate-400 flex items-center justify-center shadow transition-all duration-500">
+                                        <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                                    </div>
+                                    <span id="hero-text-3" class="text-[9px] sm:text-xxs font-extrabold text-slate-450 uppercase tracking-wider mt-2.5">4. Safe Arrival</span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Visual Mockup (Right Column) -->
-                    <div class="lg:col-span-5 relative flex justify-center">
-                        <div class="relative w-full max-w-md lg:max-w-none float-animation">
-                            <!-- Background glow decorative circles -->
-                            <div class="absolute -top-12 -left-12 h-64 w-64 rounded-full bg-cyan-400/20 blur-3xl pointer-events-none"></div>
-                            <div class="absolute -bottom-12 -right-12 h-64 w-64 rounded-full bg-violet-400/20 blur-3xl pointer-events-none"></div>
+                    <!-- Cycling App Showcase (Right Column) -->
+                    <div class="lg:col-span-5 relative flex flex-col items-center w-full">
+                        <!-- Navigation Tabs for Showcase -->
+                        <div class="flex rounded-xl bg-[#111724] p-1 mb-6 border border-slate-900/80/50 w-full max-w-sm z-10 shadow-sm">
+                            <button onclick="setTabShowcase('parent')" id="btn-showcase-parent" class="flex-grow py-2 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-300 transition-all-300 showcase-tab-active">
+                                Parent App
+                            </button>
+                            <button onclick="setTabShowcase('driver')" id="btn-showcase-driver" class="flex-grow py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-300 transition-all-300">
+                                Driver App
+                            </button>
+                            <button onclick="setTabShowcase('admin')" id="btn-showcase-admin" class="flex-grow py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-300 transition-all-300">
+                                Dashboard
+                            </button>
+                        </div>
+
+                        <!-- Showcase Viewport -->
+                        <div class="relative w-full max-w-md h-[460px] flex items-center justify-center">
                             
-                            <!-- Main Image Card Frame -->
-                            <div class="overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-3 shadow-2xl">
-                                <img src="{{ asset('images/fleetfind_hero.png') }}" class="w-full h-auto object-cover rounded-xl" alt="School Fleet Tracking Concept">
+                            <!-- 1. Screen Parent App -->
+                            <div id="showcase-screen-parent" class="showcase-screen active absolute inset-0 flex items-center justify-center">
+                                <div class="w-[260px] h-[430px] rounded-[36px] bg-slate-950 p-2.5 border-[4px] border-slate-800 shadow-2xl relative flex flex-col overflow-hidden">
+                                    <!-- Notch -->
+                                    <div class="absolute top-2.5 left-1/2 transform -translate-x-1/2 w-20 h-4 bg-slate-850 rounded-full z-20 flex items-center justify-center">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-slate-900"></span>
+                                    </div>
+                                    <!-- Screen contents -->
+                                    <div class="flex-grow rounded-[28px] bg-slate-900 p-3 overflow-hidden flex flex-col justify-between relative text-left">
+                                        <div class="flex justify-between items-center text-[9px] text-slate-400 pt-1 px-1">
+                                            <span>08:02 AM</span>
+                                            <span>LTE</span>
+                                        </div>
+                                        <div class="text-center pt-1 pb-1.5 border-b border-slate-800/80">
+                                            <h4 class="text-[10px] font-bold text-white">Parent Tracking</h4>
+                                            <p class="text-[7px] text-blue-400">Child: Aarav Gupta</p>
+                                        </div>
+                                        
+                                        <!-- Map block -->
+                                        <div class="h-28 bg-slate-950 rounded-xl relative border border-slate-800 overflow-hidden my-2 flex items-center justify-center">
+                                            <svg class="absolute inset-0 w-full h-full p-2" viewBox="0 0 200 100" fill="none">
+                                                <path d="M 20 50 L 180 50" stroke="#334155" stroke-width="8" stroke-linecap="round"/>
+                                                <circle cx="30" cy="50" r="4" fill="#ef4444"/>
+                                                <circle cx="170" cy="50" r="4" fill="#06b6d4"/>
+                                                <!-- Bus icon positioning -->
+                                                <g transform="translate(110, 42)">
+                                                    <rect width="18" height="10" rx="2" fill="#fbbf24"/>
+                                                    <circle cx="4" cy="10" r="1.5" fill="#1e293b"/>
+                                                    <circle cx="14" cy="10" r="1.5" fill="#1e293b"/>
+                                                    <polygon points="15,2 18,5 15,8" fill="#d97706"/>
+                                                </g>
+                                            </svg>
+                                            <span class="absolute bottom-1 right-2 text-[7px] bg-slate-900/90 text-blue-450 font-bold px-1 py-0.5 rounded">GPS Link Active</span>
+                                        </div>
+
+                                        <!-- ETA Alert -->
+                                        <div class="bg-blue-950/80 border border-blue-500/20 rounded-xl p-2 flex items-start gap-2 shadow-inner">
+                                            <div class="w-5 h-5 rounded bg-lime-950/20/10 flex items-center justify-center text-blue-400 flex-shrink-0 animate-bounce">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            </div>
+                                            <div>
+                                                <p class="text-[9px] font-bold text-white">ETA: 3 Mins Away</p>
+                                                <p class="text-[7px] text-blue-300">Bus 04 is approaching Stop #3</p>
+                                            </div>
+                                        </div>
+
+                                        <!-- Scans updates list -->
+                                        <div class="space-y-1 my-1.5 max-h-[70px] overflow-hidden text-[8px]">
+                                            <div class="bg-slate-850/50 p-1 rounded border border-slate-800 flex justify-between">
+                                                <span class="text-slate-350">👋 Route mapping active</span>
+                                                <span class="text-slate-500">07:30 AM</span>
+                                            </div>
+                                            <div class="bg-[#f97316]merald-950/20 border border-emerald-500/10 p-1 rounded flex justify-between text-emerald-400">
+                                                <span>✅ Aarav Boarded Bus</span>
+                                                <span class="text-slate-500">07:42 AM</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <a href="#" onclick="event.preventDefault(); alert('Calling Attendant!')" class="block w-full text-center bg-lime-400 hover:bg-lime-300 text-slate-950 font-black text-[8px] font-bold py-1.5 rounded-lg transition-colors">
+                                            📞 Call Driver / Attendant
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
 
-                            <!-- Overlaid Floating Stat Badge 1 -->
-                            <div class="absolute top-8 -left-6 md:-left-8 glass-panel rounded-2xl p-4 shadow-xl border border-white flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-600">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                </div>
-                                <div>
-                                    <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Student Status</p>
-                                    <p class="text-sm font-extrabold text-slate-800">Aarav Arrived Safely</p>
+                            <!-- 2. Screen Driver App -->
+                            <div id="showcase-screen-driver" class="showcase-screen absolute inset-0 flex items-center justify-center">
+                                <div class="w-[260px] h-[430px] rounded-[36px] bg-slate-950 p-2.5 border-[4px] border-slate-800 shadow-2xl relative flex flex-col overflow-hidden">
+                                    <!-- Notch -->
+                                    <div class="absolute top-2.5 left-1/2 transform -translate-x-1/2 w-20 h-4 bg-slate-850 rounded-full z-20 flex items-center justify-center">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-slate-900"></span>
+                                    </div>
+                                    <!-- Screen contents -->
+                                    <div class="flex-grow rounded-[28px] bg-slate-900 p-3 overflow-hidden flex flex-col justify-between relative text-left">
+                                        <div class="flex justify-between items-center text-[9px] text-slate-400 pt-1 px-1">
+                                            <span>08:02 AM</span>
+                                            <span>LTE</span>
+                                        </div>
+                                        <div class="text-center pt-1 pb-1.5 border-b border-slate-800/80">
+                                            <h4 class="text-[10px] font-bold text-white">Driver Console</h4>
+                                            <p class="text-[7px] text-emerald-400 font-bold uppercase tracking-wider flex items-center justify-center gap-1">
+                                                <span class="w-1 h-1 rounded-full bg-[#f97316]merald-500 animate-ping"></span>
+                                                Active Trip - Route 04
+                                            </p>
+                                        </div>
+
+                                        <!-- Active Stats -->
+                                        <div class="grid grid-cols-2 gap-2 my-2">
+                                            <div class="bg-slate-850 p-2 rounded-xl border border-slate-800">
+                                                <p class="text-[7px] text-slate-500 uppercase font-extrabold">Next Stop</p>
+                                                <p class="text-[10px] font-bold text-white mt-0.5">Stop #3 (Park)</p>
+                                            </div>
+                                            <div class="bg-slate-850 p-2 rounded-xl border border-slate-800">
+                                                <p class="text-[7px] text-slate-500 uppercase font-extrabold">Speed Tracker</p>
+                                                <p class="text-[10px] font-bold text-emerald-400 mt-0.5">42 km/h</p>
+                                            </div>
+                                        </div>
+
+                                        <!-- Student scans Checklist -->
+                                        <div class="bg-slate-850 p-2.5 rounded-xl border border-slate-800 space-y-1.5">
+                                            <div class="flex justify-between items-center pb-1 border-b border-slate-800">
+                                                <span class="text-[8px] font-bold text-slate-350">Boarding Attendance</span>
+                                                <span class="text-[9px] font-mono text-blue-400 font-extrabold">18 / 22 Scanned</span>
+                                            </div>
+                                            <div class="space-y-1 max-h-[60px] overflow-hidden">
+                                                <div class="flex justify-between items-center text-[7px] text-slate-400">
+                                                    <span>- Aarav Gupta</span>
+                                                    <span class="text-emerald-500 font-bold">BOARDED</span>
+                                                </div>
+                                                <div class="flex justify-between items-center text-[7px] text-slate-400">
+                                                    <span>- Diya Sen</span>
+                                                    <span class="text-emerald-500 font-bold">BOARDED</span>
+                                                </div>
+                                                <div class="flex justify-between items-center text-[7px] text-slate-400">
+                                                    <span>- Kabir Roy</span>
+                                                    <span class="text-slate-500 font-bold">PENDING</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <button onclick="event.preventDefault(); alert('Delay Alert broadcasted to Admin Dashboard!')" class="w-full bg-red-900/40 hover:bg-red-900/60 text-red-300 border border-red-500/20 text-[8px] font-bold py-2 rounded-lg transition-all duration-300 mt-4 text-center">
+                                            🚨 Report Route delay / Blockage
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Overlaid Floating Stat Badge 2 -->
-                            <div class="absolute bottom-10 -right-4 glass-panel rounded-2xl p-4 shadow-xl border border-white flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-600">
-                                    <svg class="w-6 h-6 animate-bounce" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                                </div>
-                                <div>
-                                    <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Bus 04 ETA</p>
-                                    <p class="text-sm font-extrabold text-slate-800">3 Mins Away (On-Time)</p>
+                            <!-- 3. Screen Admin Dashboard -->
+                            <div id="showcase-screen-admin" class="showcase-screen absolute inset-0 flex items-center justify-center">
+                                <div class="w-[380px] h-[240px] rounded-xl bg-slate-950 p-1.5 border-[3px] border-slate-800 shadow-2xl relative flex flex-col overflow-hidden">
+                                    <!-- Window Header mock -->
+                                    <div class="flex items-center justify-between pb-1 border-b border-slate-900 text-left px-1.5">
+                                        <div class="flex gap-1">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                                            <span class="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>
+                                            <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                        </div>
+                                        <span class="text-[7px] text-slate-600 font-mono">admin.wheelstracker.app/map</span>
+                                        <span class="text-[8px] bg-blue-950/50 text-blue-300 font-bold px-1.5 py-0.2 rounded-full scale-90">LIVE CONTROL</span>
+                                    </div>
+                                    <!-- Desktop Dashboard workspace -->
+                                    <div class="flex-grow rounded-lg bg-slate-900 p-2.5 overflow-hidden flex flex-col justify-between text-left">
+                                        
+                                        <!-- Top metrics strip -->
+                                        <div class="grid grid-cols-3 gap-2 text-[7px] text-slate-400">
+                                            <div class="bg-slate-850 p-1.5 rounded border border-slate-800">
+                                                <p class="text-slate-500 font-extrabold uppercase">Vehicles Active</p>
+                                                <p class="text-[10px] text-white font-extrabold mt-0.5">12/12</p>
+                                            </div>
+                                            <div class="bg-slate-850 p-1.5 rounded border border-slate-800">
+                                                <p class="text-slate-500 font-extrabold uppercase">Parent Calls Avoided</p>
+                                                <p class="text-[10px] text-emerald-400 font-extrabold mt-0.5">380+</p>
+                                            </div>
+                                            <div class="bg-slate-850 p-1.5 rounded border border-slate-800">
+                                                <p class="text-slate-500 font-extrabold uppercase">Speed Alerts</p>
+                                                <p class="text-[10px] text-white font-extrabold mt-0.5">0 Active</p>
+                                            </div>
+                                        </div>
+
+                                        <!-- Live Alert feed -->
+                                        <div class="bg-slate-850 rounded border border-slate-800 p-2 my-1 text-[8px] space-y-1">
+                                            <p class="font-bold text-slate-350 border-b border-slate-800 pb-0.5">Real-Time Transit Logs</p>
+                                            <div class="flex justify-between items-center text-slate-400">
+                                                <span>• Route 04: Checked-in Stop #3</span>
+                                                <span class="text-blue-400">08:02 AM</span>
+                                            </div>
+                                            <div class="flex justify-between items-center text-slate-400">
+                                                <span>• Route 11: Speed Limit normal</span>
+                                                <span class="text-slate-400">08:01 AM</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Quick actions -->
+                                        <div class="flex justify-between items-center pt-1 border-t border-slate-800 text-[8px]">
+                                            <span class="text-emerald-500 flex items-center gap-1 font-bold">
+                                                <span class="w-1 h-1 rounded-full bg-[#f97316]merald-500 animate-ping"></span>
+                                                Dashboard Synced
+                                            </span>
+                                            <button onclick="alert('Map report generated!')" class="bg-lime-400 hover:bg-lime-300 text-slate-950 font-black font-bold px-2 py-1 rounded">
+                                                Export Shift Report
+                                            </button>
+                                        </div>
+
+                                    </div>
                                 </div>
                             </div>
+
                         </div>
                     </div>
 
@@ -220,23 +457,168 @@
             </div>
         </section>
 
+        <!-- Trust Bar Section -->
+        <section class="border-b border-slate-900/60 bg-[#0B0F17] py-8 text-slate-400">
+            <div class="mx-auto max-w-7xl px-6">
+                <div class="flex flex-col lg:flex-row items-center justify-between gap-8">
+                    <!-- Text Label -->
+                    <div class="flex-shrink-0 text-center lg:text-left">
+                        <span class="text-xs uppercase font-extrabold tracking-wider text-slate-450">Trusted Partner for:</span>
+                    </div>
+                    <!-- Logos Group -->
+                    <div class="flex flex-wrap items-center justify-center gap-x-12 gap-y-6 opacity-75 hover:opacity-100 transition-opacity duration-300">
+                        <!-- Schools Group Logo -->
+                        <div class="flex items-center gap-2 text-slate-400 hover:text-lime-400 transition-colors cursor-default">
+                            <svg class="w-6 h-6 text-slate-400 hover:text-lime-300 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479L12 21l-4.825-3.943a12.083 12.083 0 01.665-6.479L12 14z" />
+                            </svg>
+                            <span class="text-sm font-bold tracking-tight uppercase">Schools & Academies</span>
+                        </div>
+                        <!-- Transport Operators Logo -->
+                        <div class="flex items-center gap-2 text-slate-400 hover:text-lime-400 transition-colors cursor-default">
+                            <svg class="w-6 h-6 text-slate-400 hover:text-lime-300 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            </svg>
+                            <span class="text-sm font-bold tracking-tight uppercase">Transport Operators</span>
+                        </div>
+                        <!-- School Vans Logo -->
+                        <div class="flex items-center gap-2 text-slate-400 hover:text-lime-400 transition-colors cursor-default">
+                            <svg class="w-6 h-6 text-slate-400 hover:text-lime-300 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                            </svg>
+                            <span class="text-sm font-bold tracking-tight uppercase">School Vans</span>
+                        </div>
+                        <!-- Auto Rickshaw Networks Logo -->
+                        <div class="flex items-center gap-2 text-slate-400 hover:text-lime-400 transition-colors cursor-default">
+                            <svg class="w-6 h-6 text-slate-400 hover:text-lime-300 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                            <span class="text-sm font-bold tracking-tight uppercase">Rickshaw Networks</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- The Problem Section -->
+        <section class="py-20 bg-[#080B11] text-slate-200 border-t border-slate-900/60">
+            <div class="mx-auto max-w-7xl px-6">
+                <!-- Title Header -->
+                <div class="text-center max-w-3xl mx-auto space-y-4 mb-16">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 text-red-600 text-xs font-semibold uppercase tracking-wider border border-red-100">
+                        Operational Friction
+                    </div>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-200 tracking-tight">Every School Faces These Daily Transport Challenges</h2>
+                    <p class="text-slate-500 text-sm sm:text-base">
+                        Daily coordination without automation introduces friction, wastes staff time, and creates avoidable tension with parents.
+                    </p>
+                </div>
+
+                <!-- 6 Challenges Card Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    
+                    <!-- Card 1: 📞 Parents constantly calling drivers -->
+                    <div class="bg-[#121824] border border-slate-900/80 rounded-2xl p-6 hover:shadow-lg hover:border-red-500/20 hover:-translate-y-0.5 transition-all duration-300">
+                        <div class="w-12 h-12 rounded-xl bg-[#121824] border border-slate-800 flex items-center justify-center text-lime-400 text-xl mb-5 shadow-sm">
+                            📞
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-300 mb-2">Parents constantly calling drivers</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed">
+                            Anxious parents flood driver phone lines during trips. This creates high stress, navigation delays, and severe road safety distractions.
+                        </p>
+                    </div>
+
+                    <!-- Card 2: 🚌 Students waiting outside -->
+                    <div class="bg-[#121824] border border-slate-900/80 rounded-2xl p-6 hover:shadow-lg hover:border-red-500/20 hover:-translate-y-0.5 transition-all duration-300">
+                        <div class="w-12 h-12 rounded-xl bg-[#121824] border border-slate-800 flex items-center justify-center text-lime-400 text-xl mb-5 shadow-sm">
+                            🚌
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-300 mb-2">Students waiting outside</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed">
+                            Without reliable ETAs, children stand at pickup spots in pouring rain or extreme afternoon heat guessing arrival schedules.
+                        </p>
+                    </div>
+
+                    <!-- Card 3: ⏰ Late buses causing complaints -->
+                    <div class="bg-[#121824] border border-slate-900/80 rounded-2xl p-6 hover:shadow-lg hover:border-red-500/20 hover:-translate-y-0.5 transition-all duration-300">
+                        <div class="w-12 h-12 rounded-xl bg-[#121824] border border-slate-800 flex items-center justify-center text-lime-400 text-xl mb-5 shadow-sm">
+                            ⏰
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-300 mb-2">Late buses causing complaints</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed">
+                            Unpredicted traffic delays spark high call volumes to school receptionists, overwhelming administrative desks with routine queries.
+                        </p>
+                    </div>
+
+                    <!-- Card 4: 📍 No visibility of vehicle location -->
+                    <div class="bg-[#121824] border border-slate-900/80 rounded-2xl p-6 hover:shadow-lg hover:border-red-500/20 hover:-translate-y-0.5 transition-all duration-300">
+                        <div class="w-12 h-12 rounded-xl bg-[#121824] border border-slate-800 flex items-center justify-center text-lime-400 text-xl mb-5 shadow-sm">
+                            📍
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-300 mb-2">No visibility of vehicle location</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed">
+                            Neither the front desk nor the driver fleet manager knows the active coordinates of buses, leading to blind spots and guesswork.
+                        </p>
+                    </div>
+
+                    <!-- Card 5: 👨💼 Schools unable to monitor drivers -->
+                    <div class="bg-[#121824] border border-slate-900/80 rounded-2xl p-6 hover:shadow-lg hover:border-red-500/20 hover:-translate-y-0.5 transition-all duration-300">
+                        <div class="w-12 h-12 rounded-xl bg-[#121824] border border-slate-800 flex items-center justify-center text-lime-400 text-xl mb-5 shadow-sm">
+                            👨‍💼
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-300 mb-2">Schools unable to monitor drivers</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed">
+                            No logs for vehicle speeding, detour alerts, fuel wasting idles, or unauthorized vehicle runs, exposing the school to huge liabilities.
+                        </p>
+                    </div>
+
+                    <!-- Card 6: 📢 Manual communication -->
+                    <div class="bg-[#121824] border border-slate-900/80 rounded-2xl p-6 hover:shadow-lg hover:border-red-500/20 hover:-translate-y-0.5 transition-all duration-300">
+                        <div class="w-12 h-12 rounded-xl bg-[#121824] border border-slate-800 flex items-center justify-center text-lime-400 text-xl mb-5 shadow-sm">
+                            📢
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-300 mb-2">Manual communication</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed">
+                            Staff must compile delay details and send frantic manual text alerts or coordinate chaotic parent WhatsApp groups for schedule updates.
+                        </p>
+                    </div>
+
+                </div>
+
+                <!-- Ending Callout: Sound familiar? -->
+                <div class="mt-16 text-center max-w-2xl mx-auto space-y-4 pt-8 border-t border-slate-900/80">
+                    <p class="text-2xl font-extrabold text-slate-200 tracking-tight">Sound familiar?</p>
+                    <p class="text-slate-500 text-sm sm:text-base leading-relaxed">
+                        Managing school transport doesn't have to be a daily operational crisis. WheelsTracker is built specifically to automate driver dispatch, silence parent phone lines, and keep safety first.
+                    </p>
+                    <div class="pt-2">
+                        <button onclick="openDemoModal()" class="inline-flex items-center gap-2 text-sm font-bold text-lime-400 hover:text-lime-300 transition-colors">
+                            See how WheelsTracker solves these challenges ➔
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
         <!-- Problem / Pain Points comparison (B2B focused) -->
-        <section class="py-20 bg-slate-50 border-y border-slate-100">
+        <section class="py-20 bg-[#121824] border-y border-slate-900/80">
             <div class="mx-auto max-w-7xl px-6">
                 <div class="text-center max-w-3xl mx-auto space-y-4 mb-16">
-                    <h2 class="text-xs uppercase font-extrabold tracking-wider text-indigo-600">The Operations Headache</h2>
-                    <p class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Why Traditional School Transport Fails</p>
+                    <h2 class="text-xs uppercase font-extrabold tracking-wider text-lime-400">The Operations Headache</h2>
+                    <p class="text-3xl sm:text-4xl font-extrabold text-slate-200 tracking-tight">Why Traditional School Transport Fails</p>
                     <p class="text-slate-500 text-base sm:text-lg">
-                        Managing school transport manually is stressful, expensive, and leads to angry parents. Here is how FleetFind transforms your administration.
+                        Managing school transport manually is stressful, expensive, and leads to angry parents. Here is how WheelsTracker transforms your administration.
                     </p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <!-- Card 1 -->
-                    <div class="bg-white rounded-2xl p-8 border border-slate-200/60 shadow-sm flex flex-col justify-between">
+                    <div class="bg-[#121824] rounded-2xl p-8 border border-slate-850 shadow-md text-slate-200 flex flex-col justify-between">
                         <div class="space-y-4">
                             <div class="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center text-red-500 font-bold text-lg mb-2">01</div>
-                            <h3 class="text-lg font-bold text-slate-800">Endless Anxious Phone Calls</h3>
+                            <h3 class="text-lg font-bold text-slate-300">Endless Anxious Phone Calls</h3>
                             <div class="space-y-3.5 pt-2">
                                 <div class="flex gap-2.5 text-sm text-slate-400 line-through">
                                     <svg class="w-5 h-5 flex-shrink-0 text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -244,17 +626,17 @@
                                 </div>
                                 <div class="flex gap-2.5 text-sm text-slate-600 font-medium">
                                     <svg class="w-5 h-5 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                                    <span><strong>The FleetFind Way:</strong> Live link and push notifications alert parents automatically as the bus nears their home.</span>
+                                    <span><strong>The WheelsTracker Way:</strong> Live link and push notifications alert parents automatically as the bus nears their home.</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Card 2 -->
-                    <div class="bg-white rounded-2xl p-8 border border-slate-200/60 shadow-sm flex flex-col justify-between">
+                    <div class="bg-[#121824] rounded-2xl p-8 border border-slate-850 shadow-md text-slate-200 flex flex-col justify-between">
                         <div class="space-y-4">
                             <div class="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center text-red-500 font-bold text-lg mb-2">02</div>
-                            <h3 class="text-lg font-bold text-slate-800">Zero Driver Accountability</h3>
+                            <h3 class="text-lg font-bold text-slate-300">Zero Driver Accountability</h3>
                             <div class="space-y-3.5 pt-2">
                                 <div class="flex gap-2.5 text-sm text-slate-400 line-through">
                                     <svg class="w-5 h-5 flex-shrink-0 text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -262,17 +644,17 @@
                                 </div>
                                 <div class="flex gap-2.5 text-sm text-slate-600 font-medium">
                                     <svg class="w-5 h-5 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                                    <span><strong>The FleetFind Way:</strong> Automated speed alert logs, path deviations, and real-time mapping keep drivers responsible.</span>
+                                    <span><strong>The WheelsTracker Way:</strong> Automated speed alert logs, path deviations, and real-time mapping keep drivers responsible.</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Card 3 -->
-                    <div class="bg-white rounded-2xl p-8 border border-slate-200/60 shadow-sm flex flex-col justify-between">
+                    <div class="bg-[#121824] rounded-2xl p-8 border border-slate-850 shadow-md text-slate-200 flex flex-col justify-between">
                         <div class="space-y-4">
                             <div class="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center text-red-500 font-bold text-lg mb-2">03</div>
-                            <h3 class="text-lg font-bold text-slate-800">Unknown Student Boarding</h3>
+                            <h3 class="text-lg font-bold text-slate-300">Unknown Student Boarding</h3>
                             <div class="space-y-3.5 pt-2">
                                 <div class="flex gap-2.5 text-sm text-slate-400 line-through">
                                     <svg class="w-5 h-5 flex-shrink-0 text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -280,7 +662,7 @@
                                 </div>
                                 <div class="flex gap-2.5 text-sm text-slate-600 font-medium">
                                     <svg class="w-5 h-5 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                                    <span><strong>The FleetFind Way:</strong> Optional QR/RFID card scans verify who is on board. Parents receive confirmation immediately.</span>
+                                    <span><strong>The WheelsTracker Way:</strong> Optional QR/RFID card scans verify who is on board. Parents receive confirmation immediately.</span>
                                 </div>
                             </div>
                         </div>
@@ -290,22 +672,22 @@
         </section>
 
         <!-- Interactive Product Simulator (B2B Showcase) -->
-        <section id="simulator" class="py-20 bg-white">
+        <section id="simulator" class="py-20 bg-[#080B11] text-slate-200 border-t border-slate-900/60">
             <div class="mx-auto max-w-7xl px-6">
                 
                 <div class="text-center max-w-3xl mx-auto space-y-4 mb-12">
-                    <h2 class="text-xs uppercase font-extrabold tracking-wider text-indigo-600">Product Interactive Tour</h2>
-                    <p class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">One App. Two Distinct Interfaces.</p>
+                    <h2 class="text-xs uppercase font-extrabold tracking-wider text-lime-400">Product Interactive Tour</h2>
+                    <p class="text-3xl sm:text-4xl font-extrabold text-slate-200 tracking-tight">One App. Two Distinct Interfaces.</p>
                     <p class="text-slate-500">
-                        See how FleetFind solves administrative tracking headaches for you, while providing complete transparency and ease to parents.
+                        See how WheelsTracker solves administrative tracking headaches for you, while providing complete transparency and ease to parents.
                     </p>
 
                     <!-- Simulator Tabs -->
-                    <div class="inline-flex rounded-xl bg-slate-100 p-1 mt-6">
-                        <button onclick="switchTab('admin-panel')" id="tab-admin-panel" class="px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-800 bg-white shadow-sm transition-all-300">
+                    <div class="inline-flex rounded-xl bg-[#111724] p-1 mt-6">
+                        <button onclick="switchTab('admin-panel')" id="tab-admin-panel" class="px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-300 bg-[#121824] border border-slate-800 shadow-sm transition-all-300">
                             🔑 School Administrator View
                         </button>
-                        <button onclick="switchTab('parent-app')" id="tab-parent-app" class="px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-500 hover:text-slate-900 transition-all-300">
+                        <button onclick="switchTab('parent-app')" id="tab-parent-app" class="px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-500 hover:text-slate-200 transition-all-300">
                             📱 Parent Mobile App View
                         </button>
                     </div>
@@ -319,12 +701,12 @@
                         <!-- Simulated Admin Header -->
                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-slate-850 gap-3">
                             <div class="flex items-center gap-3">
-                                <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
-                                <span class="text-white font-semibold text-sm">FleetFind Central Control Dashboard</span>
-                                <span class="bg-indigo-900 text-indigo-300 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">St. Jude's Academy</span>
+                                <span class="w-3 h-3 rounded-full bg-[#f97316]merald-500 animate-pulse"></span>
+                                <span class="text-white font-semibold text-sm">WheelsTracker Central Control Dashboard</span>
+                                <span class="bg-blue-950 text-blue-300 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">St. Jude's Academy</span>
                             </div>
                             <div class="flex gap-2">
-                                <button onclick="alert('Simulation: Broadcast sent!')" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3.5 py-1.5 rounded-lg transition-all-300">
+                                <button onclick="alert('Simulation: Broadcast sent!')" class="bg-lime-400 hover:bg-lime-300 text-slate-950 font-black text-xs font-semibold px-3.5 py-1.5 rounded-lg transition-all-300">
                                     Broadcast Alert to Parents
                                 </button>
                                 <span class="bg-slate-850 text-slate-300 text-xs font-semibold px-3.5 py-1.5 rounded-lg border border-slate-800">
@@ -339,13 +721,13 @@
                             <div class="lg:col-span-4 space-y-3 max-h-[360px] overflow-y-auto pr-1 custom-scrollbar">
                                 <p class="text-xs uppercase font-extrabold tracking-wider text-slate-500 px-1">Active Vehicles</p>
                                 
-                                <div class="bg-slate-850/80 rounded-xl p-3 border border-indigo-500/30 shadow-md">
+                                <div class="bg-slate-850/80 rounded-xl p-3 border border-blue-500/30 shadow-md">
                                     <div class="flex items-start justify-between">
                                         <div>
                                             <h4 class="text-sm font-bold text-white">Route 04 - Sector-B Bus</h4>
-                                            <p class="text-[11px] text-indigo-400 font-semibold">Driver: Ramesh Kumar</p>
+                                            <p class="text-[11px] text-blue-400 font-semibold">Driver: Ramesh Kumar</p>
                                         </div>
-                                        <span class="text-[10px] bg-emerald-500/10 text-emerald-400 font-extrabold px-2 py-0.5 rounded border border-emerald-500/20">ON-TIME</span>
+                                        <span class="text-[10px] bg-[#f97316]merald-500/10 text-emerald-400 font-extrabold px-2 py-0.5 rounded border border-emerald-500/20">ON-TIME</span>
                                     </div>
                                     <div class="mt-2.5 flex items-center justify-between text-xs text-slate-400">
                                         <span>Speed: 42 km/h</span>
@@ -373,7 +755,7 @@
                                             <h4 class="text-sm font-bold text-slate-300">Route 02 - East Auto Rickshaw</h4>
                                             <p class="text-[11px] text-slate-500 font-semibold">Driver: K. Prasad</p>
                                         </div>
-                                        <span class="text-[10px] bg-emerald-500/10 text-emerald-400 font-extrabold px-2 py-0.5 rounded border border-emerald-500/20">ON-TIME</span>
+                                        <span class="text-[10px] bg-[#f97316]merald-500/10 text-emerald-400 font-extrabold px-2 py-0.5 rounded border border-emerald-500/20">ON-TIME</span>
                                     </div>
                                     <div class="mt-2.5 flex items-center justify-between text-xs text-slate-400">
                                         <span>Speed: 25 km/h</span>
@@ -415,7 +797,7 @@
                                 <!-- Top Overlay Bar: Info Box -->
                                 <div class="relative z-10 glass-panel dark-glass-panel m-3 p-3.5 rounded-xl border border-slate-800 flex items-center justify-between text-xs">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+                                        <div class="w-8 h-8 rounded-lg bg-lime-950/20/10 flex items-center justify-center text-blue-400">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
                                         </div>
                                         <div>
@@ -429,7 +811,7 @@
                                 <!-- Bottom Status Bar -->
                                 <div class="relative z-10 p-3 bg-slate-900 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400 mt-auto">
                                     <span class="flex items-center gap-1.5">
-                                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                                        <span class="w-2 h-2 rounded-full bg-[#f97316]merald-500 animate-ping"></span>
                                         Real-time feed active
                                     </span>
                                     <span>Last updated: Just now</span>
@@ -452,15 +834,15 @@
                                 </p>
                                 <ul class="space-y-3 pt-2 text-sm text-slate-400">
                                     <li class="flex items-start gap-2.5">
-                                        <svg class="w-5 h-5 text-indigo-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        <svg class="w-5 h-5 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                         <span><strong>Geo-Fence Proximity Alerts:</strong> Parents receive a push/SMS notification when the bus is exactly 10 minutes away, ending wait times in sun or rain.</span>
                                     </li>
                                     <li class="flex items-start gap-2.5">
-                                        <svg class="w-5 h-5 text-indigo-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        <svg class="w-5 h-5 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                         <span><strong>Boarding Validation:</strong> Parents know instantly when their kid boards the bus and reaches the school gate safely.</span>
                                     </li>
                                     <li class="flex items-start gap-2.5">
-                                        <svg class="w-5 h-5 text-indigo-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        <svg class="w-5 h-5 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                         <span><strong>One-Tap Contact:</strong> Easily connect with the assigned driver or the school attendant with one click.</span>
                                     </li>
                                 </ul>
@@ -488,8 +870,8 @@
 
                                         <!-- Phone App Header -->
                                         <div class="text-center pt-2 pb-2 border-b border-slate-800/80">
-                                            <h4 class="text-xs font-bold text-white">FleetFind Parents</h4>
-                                            <p class="text-[8px] text-indigo-400">Child: Aarav Gupta</p>
+                                            <h4 class="text-xs font-bold text-white">WheelsTracker Parents</h4>
+                                            <p class="text-[8px] text-blue-400">Child: Aarav Gupta</p>
                                         </div>
 
                                         <!-- Mini Live Map mockup -->
@@ -512,17 +894,17 @@
                                                     <polygon points="15,2 18,5 15,8" fill="#d97706"/>
                                                 </g>
                                             </svg>
-                                            <span class="absolute bottom-1 right-2 text-[8px] bg-slate-900/90 text-indigo-400 font-extrabold px-1.5 py-0.5 rounded">Live GPS</span>
+                                            <span class="absolute bottom-1 right-2 text-[8px] bg-slate-900/90 text-blue-400 font-extrabold px-1.5 py-0.5 rounded">Live GPS</span>
                                         </div>
 
                                         <!-- Live ETA Status Notification -->
-                                        <div class="bg-indigo-950/80 border border-indigo-500/20 rounded-xl p-2.5 flex items-start gap-2">
-                                            <div class="w-6 h-6 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400 flex-shrink-0">
+                                        <div class="bg-blue-950/80 border border-blue-500/20 rounded-xl p-2.5 flex items-start gap-2">
+                                            <div class="w-6 h-6 rounded-lg bg-lime-950/20/10 flex items-center justify-center text-blue-400 flex-shrink-0">
                                                 <svg class="w-4 h-4 animate-bounce" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                             </div>
                                             <div class="text-left leading-tight">
                                                 <p class="text-[10px] font-bold text-white">Bus is 3 mins away</p>
-                                                <p class="text-[8px] text-indigo-300">Approaching Stop #3 (Near Park)</p>
+                                                <p class="text-[8px] text-blue-300">Approaching Stop #3 (Near Park)</p>
                                             </div>
                                         </div>
 
@@ -532,7 +914,7 @@
                                                 <span class="text-slate-300">👋 Route started</span>
                                                 <span class="text-slate-500">07:30 AM</span>
                                             </div>
-                                            <div id="sim-parent-board-log" class="bg-emerald-950/20 border border-emerald-500/10 p-1.5 rounded-lg flex justify-between items-center text-emerald-400">
+                                            <div id="sim-parent-board-log" class="bg-[#f97316]merald-950/20 border border-emerald-500/10 p-1.5 rounded-lg flex justify-between items-center text-emerald-400">
                                                 <span>✅ Aarav Boarded Bus</span>
                                                 <span class="text-slate-500">07:42 AM</span>
                                             </div>
@@ -553,107 +935,1355 @@
 
                         </div>
                     </div>
-
                 </div>
-
             </div>
         </section>
 
-        <!-- Key Features Section (Grid Layout) -->
-        <section id="features" class="py-20 bg-slate-50 border-t border-slate-100">
+        <!-- Key Features Section (Redesigned: Meet Wheels Tracker Story flow) -->
+        <section id="features" class="py-20 bg-[#121824] border-t border-slate-900/80">
             <div class="mx-auto max-w-7xl px-6">
+                <!-- Title Header -->
                 <div class="text-center max-w-3xl mx-auto space-y-4 mb-16">
-                    <h2 class="text-xs uppercase font-extrabold tracking-wider text-indigo-600">Enterprise Capabilities</h2>
-                    <p class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Built to Modernize School Transport</p>
-                    <p class="text-slate-500">
-                        FleetFind packs all the tracking, billing, safety, and driver analytics tools into one unified, sleek management platform.
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-lime-950/20 text-blue-650 text-xs font-semibold uppercase tracking-wider border border-lime-500/20 animate-pulse">
+                        Operational Flow
+                    </div>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-200 tracking-tight">Meet Wheels Tracker</h2>
+                    <p class="text-slate-500 text-sm sm:text-base">
+                        Follow the connected story of a school transit journey, built on three devices working in perfect synchronization.
                     </p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <!-- Feature 1 -->
-                    <div class="bg-white rounded-2xl p-6 border border-slate-200/80 hover:border-indigo-500/20 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all-300 flex flex-col justify-between">
-                        <div>
-                            <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-6">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
-                            </div>
-                            <h3 class="text-lg font-bold text-slate-800 mb-2">Live Route Mapping</h3>
-                            <p class="text-slate-500 text-sm leading-relaxed">
-                                See all active vehicles on an interactive dashboard. Monitor stops, live speeds, delays, and current route adherence in real-time.
-                            </p>
+                <!-- Split Layout Wrapper -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                    
+                    <!-- Left: Story Timeline Steps (col-span-5) -->
+                    <div class="lg:col-span-5 relative pl-12 py-2 text-left">
+                        
+                        <!-- Vertical Track Line -->
+                        <div class="absolute left-4 top-8 bottom-8 w-0.5 bg-slate-200">
+                            <!-- Active fill track that animates height -->
+                            <div id="story-track-fill" class="w-full bg-gradient-to-b from-lime-400 to-emerald-500 rounded-full transition-all duration-500" style="height: 0%;"></div>
                         </div>
+
+                        <!-- Step 1 Panel -->
+                        <div onclick="setStoryStep(0)" id="story-step-0" class="relative p-6 rounded-2xl border border-slate-900/80 bg-[#121824] border border-slate-800 shadow-xl shadow-black/20 cursor-pointer transition-all duration-300 transform -translate-y-0.5 border-l-4 border-l-lime-400">
+                            <!-- Node Marker -->
+                            <div id="story-node-0" class="absolute -left-[42px] top-6 w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold text-xs ring-4 ring-amber-500/20 shadow-md shadow-amber-600/30 scale-110 border-2 border-amber-500 transition-all duration-300 z-10">
+                                1
+                            </div>
+                            <div>
+                                <span class="text-[10px] uppercase font-extrabold tracking-widest text-lime-400">Step 1: Driver Dispatch</span>
+                                <h3 class="text-lg font-extrabold text-slate-200 mt-1">Starts Trip → GPS Starts</h3>
+                                <p class="text-xs text-slate-550 mt-2 leading-relaxed">
+                                    Ramesh climbs into the bus, runs a quick vehicle pre-check checklist, and taps "Start Trip". Cloud tracking launches instantly.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 Panel -->
+                        <div onclick="setStoryStep(1)" id="story-step-1" class="relative p-6 rounded-2xl border border-transparent bg-transparent cursor-pointer transition-all duration-300 opacity-60 hover:opacity-90">
+                            <!-- Node Marker -->
+                            <div id="story-node-1" class="absolute -left-[42px] top-6 w-8 h-8 rounded-full bg-white text-slate-400 flex items-center justify-center font-bold text-xs border-2 border-slate-900/80 transition-all duration-300 z-10">
+                                2
+                            </div>
+                            <div>
+                                <span class="text-[10px] uppercase font-extrabold tracking-widest text-lime-400">Step 2: Control Room</span>
+                                <h3 class="text-lg font-extrabold text-slate-300/80 mt-1">Monitors Every Vehicle</h3>
+                                <p class="text-xs text-slate-550 mt-2 leading-relaxed">
+                                    The St. Jude's central admin panel coordinates maps, speeds, stops, and driver behavior to ensure 100% route adherence.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 Panel -->
+                        <div onclick="setStoryStep(2)" id="story-step-2" class="relative p-6 rounded-2xl border border-transparent bg-transparent cursor-pointer transition-all duration-300 opacity-60 hover:opacity-90">
+                            <!-- Node Marker -->
+                            <div id="story-node-2" class="absolute -left-[42px] top-6 w-8 h-8 rounded-full bg-white text-slate-400 flex items-center justify-center font-bold text-xs border-2 border-slate-900/80 transition-all duration-300 z-10">
+                                3
+                            </div>
+                            <div>
+                                <span class="text-[10px] uppercase font-extrabold tracking-widest text-lime-400">Step 3: Family Alerts</span>
+                                <h3 class="text-lg font-extrabold text-slate-300/80 mt-1">Parents Track Live</h3>
+                                <p class="text-xs text-slate-550 mt-2 leading-relaxed">
+                                    Aarav's parents get a proximity notification: "Bus is 3 mins away." They step out of the house exactly as the bus pulls up.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Step 4 Panel -->
+                        <div onclick="setStoryStep(3)" id="story-step-3" class="relative p-6 rounded-2xl border border-transparent bg-transparent cursor-pointer transition-all duration-300 opacity-60 hover:opacity-90">
+                            <!-- Node Marker -->
+                            <div id="story-node-3" class="absolute -left-[42px] top-6 w-8 h-8 rounded-full bg-white text-slate-400 flex items-center justify-center font-bold text-xs border-2 border-slate-900/80 transition-all duration-300 z-10">
+                                4
+                            </div>
+                            <div>
+                                <span class="text-[10px] uppercase font-extrabold tracking-widest text-lime-400">Step 4: Operations Completed</span>
+                                <h3 class="text-lg font-extrabold text-slate-300/80 mt-1">Peace of Mind</h3>
+                                <p class="text-xs text-slate-550 mt-2 leading-relaxed">
+                                    Safe arrival check-ins confirm child presence. Admin phone inquiries drop to zero while trust rating rises.
+                                </p>
+                            </div>
+                        </div>
+
                     </div>
 
-                    <!-- Feature 2 -->
-                    <div class="bg-white rounded-2xl p-6 border border-slate-200/80 hover:border-indigo-500/20 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all-300 flex flex-col justify-between">
-                        <div>
-                            <div class="w-12 h-12 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center mb-6">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-                            </div>
-                            <h3 class="text-lg font-bold text-slate-800 mb-2">Smart Proximity Alerts</h3>
-                            <p class="text-slate-500 text-sm leading-relaxed">
-                                Automatically alerts parents via push notifications or SMS as the bus approaches their pickup or drop-off zone. Zero parent coordination needed.
-                            </p>
-                        </div>
-                    </div>
+                    <!-- Right: Large Device Showcase Viewport (col-span-7) -->
+                    <div class="lg:col-span-7 flex items-center justify-center bg-[#090D1A] rounded-[32px] border border-slate-800 shadow-2xl p-6 md:p-8 min-h-[520px] relative overflow-hidden">
+                        
+                        <!-- Grid background pattern -->
+                        <div class="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:20px_20px] opacity-40 pointer-events-none"></div>
 
-                    <!-- Feature 3 -->
-                    <div class="bg-white rounded-2xl p-6 border border-slate-200/80 hover:border-indigo-500/20 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all-300 flex flex-col justify-between">
-                        <div>
-                            <div class="w-12 h-12 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center mb-6">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        <!-- Floating Glow effects -->
+                        <div class="absolute -top-24 -left-24 w-80 h-80 rounded-full bg-lime-950/20/10 blur-[100px] pointer-events-none"></div>
+                        <div class="absolute -bottom-24 -right-24 w-80 h-80 rounded-full bg-violet-500/10 blur-[100px] pointer-events-none"></div>
+                        
+                        <!-- Viewport Screen 1: Driver App (Phone Mockup) -->
+                        <div id="story-screen-0" class="story-screen active flex items-center justify-center transition-all duration-500 w-full">
+                            <!-- Beautiful phone mockup -->
+                            <div class="w-[280px] h-[460px] rounded-[42px] bg-slate-950 p-3 border-[6px] border-slate-800 shadow-2xl relative flex flex-col overflow-hidden">
+                                <!-- Phone Notch -->
+                                <div class="absolute top-2 left-1/2 transform -translate-x-1/2 w-28 h-4.5 bg-slate-850 rounded-full z-20 flex items-center justify-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-slate-900"></span>
+                                    <span class="w-8 h-1 bg-slate-900 rounded-full"></span>
+                                </div>
+                                <div class="flex-grow rounded-[32px] bg-slate-900 p-4 text-left flex flex-col justify-between relative overflow-hidden text-white pt-6">
+                                    <div class="flex justify-between items-center text-[10px] text-slate-400">
+                                        <span class="font-mono">07:30 AM</span>
+                                        <span class="font-mono">LTE 🔋</span>
+                                    </div>
+                                    <div class="text-center border-b border-slate-800/80 pb-2">
+                                        <h4 class="text-xs font-extrabold tracking-wide">Driver Console</h4>
+                                        <p class="text-[8px] text-emerald-400 font-bold uppercase tracking-widest mt-0.5">Route 04 Active</p>
+                                    </div>
+                                    
+                                    <div class="my-4 bg-slate-850/80 rounded-xl p-3 border border-slate-800 text-left space-y-2">
+                                        <div class="flex justify-between items-center text-[9px] border-b border-slate-800 pb-1.5">
+                                            <span class="text-slate-400">Assigned Route</span>
+                                            <span class="font-bold text-white">Route 04 (Sector-B)</span>
+                                        </div>
+                                        <div class="space-y-1 text-[8px] text-slate-400">
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="text-emerald-500">✓</span>
+                                                <span>Pre-Trip Checklist Completed</span>
+                                            </div>
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="text-emerald-500">✓</span>
+                                                <span>GPS Beacon Connected</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-blue-950/40 border border-blue-500/20 p-2.5 rounded-xl text-center space-y-1 my-2">
+                                        <p class="text-[8px] text-slate-400">Currently Streaming Location</p>
+                                        <div class="w-2.5 h-2.5 rounded-full bg-[#f97316]merald-500 mx-auto animate-ping"></div>
+                                    </div>
+                                    
+                                    <button class="w-full py-2.5 rounded-lg bg-lime-400 hover:bg-lime-300 text-slate-950 font-black font-extrabold text-[11px] shadow-lg shadow-lime-500/10 text-center tracking-wide">
+                                        🟢 Live Broadcasting
+                                    </button>
+                                </div>
                             </div>
-                            <h3 class="text-lg font-bold text-slate-800 mb-2">Driver Safety Audits</h3>
-                            <p class="text-slate-500 text-sm leading-relaxed">
-                                Get instant safety updates for speeding, harsh braking, and route violations. Generate detailed safety reports to ensure passenger security.
-                            </p>
                         </div>
-                    </div>
 
-                    <!-- Feature 4 -->
-                    <div class="bg-white rounded-2xl p-6 border border-slate-200/80 hover:border-indigo-500/20 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all-300 flex flex-col justify-between">
-                        <div>
-                            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-6">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                        <!-- Viewport Screen 2: School Console (Browser Dashboard Mockup) -->
+                        <div id="story-screen-1" class="story-screen hidden flex items-center justify-center transition-all duration-500 w-full">
+                            <!-- Beautiful browser window mockup -->
+                            <div class="w-full max-w-[480px] rounded-xl bg-[#111625] border border-slate-800 shadow-2xl relative flex flex-col overflow-hidden text-white">
+                                <!-- Window controls -->
+                                <div class="flex items-center justify-between pb-2 border-b border-slate-900 px-3 pt-2">
+                                    <div class="flex gap-1.5">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-red-500/80"></span>
+                                        <span class="w-2.5 h-2.5 rounded-full bg-yellow-500/80"></span>
+                                        <span class="w-2.5 h-2.5 rounded-full bg-green-500/80"></span>
+                                    </div>
+                                    <span class="text-[8px] text-slate-550 font-mono">dashboard.wheelstracker.app/transit</span>
+                                    <span class="text-[8px] bg-blue-600/20 text-blue-400 px-2 py-0.5 rounded font-extrabold tracking-wide border border-blue-500/30 scale-90">12 ONLINE</span>
+                                </div>
+                                <div class="bg-[#151D30] rounded-b-xl p-3.5 text-left space-y-3.5">
+                                    <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+                                        <div>
+                                            <h4 class="text-xs font-bold">St. Jude's Operations Control</h4>
+                                            <p class="text-[8px] text-slate-400">Real-time status check for active routes</p>
+                                        </div>
+                                    </div>
+                                    <!-- Vehicles list -->
+                                    <div class="space-y-2 text-[9px]">
+                                        <div class="bg-[#1C273E] p-2.5 rounded-lg border border-blue-500/20 flex justify-between items-center shadow-sm">
+                                            <div>
+                                                <p class="font-bold text-white">Route 04 (Ramesh Kumar)</p>
+                                                <p class="text-[7.5px] text-blue-300">Speed: 42 km/h | stops: normal</p>
+                                            </div>
+                                            <span class="text-[8px] text-emerald-400 bg-[#f97316]merald-950/80 px-2 py-0.5 rounded font-extrabold border border-emerald-500/20">ON-TIME</span>
+                                        </div>
+                                        <div class="bg-[#1C273E] p-2.5 rounded-lg border border-slate-800/80 flex justify-between items-center opacity-85">
+                                            <div>
+                                                <p class="font-bold text-slate-300">Route 11 (Amit Sen)</p>
+                                                <p class="text-[7.5px] text-slate-500">Speed: 0 km/h | Delay detected at Stop 2</p>
+                                            </div>
+                                            <span class="text-[8px] text-amber-400 bg-amber-950/80 px-2 py-0.5 rounded font-extrabold border border-amber-500/20 text-center">3m WAIT</span>
+                                        </div>
+                                    </div>
+                                    <div class="bg-[#0B0F19] p-2.5 rounded text-[8px] text-slate-400 border border-slate-850 flex justify-between">
+                                        <span>⚠️ Alert log: Vehicle 11 idle for 4 minutes at Stop #2</span>
+                                        <span class="text-blue-400 font-bold hover:underline cursor-pointer">Notify Driver</span>
+                                    </div>
+                                </div>
                             </div>
-                            <h3 class="text-lg font-bold text-slate-800 mb-2">Secure Attendance Scans</h3>
-                            <p class="text-slate-500 text-sm leading-relaxed">
-                                Integrate with lightweight RFID cards or QR code scanner apps. Log student boarding timestamps automatically and confirm child presence.
-                            </p>
                         </div>
-                    </div>
 
-                    <!-- Feature 5 -->
-                    <div class="bg-white rounded-2xl p-6 border border-slate-200/80 hover:border-indigo-500/20 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all-300 flex flex-col justify-between">
-                        <div>
-                            <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-6">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                            </div>
-                            <h3 class="text-lg font-bold text-slate-800 mb-2">Smart Route Optimizer</h3>
-                            <p class="text-slate-500 text-sm leading-relaxed">
-                                Automatically calculate the most fuel-efficient routes, bypassing traffic congestion. Optimize vehicles to reduce fuel expenses by 15% to 20%.
-                            </p>
-                        </div>
-                    </div>
+                        <!-- Viewport Screen 3: Parent App (Phone Mockup Map) -->
+                        <div id="story-screen-2" class="story-screen hidden flex items-center justify-center transition-all duration-500 w-full">
+                            <!-- Phone mockup -->
+                            <div class="w-[280px] h-[460px] rounded-[42px] bg-slate-950 p-3 border-[6px] border-slate-800 shadow-2xl relative flex flex-col overflow-hidden">
+                                <!-- Phone Notch -->
+                                <div class="absolute top-2 left-1/2 transform -translate-x-1/2 w-28 h-4.5 bg-slate-850 rounded-full z-20 flex items-center justify-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-slate-900"></span>
+                                    <span class="w-8 h-1 bg-slate-900 rounded-full"></span>
+                                </div>
+                                <div class="flex-grow rounded-[32px] bg-slate-900 p-4 text-left flex flex-col justify-between relative overflow-hidden text-white pt-6">
+                                    
+                                    <!-- Dynamic Push notification drop-down simulator -->
+                                    <div class="absolute top-2 left-2 right-2 z-30 bg-white/95 backdrop-blur-md rounded-xl p-2.5 shadow-lg border border-slate-900/80 flex items-center gap-2 transform translate-y-1 animate-bounce">
+                                        <div class="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center text-xs">
+                                            🔔
+                                        </div>
+                                        <div class="text-slate-300 flex-grow leading-none">
+                                            <p class="text-[9px] font-bold text-slate-200">WheelsTracker Alert</p>
+                                            <p class="text-[7.5px] text-slate-500 mt-0.5">Bus is 3 Mins away from Stop #3</p>
+                                        </div>
+                                    </div>
 
-                    <!-- Feature 6 -->
-                    <div class="bg-white rounded-2xl p-6 border border-slate-200/80 hover:border-indigo-500/20 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all-300 flex flex-col justify-between">
-                        <div>
-                            <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center mb-6">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <div class="flex justify-between items-center text-[10px] text-slate-400 pt-6">
+                                        <span class="font-mono">07:55 AM</span>
+                                        <span class="font-mono">LTE</span>
+                                    </div>
+                                    
+                                    <!-- GPS Map Preview -->
+                                    <div class="h-32 bg-slate-950 rounded-xl relative border border-slate-800 overflow-hidden my-2 flex items-center justify-center">
+                                        <svg class="absolute inset-0 w-full h-full p-2" viewBox="0 0 200 100" fill="none">
+                                            <path d="M 20 50 L 180 50" stroke="#334155" stroke-width="8" stroke-linecap="round"/>
+                                            <circle cx="30" cy="50" r="5" fill="#ef4444"/>
+                                            <circle cx="170" cy="50" r="5" fill="#06b6d4"/>
+                                            <g transform="translate(130, 42)">
+                                                <rect width="18" height="10" rx="2" fill="#fbbf24"/>
+                                                <circle cx="4" cy="10" r="1.5" fill="#1e293b"/>
+                                                <circle cx="14" cy="10" r="1.5" fill="#1e293b"/>
+                                            </g>
+                                        </svg>
+                                        <span class="absolute bottom-1 right-2 text-[7.5px] bg-slate-900/90 text-blue-400 font-bold px-1.5 py-0.5 rounded border border-slate-800">Live GPS Active</span>
+                                    </div>
+                                    
+                                    <div class="bg-slate-850/80 border border-slate-800 rounded-xl p-2.5 space-y-1">
+                                        <p class="text-[9px] font-bold text-slate-300">Live Status</p>
+                                        <p class="text-[7.5px] text-slate-400">Child Stop: Stop #3 (Near Park). Please proceed to pick up stop.</p>
+                                    </div>
+                                    
+                                    <a href="tel:123456" class="block w-full text-center bg-slate-800 hover:bg-slate-750 text-white text-[9px] font-bold py-2 rounded-lg transition-colors border border-slate-700 mt-2">
+                                        📞 Call Driver Attendant
+                                    </a>
+                                </div>
                             </div>
-                            <h3 class="text-lg font-bold text-slate-800 mb-2">Fee & Subscription Manager</h3>
-                            <p class="text-slate-500 text-sm leading-relaxed">
-                                Manage school transportation fees and digital tracking subscriptions from the central hub. Send automated reminders for pending dues.
-                            </p>
                         </div>
+
+                        <!-- Viewport Screen 4: Peace of Mind (Checklist confirmation) -->
+                        <div id="story-screen-3" class="story-screen hidden flex items-center justify-center transition-all duration-500 w-full">
+                            <!-- Beautiful card with success summary -->
+                            <div class="w-full max-w-sm rounded-2xl bg-white border border-slate-900/80 p-6 shadow-2xl text-slate-850 text-left space-y-6">
+                                <div class="flex items-center gap-4 border-b border-slate-900/80 pb-4">
+                                    <div class="w-12 h-12 rounded-full bg-[#f97316]merald-500 text-white flex items-center justify-center text-xl shadow-lg shadow-emerald-500/20">
+                                        ✓
+                                    </div>
+                                    <div>
+                                        <h4 class="text-base font-extrabold text-slate-200">Journey Verified</h4>
+                                        <p class="text-xs text-slate-500">Route 04 Sector-B Log Complete</p>
+                                    </div>
+                                </div>
+                                <div class="space-y-3.5">
+                                    <div class="flex justify-between items-center text-xs">
+                                        <span class="text-slate-550">On-Time Performance Rate</span>
+                                        <span class="font-black text-emerald-600 bg-[#f97316]merald-50 px-2 py-0.5 rounded border border-emerald-200">98.4%</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-xs">
+                                        <span class="text-slate-550">Parent Telephone Inquiries</span>
+                                        <span class="font-black text-emerald-600 bg-[#f97316]merald-50 px-2 py-0.5 rounded border border-emerald-200">0 Calls Received</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-xs">
+                                        <span class="text-slate-550">Fuel Consumption Reduction</span>
+                                        <span class="font-black text-lime-400 bg-lime-950/20 px-2 py-0.5 rounded border border-lime-500/30">15% Saved</span>
+                                    </div>
+                                </div>
+                                <div class="bg-lime-950/20 rounded-xl p-3.5 border border-lime-500/20 text-center text-xs text-lime-400">
+                                    <p class="font-bold">✨ B2B Efficiency Impact</p>
+                                    <p class="text-[11px] text-slate-550 mt-1">Parents track bus proactively on their phones, taking all transport query load off school admins.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+            </div>
+        </section>
+
+        <!-- Interactive Product Demo Section -->
+        <section id="interactive-demo" class="py-24 bg-[#080B11] border-t border-slate-900/60 text-white">
+            <div class="mx-auto max-w-7xl px-6">
+                <!-- Title Header -->
+                <div class="text-center max-w-3xl mx-auto space-y-4 mb-12">
+                    <h2 class="text-xs uppercase font-extrabold tracking-wider text-lime-400">Product Sandbox</h2>
+                    <p class="text-3xl sm:text-4xl font-extrabold text-slate-200 tracking-tight">Interactive Product Demo</p>
+                    <p class="text-slate-500 text-sm sm:text-base">
+                        Toggle between tabs and click the features to preview real-time screens across all user apps.
+                    </p>
+
+                    <!-- Horizontal Primary Tabs Selector -->
+                    <div class="inline-flex rounded-2xl bg-[#111724] p-1.5 mt-8 border border-slate-900/80">
+                        <button onclick="switchDemoTab('parent')" id="demo-tab-parent" class="px-6 py-3 rounded-xl text-sm font-bold text-lime-400 bg-[#121824] text-lime-400 shadow-md border border-lime-500/20 transition-all duration-300">
+                            📱 Parent App
+                        </button>
+                        <button onclick="switchDemoTab('driver')" id="demo-tab-driver" class="px-6 py-3 rounded-xl text-sm font-bold text-slate-500 hover:text-slate-200 transition-all duration-300">
+                            👨‍✈️ Driver App
+                        </button>
+                        <button onclick="switchDemoTab('school')" id="demo-tab-school" class="px-6 py-3 rounded-xl text-sm font-bold text-slate-500 hover:text-slate-200 transition-all duration-300">
+                            💻 School Dashboard
+                        </button>
                     </div>
                 </div>
+
+                <!-- Main Layout Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center mt-12">
+                    
+                    <!-- Left: Sub-Tabs Menu Panel (col-span-4) -->
+                    <div class="lg:col-span-4 text-left">
+                        
+                        <!-- Parent App Sub-Menu -->
+                        <div id="demo-menu-parent" class="space-y-2">
+                            <h4 class="text-xs font-extrabold text-slate-400 uppercase tracking-widest px-3 mb-3">Parent App Screen list</h4>
+                            <button onclick="switchDemoSubTab('parent-live-map')" id="link-parent-live-map" class="relative flex items-center gap-3 p-3.5 w-full rounded-xl bg-lime-950/20 text-lime-400 border-l-4 border-l-lime-400 font-bold transition-all duration-300 text-left">
+                                🗺️ Live Map Tracking
+                            </button>
+                            <button onclick="switchDemoSubTab('parent-vehicle-details')" id="link-parent-vehicle-details" class="relative flex items-center gap-3 p-3.5 w-full rounded-xl bg-transparent text-slate-400 hover:bg-[#111724] hover:text-slate-200 border-l-4 border-l-transparent transition-all duration-300 text-left">
+                                📦 Vehicle Specifications
+                            </button>
+                            <button onclick="switchDemoSubTab('parent-driver-info')" id="link-parent-driver-info" class="relative flex items-center gap-3 p-3.5 w-full rounded-xl bg-transparent text-slate-400 hover:bg-[#111724] hover:text-slate-200 border-l-4 border-l-transparent transition-all duration-300 text-left">
+                                👤 Assigned Driver Details
+                            </button>
+                            <button onclick="switchDemoSubTab('parent-eta')" id="link-parent-eta" class="relative flex items-center gap-3 p-3.5 w-full rounded-xl bg-transparent text-slate-400 hover:bg-[#111724] hover:text-slate-200 border-l-4 border-l-transparent transition-all duration-300 text-left">
+                                ⏱️ Proximity ETA Countdown
+                            </button>
+                            <button onclick="switchDemoSubTab('parent-notifications')" id="link-parent-notifications" class="relative flex items-center gap-3 p-3.5 w-full rounded-xl bg-transparent text-slate-400 hover:bg-[#111724] hover:text-slate-200 border-l-4 border-l-transparent transition-all duration-300 text-left">
+                                🔔 Push Notifications Log
+                            </button>
+                            <button onclick="switchDemoSubTab('parent-trip-history')" id="link-parent-trip-history" class="relative flex items-center gap-3 p-3.5 w-full rounded-xl bg-transparent text-slate-400 hover:bg-[#111724] hover:text-slate-200 border-l-4 border-l-transparent transition-all duration-300 text-left">
+                                📜 School Trip History
+                            </button>
+                        </div>
+
+                        <!-- Driver App Sub-Menu (Hidden by default) -->
+                        <div id="demo-menu-driver" class="space-y-2 hidden">
+                            <h4 class="text-xs font-extrabold text-slate-400 uppercase tracking-widest px-3 mb-3">Driver App Actions</h4>
+                            <button onclick="switchDemoSubTab('driver-start-trip')" id="link-driver-start-trip" class="relative flex items-center gap-3 p-3.5 w-full rounded-xl bg-transparent text-slate-400 hover:bg-[#111724] hover:text-slate-200 border-l-4 border-l-transparent transition-all duration-300 text-left">
+                                🛫 Start Trip Pre-check
+                            </button>
+                            <button onclick="switchDemoSubTab('driver-share-location')" id="link-driver-share-location" class="relative flex items-center gap-3 p-3.5 w-full rounded-xl bg-transparent text-slate-400 hover:bg-[#111724] hover:text-slate-200 border-l-4 border-l-transparent transition-all duration-300 text-left">
+                                📡 Share Live GPS Beacon
+                            </button>
+                            <button onclick="switchDemoSubTab('driver-student-pickup')" id="link-driver-student-pickup" class="relative flex items-center gap-3 p-3.5 w-full rounded-xl bg-transparent text-slate-400 hover:bg-[#111724] hover:text-slate-200 border-l-4 border-l-transparent transition-all duration-300 text-left">
+                                🚶 Student Pickup Check-in
+                            </button>
+                            <button onclick="switchDemoSubTab('driver-student-drop')" id="link-driver-student-drop" class="relative flex items-center gap-3 p-3.5 w-full rounded-xl bg-transparent text-slate-400 hover:bg-[#111724] hover:text-slate-200 border-l-4 border-l-transparent transition-all duration-300 text-left">
+                                🚪 Student Drop Confirmation
+                            </button>
+                            <button onclick="switchDemoSubTab('driver-stop-trip')" id="link-driver-stop-trip" class="relative flex items-center gap-3 p-3.5 w-full rounded-xl bg-transparent text-slate-400 hover:bg-[#111724] hover:text-slate-200 border-l-4 border-l-transparent transition-all duration-300 text-left">
+                                🏁 Stop Trip Report
+                            </button>
+                        </div>
+
+                        <!-- School Dashboard Sub-Menu (Hidden by default) -->
+                        <div id="demo-menu-school" class="space-y-2 hidden">
+                            <h4 class="text-xs font-extrabold text-slate-400 uppercase tracking-widest px-3 mb-3">School Dashboard tabs</h4>
+                            <button onclick="switchDemoSubTab('school-vehicle-list')" id="link-school-vehicle-list" class="relative flex items-center gap-3 p-3.5 w-full rounded-xl bg-transparent text-slate-400 hover:bg-[#111724] hover:text-slate-200 border-l-4 border-l-transparent transition-all duration-300 text-left">
+                                🚌 Vehicle Fleet Status
+                            </button>
+                            <button onclick="switchDemoSubTab('school-drivers')" id="link-school-drivers" class="relative flex items-center gap-3 p-3.5 w-full rounded-xl bg-transparent text-slate-400 hover:bg-[#111724] hover:text-slate-200 border-l-4 border-l-transparent transition-all duration-300 text-left">
+                                👨‍✈️ Driver Roster list
+                            </button>
+                            <button onclick="switchDemoSubTab('school-students')" id="link-school-students" class="relative flex items-center gap-3 p-3.5 w-full rounded-xl bg-transparent text-slate-400 hover:bg-[#111724] hover:text-slate-200 border-l-4 border-l-transparent transition-all duration-300 text-left">
+                                🎓 Student Database Roster
+                            </button>
+                            <button onclick="switchDemoSubTab('school-routes')" id="link-school-routes" class="relative flex items-center gap-3 p-3.5 w-full rounded-xl bg-transparent text-slate-400 hover:bg-[#111724] hover:text-slate-200 border-l-4 border-l-transparent transition-all duration-300 text-left">
+                                🛣️ Route Management Control
+                            </button>
+                            <button onclick="switchDemoSubTab('school-trips')" id="link-school-trips" class="relative flex items-center gap-3 p-3.5 w-full rounded-xl bg-transparent text-slate-400 hover:bg-[#111724] hover:text-slate-200 border-l-4 border-l-transparent transition-all duration-300 text-left">
+                                📈 Live Transit Streams
+                            </button>
+                            <button onclick="switchDemoSubTab('school-reports')" id="link-school-reports" class="relative flex items-center gap-3 p-3.5 w-full rounded-xl bg-transparent text-slate-400 hover:bg-[#111724] hover:text-slate-200 border-l-4 border-l-transparent transition-all duration-300 text-left">
+                                📊 Operational Reports & ROI
+                            </button>
+                        </div>
+
+                    </div>
+
+                    <!-- Right: Dynamic Device Mockup Viewport (col-span-8) -->
+                    <div class="lg:col-span-8 flex items-center justify-center bg-[#090D1A] rounded-[32px] border border-slate-800 shadow-2xl p-6 md:p-8 min-h-[560px] relative overflow-hidden">
+                        
+                        <!-- Grid background pattern -->
+                        <div class="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:20px_20px] opacity-40 pointer-events-none"></div>
+
+                        <!-- Floating Glow effects -->
+                        <div class="absolute -top-24 -left-24 w-80 h-80 rounded-full bg-lime-950/20/10 blur-[100px] pointer-events-none"></div>
+                        <div class="absolute -bottom-24 -right-24 w-80 h-80 rounded-full bg-violet-500/10 blur-[100px] pointer-events-none"></div>
+                        
+                        <!-- DEVICE 1: Phone Shell (For Parent & Driver Apps) -->
+                        <div id="demo-phone-shell" class="relative z-10 flex items-center justify-center">
+                            <div class="w-[285px] h-[480px] rounded-[44px] bg-slate-950 p-3 border-[6px] border-slate-850 shadow-2xl relative flex flex-col overflow-hidden">
+                                <!-- Phone Notch -->
+                                <div class="absolute top-2 left-1/2 transform -translate-x-1/2 w-28 h-4.5 bg-slate-850 rounded-full z-20 flex items-center justify-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-slate-900"></span>
+                                    <span class="w-8 h-1 bg-slate-900 rounded-full"></span>
+                                </div>
+                                <div class="flex-grow rounded-[32px] bg-slate-900 p-4 text-left flex flex-col justify-between relative overflow-hidden text-white pt-6">
+                                    
+                                    <!-- ==================== PARENT SCREENS ==================== -->
+                                    
+                                    <!-- Parent: Live Map -->
+                                    <div id="screen-parent-live-map" class="story-screen active flex flex-col justify-between h-full">
+                                        <div class="text-center border-b border-slate-800/80 pb-2">
+                                            <h4 class="text-xs font-extrabold tracking-wide">Live Route Map</h4>
+                                            <p class="text-[8px] text-blue-400 font-bold uppercase mt-0.5">Bus 04: sector-B</p>
+                                        </div>
+                                        <div class="h-44 bg-slate-950 rounded-xl relative border border-slate-800 overflow-hidden my-2 flex items-center justify-center">
+                                            <svg class="absolute inset-0 w-full h-full p-2" viewBox="0 0 200 100" fill="none">
+                                                <path d="M 20 50 L 180 50 M 80 10 L 80 90" stroke="#334155" stroke-width="8" stroke-linecap="round"/>
+                                                <circle cx="30" cy="50" r="5" fill="#ef4444"/>
+                                                <circle cx="170" cy="50" r="5" fill="#06b6d4"/>
+                                                <g transform="translate(110, 42)">
+                                                    <rect width="18" height="10" rx="2" fill="#fbbf24" class="animate-pulse"/>
+                                                    <circle cx="4" cy="10" r="1.5" fill="#1e293b"/>
+                                                    <circle cx="14" cy="10" r="1.5" fill="#1e293b"/>
+                                                </g>
+                                            </svg>
+                                            <span class="absolute bottom-1 right-2 text-[7px] bg-slate-900/90 text-blue-400 font-bold px-1.5 py-0.5 rounded border border-slate-800">Route 04 Moving</span>
+                                        </div>
+                                        <div class="bg-blue-950/40 border border-blue-500/20 rounded-xl p-2.5 text-center mt-auto">
+                                            <p class="text-[9px] font-bold text-white">Status: En Route</p>
+                                            <p class="text-[7.5px] text-slate-400 mt-0.5">Approaching Stop #3 (School Gate next)</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Parent: Vehicle Details -->
+                                    <div id="screen-parent-vehicle-details" class="story-screen hidden flex flex-col justify-between h-full">
+                                        <div class="text-center border-b border-slate-800/80 pb-2">
+                                            <h4 class="text-xs font-extrabold tracking-wide">Vehicle Specifications</h4>
+                                            <p class="text-[8px] text-blue-400 font-bold uppercase mt-0.5">Route 04 Transport Details</p>
+                                        </div>
+                                        <div class="my-4 space-y-2 flex-grow justify-center flex flex-col">
+                                            <div class="bg-slate-850 p-2.5 rounded-xl border border-slate-800 text-[10px] space-y-1.5">
+                                                <div class="flex justify-between border-b border-slate-800 pb-1"><span class="text-slate-400">Model:</span><span class="font-bold">Force Traveller 26-Seater</span></div>
+                                                <div class="flex justify-between border-b border-slate-800 pb-1"><span class="text-slate-400">License Plate:</span><span class="font-bold text-blue-400">DL-1P-C-9872</span></div>
+                                                <div class="flex justify-between border-b border-slate-800 pb-1"><span class="text-slate-400">Insurance Expiry:</span><span class="font-bold text-emerald-400">Dec 2026</span></div>
+                                                <div class="flex justify-between"><span class="text-slate-400">Pollution Certificate:</span><span class="font-bold text-emerald-400">Active (Checked)</span></div>
+                                            </div>
+                                        </div>
+                                        <div class="p-2 bg-[#f97316]merald-950/20 border border-emerald-500/20 text-emerald-400 text-center rounded-xl text-[8.5px] mt-auto">
+                                            🛡️ School Certified & Fully Insured Transit vehicle
+                                        </div>
+                                    </div>
+
+                                    <!-- Parent: Driver Information -->
+                                    <div id="screen-parent-driver-info" class="story-screen hidden flex flex-col justify-between h-full">
+                                        <div class="text-center border-b border-slate-800/80 pb-2">
+                                            <h4 class="text-xs font-extrabold tracking-wide">Assigned Driver</h4>
+                                            <p class="text-[8px] text-blue-400 font-bold uppercase mt-0.5">Safety Profile</p>
+                                        </div>
+                                        <div class="my-4 text-center space-y-3 flex-grow flex flex-col justify-center">
+                                            <div class="w-14 h-14 bg-blue-950/40 rounded-full mx-auto border border-blue-500/20 flex items-center justify-center text-xl">
+                                                👨‍✈️
+                                            </div>
+                                            <div>
+                                                <h5 class="text-xs font-bold">Ramesh Kumar</h5>
+                                                <p class="text-[8.5px] text-slate-400">8 Years experience in School Transport</p>
+                                            </div>
+                                            <div class="inline-flex items-center gap-1.5 px-2 py-0.5 bg-slate-800 rounded-full text-[8.5px] text-yellow-400 mx-auto">
+                                                ⭐ 4.9 Rating (204 parents)
+                                            </div>
+                                        </div>
+                                        <div class="p-2 bg-blue-950/30 border border-blue-500/20 text-blue-300 text-center rounded-xl text-[8.5px] mt-auto">
+                                            ✓ Police background verification completed
+                                        </div>
+                                    </div>
+
+                                    <!-- Parent: ETA -->
+                                    <div id="screen-parent-eta" class="story-screen hidden flex flex-col justify-between h-full">
+                                        <div class="text-center border-b border-slate-800/80 pb-2">
+                                            <h4 class="text-xs font-extrabold tracking-wide">Live ETA Countdown</h4>
+                                            <p class="text-[8px] text-blue-400 font-bold uppercase mt-0.5">Stop #3 Pickup stop</p>
+                                        </div>
+                                        <div class="my-6 text-center space-y-4 flex-grow flex flex-col justify-center">
+                                            <div class="text-3xl font-black text-white animate-pulse">03 Mins</div>
+                                            <p class="text-[9px] text-slate-400 px-4 leading-relaxed">Driver Ramesh Kumar is approaching your stop. Please prepare to pick up child.</p>
+                                        </div>
+                                        <button class="w-full py-2 bg-slate-800 text-[9px] rounded-lg text-slate-350 font-bold text-center border border-slate-700 mt-auto">
+                                            🔔 Enable Extra Loud Alert
+                                        </button>
+                                    </div>
+
+                                    <!-- Parent: Notifications -->
+                                    <div id="screen-parent-notifications" class="story-screen hidden flex flex-col justify-between h-full">
+                                        <div class="text-center border-b border-slate-800/80 pb-2">
+                                            <h4 class="text-xs font-extrabold tracking-wide">Notifications Feed</h4>
+                                            <p class="text-[8px] text-blue-400 font-bold uppercase mt-0.5">Live Alert updates</p>
+                                        </div>
+                                        <div class="my-3 space-y-1.5 flex-grow overflow-y-auto max-h-[220px]">
+                                            <div class="bg-slate-850 p-2 rounded-lg border border-slate-800 text-[8px] flex justify-between">
+                                                <span>🚦 Route 04 completed</span><span class="text-slate-400">08:12 AM</span>
+                                            </div>
+                                            <div class="bg-slate-850 p-2 rounded-lg border border-slate-800 text-[8px] flex justify-between">
+                                                <span>🏫 Aarav reached school</span><span class="text-slate-400">08:11 AM</span>
+                                            </div>
+                                            <div class="bg-slate-850 p-2 rounded-lg border border-slate-800 text-[8px] flex justify-between">
+                                                <span>✓ Aarav boarded bus</span><span class="text-slate-400">07:42 AM</span>
+                                            </div>
+                                            <div class="bg-slate-850 p-2 rounded-lg border border-slate-800 text-[8px] flex justify-between">
+                                                <span>🛫 Route 04 started trip</span><span class="text-slate-400">07:30 AM</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Parent: Trip History -->
+                                    <div id="screen-parent-trip-history" class="story-screen hidden flex flex-col justify-between h-full">
+                                        <div class="text-center border-b border-slate-800/80 pb-2">
+                                            <h4 class="text-xs font-extrabold tracking-wide">Trip Logs</h4>
+                                            <p class="text-[8px] text-blue-400 font-bold uppercase mt-0.5">Past Transit Archives</p>
+                                        </div>
+                                        <div class="my-3 space-y-1.5 flex-grow overflow-y-auto max-h-[220px]">
+                                            <div class="bg-slate-850 p-2 rounded-lg border border-slate-800 text-[8.5px] flex justify-between">
+                                                <div><span class="font-bold text-white">Jul 15 (PM Trip)</span><p class="text-[7px] text-slate-400">Duration: 42 mins</p></div>
+                                                <span class="text-emerald-400 font-bold">COMPLETED</span>
+                                            </div>
+                                            <div class="bg-slate-850 p-2 rounded-lg border border-slate-800 text-[8.5px] flex justify-between">
+                                                <div><span class="font-bold text-white">Jul 15 (AM Trip)</span><p class="text-[7px] text-slate-400">Duration: 38 mins</p></div>
+                                                <span class="text-emerald-400 font-bold">COMPLETED</span>
+                                            </div>
+                                            <div class="bg-slate-850 p-2 rounded-lg border border-slate-800 text-[8.5px] flex justify-between">
+                                                <div><span class="font-bold text-white">Jul 14 (PM Trip)</span><p class="text-[7px] text-slate-400">Duration: 45 mins</p></div>
+                                                <span class="text-emerald-400 font-bold">COMPLETED</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- ==================== DRIVER SCREENS ==================== -->
+
+                                    <!-- Driver: Start Trip -->
+                                    <div id="screen-driver-start-trip" class="story-screen hidden flex flex-col justify-between h-full">
+                                        <div class="text-center border-b border-slate-800/80 pb-2">
+                                            <h4 class="text-xs font-extrabold tracking-wide">Pre-Route Verification</h4>
+                                            <p class="text-[8px] text-blue-400 font-bold uppercase mt-0.5">Checklist</p>
+                                        </div>
+                                        <div class="my-3 space-y-1.5 flex-grow flex flex-col justify-center">
+                                            <div class="space-y-1 text-[9px] bg-slate-850 p-3 rounded-xl border border-slate-800">
+                                                <div class="flex items-center justify-between"><span>⚙️ Engine Oil check:</span><span class="text-emerald-400 font-bold">OK</span></div>
+                                                <div class="flex items-center justify-between"><span>⛽ Fuel level checked:</span><span class="text-emerald-400 font-bold">92%</span></div>
+                                                <div class="flex items-center justify-between"><span>🛞 Tire pressure status:</span><span class="text-emerald-400 font-bold">Normal</span></div>
+                                            </div>
+                                        </div>
+                                        <button onclick="alert('Trip broadcasting started!')" class="w-full py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-[10px] text-center shadow-lg shadow-emerald-600/20 mt-auto">
+                                            🛫 Start Active Trip
+                                        </button>
+                                    </div>
+
+                                    <!-- Driver: Share Live Location -->
+                                    <div id="screen-driver-share-location" class="story-screen hidden flex flex-col justify-between h-full">
+                                        <div class="text-center border-b border-slate-800/80 pb-2">
+                                            <h4 class="text-xs font-extrabold tracking-wide">Live GPS Broadcasting</h4>
+                                            <p class="text-[8px] text-blue-400 font-bold uppercase mt-0.5">Route 04</p>
+                                        </div>
+                                        <div class="my-6 text-center space-y-4 flex-grow flex flex-col justify-center items-center">
+                                            <div class="w-20 h-20 rounded-full bg-[#f97316]merald-500/10 border border-emerald-500/20 flex items-center justify-center relative">
+                                                <div class="w-10 h-10 rounded-full bg-[#f97316]merald-500 text-white flex items-center justify-center font-bold animate-ping">📡</div>
+                                            </div>
+                                            <p class="text-[10px] text-slate-350">Streaming live coordinates to school and parent portals every 2 seconds.</p>
+                                        </div>
+                                        <div class="p-2 bg-[#f97316]merald-950/20 border border-emerald-500/20 text-emerald-400 text-center rounded-xl text-[8.5px] mt-auto">
+                                            🟢 GPS Signal Status: Excellent
+                                        </div>
+                                    </div>
+
+                                    <!-- Driver: Student Pickup -->
+                                    <div id="screen-driver-student-pickup" class="story-screen hidden flex flex-col justify-between h-full">
+                                        <div class="text-center border-b border-slate-800/80 pb-2">
+                                            <h4 class="text-xs font-extrabold tracking-wide">Student Boarding</h4>
+                                            <p class="text-[8px] text-blue-400 font-bold uppercase mt-0.5">Stop #3 Checklist</p>
+                                        </div>
+                                        <div class="my-3 space-y-2 flex-grow overflow-y-auto max-h-[220px]">
+                                            <div class="bg-slate-850 p-2.5 rounded-lg border border-slate-800 flex justify-between items-center text-[9px]">
+                                                <div><p class="font-bold text-white">Aarav Gupta</p><p class="text-[7.5px] text-slate-400">Seat 12</p></div>
+                                                <span class="text-[8.5px] text-emerald-400 font-extrabold">BOARDED</span>
+                                            </div>
+                                            <div class="bg-slate-850 p-2.5 rounded-lg border border-slate-800 flex justify-between items-center text-[9px] opacity-80">
+                                                <div><p class="font-bold text-slate-300">Ananya Sen</p><p class="text-[7.5px] text-slate-500">Seat 05</p></div>
+                                                <button onclick="this.innerHTML='BOARDED'; this.className='text-[8.5px] text-emerald-400 font-extrabold'" class="text-[8.5px] bg-blue-600 px-2 py-0.5 rounded text-white font-bold">Tap Board</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Driver: Student Drop -->
+                                    <div id="screen-driver-student-drop" class="story-screen hidden flex flex-col justify-between h-full">
+                                        <div class="text-center border-b border-slate-800/80 pb-2">
+                                            <h4 class="text-xs font-extrabold tracking-wide">Student Drop-off</h4>
+                                            <p class="text-[8px] text-blue-400 font-bold uppercase mt-0.5">Safe Arrival Confirmation</p>
+                                        </div>
+                                        <div class="my-6 text-center space-y-4 flex-grow flex flex-col justify-center items-center">
+                                            <div class="w-12 h-12 rounded-full bg-[#f97316]merald-500 text-white flex items-center justify-center text-xl shadow-lg">✓</div>
+                                            <div>
+                                                <h5 class="text-xs font-bold text-white">All Students Dropped</h5>
+                                                <p class="text-[8.5px] text-slate-400 mt-1">St. Jude's school gate dropoff completed. 28/28 verified checklist.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Driver: Stop Trip -->
+                                    <div id="screen-driver-stop-trip" class="story-screen hidden flex flex-col justify-between h-full">
+                                        <div class="text-center border-b border-slate-800/80 pb-2">
+                                            <h4 class="text-xs font-extrabold tracking-wide">End Route Report</h4>
+                                            <p class="text-[8px] text-blue-400 font-bold uppercase mt-0.5">Route 04 Summary</p>
+                                        </div>
+                                        <div class="my-3 space-y-2 flex-grow flex flex-col justify-center">
+                                            <div class="bg-slate-850 p-2.5 rounded-xl border border-slate-800 text-[8.5px] space-y-1.5">
+                                                <div class="flex justify-between"><span>Total distance:</span><span class="font-bold">18.2 km</span></div>
+                                                <div class="flex justify-between"><span>Duration:</span><span class="font-bold">42 Mins</span></div>
+                                                <div class="flex justify-between"><span>Avg Speed limit adherence:</span><span class="text-emerald-400 font-bold">100%</span></div>
+                                            </div>
+                                        </div>
+                                        <button onclick="alert('Trip ended and archived.')" class="w-full py-2 rounded-lg bg-red-650 hover:bg-red-600 text-white font-extrabold text-[10px] text-center mt-auto">
+                                            🛑 Close active route
+                                        </button>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DEVICE 2: Browser Mockup Shell (For School Dashboard View) -->
+                        <div id="demo-browser-shell" class="relative z-10 hidden w-full max-w-[500px]">
+                            <div class="w-full rounded-2xl bg-[#111625] border-[4px] border-slate-800 shadow-2xl relative flex flex-col overflow-hidden text-white">
+                                <!-- Window Title Bar -->
+                                <div class="flex items-center justify-between pb-2 border-b border-slate-900 px-3 pt-2">
+                                    <div class="flex gap-1.5">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-red-500/80"></span>
+                                        <span class="w-2.5 h-2.5 rounded-full bg-yellow-500/80"></span>
+                                        <span class="w-2.5 h-2.5 rounded-full bg-green-500/80"></span>
+                                    </div>
+                                    <span class="text-[8px] text-slate-500 font-mono">admin.wheelstracker.app/transit-hub</span>
+                                    <span class="text-[8px] bg-blue-600/20 text-blue-400 px-2 py-0.5 rounded font-extrabold scale-90 border border-blue-500/30">12 ONLINE</span>
+                                </div>
+                                <div class="bg-[#151D30] rounded-b-xl p-4 text-left space-y-4 min-h-[320px] flex flex-col justify-between">
+                                    
+                                    <!-- ==================== SCHOOL SCREENS ==================== -->
+
+                                    <!-- School: Vehicle List -->
+                                    <div id="screen-school-vehicle-list" class="story-screen hidden flex-grow flex flex-col justify-between">
+                                        <div>
+                                            <h4 class="text-xs font-bold text-white border-b border-slate-800 pb-1.5">Active Fleet Registry</h4>
+                                            <div class="space-y-1.5 text-[8.5px] mt-2">
+                                                <div class="flex justify-between items-center bg-[#1C273E] p-2 rounded">
+                                                    <span>Bus #04 (Force Traveller)</span><span class="text-emerald-400 font-bold">ONLINE</span>
+                                                </div>
+                                                <div class="flex justify-between items-center bg-[#1C273E] p-2 rounded">
+                                                    <span>Bus #11 (Tata Starbus)</span><span class="text-emerald-400 font-bold">ONLINE</span>
+                                                </div>
+                                                <div class="flex justify-between items-center bg-[#1C273E] p-2 rounded">
+                                                    <span>Van #02 (Maruti Eeco)</span><span class="text-slate-500 font-bold">OFFLINE</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- School: Drivers -->
+                                    <div id="screen-school-drivers" class="story-screen hidden flex-grow flex flex-col justify-between">
+                                        <div>
+                                            <h4 class="text-xs font-bold text-white border-b border-slate-800 pb-1.5">Assigned Drivers list</h4>
+                                            <div class="space-y-1.5 text-[8.5px] mt-2">
+                                                <div class="flex justify-between items-center bg-[#1C273E] p-2 rounded">
+                                                    <span>Ramesh Kumar (Route 04)</span><span class="text-yellow-400">⭐ 4.9</span>
+                                                </div>
+                                                <div class="flex justify-between items-center bg-[#1C273E] p-2 rounded">
+                                                    <span>Amit Sen (Route 11)</span><span class="text-yellow-400">⭐ 4.7</span>
+                                                </div>
+                                                <div class="flex justify-between items-center bg-[#1C273E] p-2 rounded">
+                                                    <span>K. Prasad (Route 02)</span><span class="text-yellow-400">⭐ 4.8</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- School: Students -->
+                                    <div id="screen-school-students" class="story-screen hidden flex-grow flex flex-col justify-between">
+                                        <div>
+                                            <h4 class="text-xs font-bold text-white border-b border-slate-800 pb-1.5">Student Directory</h4>
+                                            <div class="space-y-1.5 text-[8px] mt-2">
+                                                <div class="flex justify-between items-center bg-[#1C273E] p-2 rounded">
+                                                    <span>Aarav Gupta (Grade 4)</span><span class="text-slate-350">Route 04 - Stop 3</span>
+                                                </div>
+                                                <div class="flex justify-between items-center bg-[#1C273E] p-2 rounded">
+                                                    <span>Ananya Sen (Grade 2)</span><span class="text-slate-350">Route 11 - Stop 5</span>
+                                                </div>
+                                                <div class="flex justify-between items-center bg-[#1C273E] p-2 rounded">
+                                                    <span>Kabir Dev (Grade 6)</span><span class="text-slate-350">Route 04 - Stop 1</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- School: Routes -->
+                                    <div id="screen-school-routes" class="story-screen hidden flex-grow flex flex-col justify-between">
+                                        <div>
+                                            <h4 class="text-xs font-bold text-white border-b border-slate-800 pb-1.5">Route Configuration</h4>
+                                            <div class="space-y-1.5 text-[8.5px] mt-2">
+                                                <div class="flex justify-between items-center bg-[#1C273E] p-2 rounded border border-blue-500/20">
+                                                    <span>Route 04 - Sector-B Path</span><span class="font-bold">6 stops</span>
+                                                </div>
+                                                <div class="flex justify-between items-center bg-[#1C273E] p-2 rounded">
+                                                    <span>Route 11 - South-End Path</span><span class="font-bold">8 stops</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- School: Trips -->
+                                    <div id="screen-school-trips" class="story-screen hidden flex-grow flex flex-col justify-between">
+                                        <div>
+                                            <h4 class="text-xs font-bold text-white border-b border-slate-800 pb-1.5">Live Operational Feed</h4>
+                                            <div class="space-y-1.5 text-[8px] mt-2">
+                                                <div class="bg-blue-950/40 p-2 rounded border border-blue-500/20 text-blue-350 flex justify-between">
+                                                    <span>• Route 04 Started Trip</span><span>07:30 AM</span>
+                                                </div>
+                                                <div class="bg-[#f97316]merald-950/40 p-2 rounded border border-emerald-500/20 text-emerald-400 flex justify-between">
+                                                    <span>• Route 04 completed passenger pickup at Stop #3</span><span>07:42 AM</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- School: Reports -->
+                                    <div id="screen-school-reports" class="story-screen hidden flex-grow flex flex-col justify-between">
+                                        <div>
+                                            <h4 class="text-xs font-bold text-white border-b border-slate-800 pb-1.5">Monthly Reports Summary</h4>
+                                            <div class="grid grid-cols-2 gap-2 mt-2">
+                                                <div class="bg-[#1C273E] p-2 rounded text-center">
+                                                    <span class="text-[7px] text-slate-400 uppercase font-bold">Speed Adherence</span>
+                                                    <p class="text-xs font-black text-emerald-400">99.2%</p>
+                                                </div>
+                                                <div class="bg-[#1C273E] p-2 rounded text-center">
+                                                    <span class="text-[7px] text-slate-400 uppercase font-bold">Fuel costs reduced</span>
+                                                    <p class="text-xs font-black text-blue-400">15.4%</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Parent Experience Section -->
+        <section id="parent-experience" class="py-24 bg-gradient-to-b from-white to-slate-50 border-t border-slate-900/80 overflow-hidden relative">
+            <!-- Background floating ambient bubbles -->
+            <div class="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-rose-500/5 blur-[120px] pointer-events-none"></div>
+            <div class="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-lime-950/20/5 blur-[120px] pointer-events-none"></div>
+            
+            <div class="mx-auto max-w-7xl px-6 relative z-10">
+                <!-- Title Header -->
+                <div class="text-center max-w-3xl mx-auto space-y-4 mb-20">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-lime-950/20 text-lime-400 text-xs font-semibold uppercase tracking-wider border border-lime-500/20/50">
+                        Parent Experience
+                    </div>
+                    <h2 class="text-3xl sm:text-5xl font-extrabold text-slate-200 tracking-tight animate-fade-in">Parents Always Know</h2>
+                    <p class="text-slate-500 text-sm sm:text-base leading-relaxed">
+                        No guesswork, no curb-side waiting in the rain, no frantic phone calls. Walk through the morning journey of absolute peace of mind.
+                    </p>
+                </div>
+
+                <!-- 5-Step Connected Timeline Layout -->
+                <div class="relative">
+                    
+                    <!-- SVG Connecting Flow Line (Visible on Desktop) -->
+                    <div class="absolute top-1/2 left-0 w-full h-1 transform -translate-y-1/2 hidden md:block z-0 opacity-40">
+                        <svg class="w-full h-4" fill="none" viewBox="0 0 1200 16" preserveAspectRatio="none">
+                            <path d="M 0 8 Q 150 0, 300 8 T 600 8 T 900 8 T 1200 8" stroke="url(#transport-flow-gradient)" stroke-width="3" stroke-dasharray="8 6" stroke-linecap="round"/>
+                            <defs>
+                                <linearGradient id="flow-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#4f46e5" />
+                                    <stop offset="50%" stop-color="#ec4899" />
+                                    <stop offset="100%" stop-color="#10b981" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-8 relative z-10">
+                        
+                        <!-- Step 1: Child leaves home -->
+                        <div class="bg-[#121824] border border-slate-850 rounded-3xl p-6 shadow-xl shadow-black/40 text-slate-200 hover:-translate-y-1.5 duration-300 relative overflow-hidden flex flex-col justify-between items-center text-center group">
+                            <span class="absolute top-3 right-3 text-[9px] font-black px-2 py-0.5 rounded-full bg-lime-950/20 text-lime-400">STEP 1</span>
+                            
+                            <!-- Custom visual graphic -->
+                            <div class="w-20 h-20 rounded-2xl bg-lime-950/20 flex items-center justify-center text-4xl mb-6 relative group-hover:scale-105 duration-300">
+                                <span class="relative z-10">🏡</span>
+                                <div class="absolute inset-0 bg-blue-200/20 rounded-2xl blur group-hover:scale-110 duration-300"></div>
+                            </div>
+                            
+                            <div class="space-y-2 flex-grow flex flex-col justify-center">
+                                <h3 class="text-base font-extrabold text-slate-200 group-hover:text-blue-650 duration-350">Child Leaves Home</h3>
+                                <p class="text-xs text-slate-550 leading-relaxed">
+                                    Your child steps out the door with backpack ready. You wave goodbye knowing transport is perfectly synced.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Vehicle Approaching -->
+                        <div class="bg-[#121824] border border-slate-850 rounded-3xl p-6 shadow-xl shadow-black/40 text-slate-200 hover:-translate-y-1.5 duration-300 relative overflow-hidden flex flex-col justify-between items-center text-center group">
+                            <span class="absolute top-3 right-3 text-[9px] font-black px-2 py-0.5 rounded-full bg-rose-50 text-rose-600">STEP 2</span>
+                            
+                            <!-- Custom visual graphic -->
+                            <div class="w-20 h-20 rounded-2xl bg-rose-50 flex items-center justify-center text-4xl mb-6 relative group-hover:scale-105 duration-300">
+                                <span class="relative z-10">📲</span>
+                                <div class="absolute -top-1 -right-1 w-4.5 h-4.5 bg-rose-500 rounded-full text-white text-[8px] font-black flex items-center justify-center animate-bounce">1</div>
+                                <div class="absolute inset-0 bg-rose-200/20 rounded-2xl blur group-hover:scale-110 duration-300"></div>
+                            </div>
+                            
+                            <div class="space-y-2 flex-grow flex flex-col justify-center">
+                                <h3 class="text-base font-extrabold text-slate-200 group-hover:text-rose-600 duration-350">Vehicle Approaching</h3>
+                                <p class="text-xs text-slate-550 leading-relaxed">
+                                    App alerts you when the bus is exactly 5 minutes away. No waiting outside in scorching heat or cold rain.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Pickup Alert -->
+                        <div class="bg-[#121824] border border-slate-850 rounded-3xl p-6 shadow-xl shadow-black/40 text-slate-200 hover:-translate-y-1.5 duration-300 relative overflow-hidden flex flex-col justify-between items-center text-center group">
+                            <span class="absolute top-3 right-3 text-[9px] font-black px-2 py-0.5 rounded-full bg-amber-50 text-amber-600">STEP 3</span>
+                            
+                            <!-- Custom visual graphic -->
+                            <div class="w-20 h-20 rounded-2xl bg-amber-50 flex items-center justify-center text-4xl mb-6 relative group-hover:scale-105 duration-300">
+                                <span class="relative z-10">🚌</span>
+                                <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-[#f97316]merald-500 rounded-full text-white text-xs font-black flex items-center justify-center">✓</div>
+                                <div class="absolute inset-0 bg-amber-200/20 rounded-2xl blur group-hover:scale-110 duration-300"></div>
+                            </div>
+                            
+                            <div class="space-y-2 flex-grow flex flex-col justify-center">
+                                <h3 class="text-base font-extrabold text-slate-200 group-hover:text-amber-600 duration-350">Pickup Confirmation</h3>
+                                <p class="text-xs text-slate-550 leading-relaxed">
+                                    Get an instant push notification the split-second your child boards and the vehicle starts rolling.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Live Tracking -->
+                        <div class="bg-[#121824] border border-slate-850 rounded-3xl p-6 shadow-xl shadow-black/40 text-slate-200 hover:-translate-y-1.5 duration-300 relative overflow-hidden flex flex-col justify-between items-center text-center group">
+                            <span class="absolute top-3 right-3 text-[9px] font-black px-2 py-0.5 rounded-full bg-amber-50 text-amber-600">STEP 4</span>
+                            
+                            <!-- Custom visual graphic -->
+                            <div class="w-20 h-20 rounded-2xl bg-amber-50 flex items-center justify-center text-4xl mb-6 relative group-hover:scale-105 duration-300">
+                                <span class="relative z-10">📍</span>
+                                <div class="absolute inset-0 bg-violet-200/20 rounded-2xl blur group-hover:scale-110 duration-300"></div>
+                            </div>
+                            
+                            <div class="space-y-2 flex-grow flex flex-col justify-center">
+                                <h3 class="text-base font-extrabold text-slate-200 group-hover:text-violet-600 duration-350">Live Path Tracking</h3>
+                                <p class="text-xs text-slate-550 leading-relaxed">
+                                    Watch the bus progress dynamically on the map. Know speed, location, and delay updates instantly.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Step 5: Reached School Notification -->
+                        <div class="bg-[#121824] border border-slate-850 rounded-3xl p-6 shadow-xl shadow-black/40 text-slate-200 hover:-translate-y-1.5 duration-300 relative overflow-hidden flex flex-col justify-between items-center text-center group">
+                            <span class="absolute top-3 right-3 text-[9px] font-black px-2 py-0.5 rounded-full bg-[#f97316]merald-50 text-emerald-600">STEP 5</span>
+                            
+                            <!-- Custom visual graphic -->
+                            <div class="w-20 h-20 rounded-2xl bg-[#f97316]merald-50 flex items-center justify-center text-4xl mb-6 relative group-hover:scale-105 duration-300">
+                                <span class="relative z-10">🏫</span>
+                                <div class="absolute inset-0 bg-[#f97316]merald-200/20 rounded-2xl blur group-hover:scale-110 duration-300"></div>
+                            </div>
+                            
+                            <div class="space-y-2 flex-grow flex flex-col justify-center">
+                                <h3 class="text-base font-extrabold text-slate-200 group-hover:text-emerald-600 duration-350">Classroom Arrival</h3>
+                                <p class="text-xs text-slate-550 leading-relaxed">
+                                    "Aarav reached St. Jude's School." Sit back and start your day knowing they have arrived safely.
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Emotional Footer Banner -->
+                <div class="mt-16 bg-gradient-to-r from-blue-950 to-slate-900 rounded-3xl p-8 text-center text-white relative overflow-hidden shadow-2xl border border-blue-500/20">
+                    <div class="absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px] opacity-5"></div>
+                    <div class="relative z-10 max-w-2xl mx-auto space-y-4">
+                        <p class="text-xs uppercase font-extrabold tracking-widest text-blue-300">Peace of mind for families</p>
+                        <h4 class="text-xl sm:text-2xl font-extrabold">Because nothing matters more than a safe arrival.</h4>
+                        <p class="text-slate-350 text-xs sm:text-sm">
+                            Schools using WheelsTracker report a 98% parent satisfaction rate in the first month. Give your families the security they deserve.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Driver Experience Section -->
+        <section id="driver-experience" class="py-24 bg-slate-900 text-white relative overflow-hidden">
+            <!-- Glowing background accents -->
+            <div class="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-[#f97316]merald-500/10 blur-[120px] pointer-events-none"></div>
+            <div class="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-lime-950/20/10 blur-[120px] pointer-events-none"></div>
+
+            <div class="mx-auto max-w-7xl px-6 relative z-10">
+                <!-- Section Header -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center mb-16">
+                    <div class="lg:col-span-8 space-y-4 text-left">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-emerald-400 text-xs font-semibold uppercase tracking-wider border border-white/5">
+                            Driver App Simplicity
+                        </div>
+                        <h2 class="text-3xl sm:text-5xl font-black tracking-tight">Driver Experience</h2>
+                        <p class="text-slate-400 text-sm sm:text-base leading-relaxed max-w-2xl">
+                            We know that school bus and auto drivers are not technology experts. That’s why we built a hands-free app with oversized indicators and zero typing requirements.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Split Interactive Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                    
+                    <!-- Left: Timeline Selector & Simplicity Callout (col-span-5) -->
+                    <div class="lg:col-span-5 space-y-8 text-left">
+                        
+                        <!-- Timeline steps list -->
+                        <div class="space-y-4 relative">
+                            <!-- Vertical track line indicator -->
+                            <div class="absolute left-6 top-6 bottom-6 w-0.5 bg-slate-800"></div>
+
+                            <!-- Step 1: Start Trip -->
+                            <div onclick="setDriverExpStep(0)" id="driver-exp-step-0" class="relative pl-14 py-2 cursor-pointer group transition-all duration-300 opacity-100">
+                                <div id="driver-exp-node-0" class="absolute left-2.5 top-2.5 w-7 h-7 rounded-full bg-[#f97316]merald-500 text-slate-950 font-black text-xs flex items-center justify-center ring-4 ring-emerald-500/20 transition-all duration-300">1</div>
+                                <h3 class="text-sm font-extrabold text-white group-hover:text-emerald-400 duration-300">Start Trip</h3>
+                                <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                                    Drivers open the app, view their route card, and tap a single large green button to begin.
+                                </p>
+                            </div>
+
+                            <!-- Step 2: Live GPS -->
+                            <div onclick="setDriverExpStep(1)" id="driver-exp-step-1" class="relative pl-14 py-2 cursor-pointer group transition-all duration-300 opacity-60 hover:opacity-100">
+                                <div id="driver-exp-node-1" class="absolute left-2.5 top-2.5 w-7 h-7 rounded-full bg-slate-800 text-slate-400 font-bold text-xs flex items-center justify-center transition-all duration-300">2</div>
+                                <h3 class="text-sm font-extrabold text-white group-hover:text-emerald-400 duration-300">Live GPS Active</h3>
+                                <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                                    Runs completely in the background. Hands-free tracking keeps drivers focused on the road.
+                                </p>
+                            </div>
+
+                            <!-- Step 3: Pickup Complete -->
+                            <div onclick="setDriverExpStep(2)" id="driver-exp-step-2" class="relative pl-14 py-2 cursor-pointer group transition-all duration-300 opacity-60 hover:opacity-100">
+                                <div id="driver-exp-node-2" class="absolute left-2.5 top-2.5 w-7 h-7 rounded-full bg-slate-800 text-slate-400 font-bold text-xs flex items-center justify-center transition-all duration-300">3</div>
+                                <h3 class="text-sm font-extrabold text-white group-hover:text-emerald-400 duration-300">Pickup Checked</h3>
+                                <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                                    A simple checklist displays students at each stop. Tap checkmarks to mark boarded kids.
+                                </p>
+                            </div>
+
+                            <!-- Step 4: Drop Complete -->
+                            <div onclick="setDriverExpStep(3)" id="driver-exp-step-3" class="relative pl-14 py-2 cursor-pointer group transition-all duration-300 opacity-60 hover:opacity-100">
+                                <div id="driver-exp-node-3" class="absolute left-2.5 top-2.5 w-7 h-7 rounded-full bg-slate-800 text-slate-400 font-bold text-xs flex items-center justify-center transition-all duration-300">4</div>
+                                <h3 class="text-sm font-extrabold text-white group-hover:text-emerald-400 duration-300">Drop Confirmation</h3>
+                                <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                                    Tap confirmation once the bus pulls into the school gate. Parents get notified instantly.
+                                </p>
+                            </div>
+
+                            <!-- Step 5: End Trip -->
+                            <div onclick="setDriverExpStep(4)" id="driver-exp-step-4" class="relative pl-14 py-2 cursor-pointer group transition-all duration-300 opacity-60 hover:opacity-100">
+                                <div id="driver-exp-node-4" class="absolute left-2.5 top-2.5 w-7 h-7 rounded-full bg-slate-800 text-slate-400 font-bold text-xs flex items-center justify-center transition-all duration-300">5</div>
+                                <h3 class="text-sm font-extrabold text-white group-hover:text-emerald-400 duration-300">End Trip</h3>
+                                <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                                    Tap to close route logs. The app prompts a visual seating check to ensure no children remain.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Simplicity Callout -->
+                        <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-6 space-y-3 shadow-lg">
+                            <h4 class="text-sm font-extrabold text-emerald-400 flex items-center gap-2">
+                                ✨ No Technical Knowledge Required
+                            </h4>
+                            <p class="text-xs text-slate-300 leading-relaxed">
+                                If your drivers know how to send a WhatsApp message, they can master WheelsTracker in 60 seconds. Our UI features oversized buttons, visual checklists, and zero typing fields.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <!-- Right: Smartphone view showing simple screens (col-span-7) -->
+                    <div class="lg:col-span-7 flex justify-center">
+                        <div class="w-[285px] h-[480px] rounded-[44px] bg-slate-950 p-3 border-[6px] border-slate-800 shadow-2xl relative flex flex-col overflow-hidden">
+                            <!-- notch -->
+                            <div class="absolute top-2 left-1/2 transform -translate-x-1/2 w-28 h-4.5 bg-slate-800 rounded-full z-20 flex items-center justify-center">
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-900"></span>
+                            </div>
+                            <div class="flex-grow rounded-[32px] bg-slate-900 p-4 text-left flex flex-col justify-between relative overflow-hidden text-white pt-6">
+                                
+                                <!-- Screen 1: Start Trip -->
+                                <div id="driver-exp-screen-0" class="driver-screen-layer active flex flex-col justify-between h-full">
+                                    <div class="text-center border-b border-slate-800 pb-2">
+                                        <h4 class="text-xs font-black">Route Dispatch</h4>
+                                        <p class="text-[8px] text-emerald-400 font-bold uppercase mt-0.5">Route 04: morning transit</p>
+                                    </div>
+                                    <div class="my-auto space-y-4 py-4 text-center">
+                                        <div class="text-4xl">🚌</div>
+                                        <div>
+                                            <p class="text-xs font-extrabold text-white">Ready for Dispatch</p>
+                                            <p class="text-[8.5px] text-slate-400 mt-1">Checklist confirmed: Seatbelts checked, fuel level 92%</p>
+                                        </div>
+                                        <button class="w-full py-4 rounded-xl bg-emerald-600 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/20 active:scale-[0.98] duration-150">
+                                            🛫 Start Trip
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Screen 2: Live GPS -->
+                                <div id="driver-exp-screen-1" class="driver-screen-layer hidden flex flex-col justify-between h-full">
+                                    <div class="text-center border-b border-slate-800 pb-2">
+                                        <h4 class="text-xs font-black">Live Tracking</h4>
+                                        <p class="text-[8px] text-emerald-400 font-bold uppercase mt-0.5">Hands-free background active</p>
+                                    </div>
+                                    <div class="my-auto text-center space-y-4 py-4">
+                                        <div class="w-16 h-16 bg-[#f97316]merald-500/10 rounded-full flex items-center justify-center mx-auto border border-emerald-500/30 animate-pulse">
+                                            <span class="text-3xl text-emerald-400">📡</span>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-extrabold text-white">Broadcasting Live Coordinates</p>
+                                            <p class="text-[8.5px] text-slate-400 mt-1">Vehicle Speed: 32 km/h • GPS Signal: Excellent</p>
+                                        </div>
+                                    </div>
+                                    <div class="p-2 bg-[#f97316]merald-950/20 border border-emerald-500/20 text-emerald-400 text-center rounded-xl text-[8.5px]">
+                                        🟢 Live Connection Secured
+                                    </div>
+                                </div>
+
+                                <!-- Screen 3: Pickup Complete -->
+                                <div id="driver-exp-screen-2" class="driver-screen-layer hidden flex flex-col justify-between h-full">
+                                    <div class="text-center border-b border-slate-800 pb-2">
+                                        <h4 class="text-xs font-black">Stop #3: Sector-B Stop</h4>
+                                        <p class="text-[8px] text-emerald-400 font-bold uppercase mt-0.5">Student Boarding Checklist</p>
+                                    </div>
+                                    <div class="my-3 space-y-2 flex-grow overflow-y-auto max-h-[220px]">
+                                        <div class="bg-slate-850 p-2.5 rounded-lg border border-slate-800 flex justify-between items-center text-[9px]">
+                                            <div><p class="font-bold text-white">Aarav Gupta</p><p class="text-[7.5px] text-slate-400">Seat 12</p></div>
+                                            <span class="text-[8.5px] text-emerald-400 font-extrabold">BOARDED ✓</span>
+                                        </div>
+                                        <div class="bg-slate-850 p-2.5 rounded-lg border border-slate-800 flex justify-between items-center text-[9px]">
+                                            <div><p class="font-bold text-white">Ananya Sen</p><p class="text-[7.5px] text-slate-400">Seat 05</p></div>
+                                            <span class="text-[8.5px] text-emerald-400 font-extrabold">BOARDED ✓</span>
+                                        </div>
+                                    </div>
+                                    <button class="w-full py-2 bg-emerald-600 text-white font-extrabold text-[9px] rounded-lg text-center mt-auto">
+                                        ✓ Pickup Complete
+                                    </button>
+                                </div>
+
+                                <!-- Screen 4: Drop Complete -->
+                                <div id="driver-exp-screen-3" class="driver-screen-layer hidden flex flex-col justify-between h-full">
+                                    <div class="text-center border-b border-slate-800 pb-2">
+                                        <h4 class="text-xs font-black">Gate Arrival</h4>
+                                        <p class="text-[8px] text-emerald-400 font-bold uppercase mt-0.5">School arrival confirmation</p>
+                                    </div>
+                                    <div class="my-auto text-center space-y-4 py-4">
+                                        <div class="text-4xl">🏫</div>
+                                        <div>
+                                            <p class="text-xs font-extrabold text-white">Arrived at St. Jude's School</p>
+                                            <p class="text-[8.5px] text-slate-400 mt-1">28 students on board. Ready for gate checkout.</p>
+                                        </div>
+                                        <button class="w-full py-3 rounded-xl bg-lime-400 hover:bg-lime-300 text-slate-950 font-black font-black text-xxs uppercase tracking-wider shadow-lg">
+                                            🚪 Confirm School Drop
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Screen 5: End Trip -->
+                                <div id="driver-exp-screen-4" class="driver-screen-layer hidden flex flex-col justify-between h-full">
+                                    <div class="text-center border-b border-slate-800 pb-2">
+                                        <h4 class="text-xs font-black">Route Completed</h4>
+                                        <p class="text-[8px] text-emerald-400 font-bold uppercase mt-0.5">Trip verification checks</p>
+                                    </div>
+                                    <div class="my-auto space-y-3 py-4 text-center">
+                                        <div class="text-4xl font-extrabold text-rose-500">⚠️ Check Seats</div>
+                                        <p class="text-[9px] text-slate-350 leading-relaxed px-2">
+                                            Safety Protocol: Please walk to the back of the bus and verify no children or items remain.
+                                        </p>
+                                        <button class="w-full py-3 rounded-xl bg-red-650 hover:bg-red-600 text-white font-black text-xxs uppercase tracking-wider">
+                                            🛑 End Trip
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        </section>
+
+        <!-- School Dashboard Section -->
+        <section id="school-dashboard" class="py-24 bg-[#0A0D16] border-t border-slate-900/60 overflow-hidden relative text-white">
+            <!-- Ambient backdrop gradients -->
+            <div class="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-lime-950/20/5 blur-[120px] pointer-events-none"></div>
+            <div class="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-violet-500/5 blur-[120px] pointer-events-none"></div>
+            
+            <div class="mx-auto max-w-7xl px-6 relative z-10">
+                <!-- Section Header -->
+                <div class="text-center max-w-3xl mx-auto space-y-4 mb-16">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-lime-950/20 text-lime-400 text-xs font-semibold uppercase tracking-wider border border-lime-500/20/50">
+                        Central Control Console
+                    </div>
+                    <h2 class="text-3xl sm:text-5xl font-extrabold text-slate-200 tracking-tight">One Dashboard. Total Operational Control.</h2>
+                    <p class="text-slate-500 text-sm sm:text-base leading-relaxed">
+                        Monitor routes, dispatch drivers, manage student rosters, and audit fleet analytics from a single desktop dashboard built for school administration teams.
+                    </p>
+                </div>
+
+                <!-- Split Interactive Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                    
+                    <!-- Left: Interactive Highlights Selector (col-span-4) -->
+                    <div class="lg:col-span-4 space-y-2 text-left">
+                        <h4 class="text-xs font-extrabold text-slate-400 uppercase tracking-widest px-3 mb-4">Dashboard Highlights</h4>
+                        
+                        <!-- Highlight 1: Vehicle Management -->
+                        <button onclick="setSchoolConsoleStep(0)" id="school-highlight-step-0" class="relative flex items-center gap-3 p-3.5 w-full rounded-xl bg-lime-950/20 text-lime-400 border-l-4 border-l-lime-400 font-bold transition-all duration-300 text-left">
+                            🚌 Vehicle Management
+                        </button>
+                        
+                        <!-- Highlight 2: Driver Management -->
+                        <button onclick="setSchoolConsoleStep(1)" id="school-highlight-step-1" class="relative flex items-center gap-3 p-3.5 w-full rounded-xl bg-transparent text-slate-400 hover:bg-[#111724] hover:text-slate-200 border-l-4 border-l-transparent transition-all duration-300 text-left">
+                            👨‍✈️ Driver Management
+                        </button>
+                        
+                        <!-- Highlight 3: Route Management -->
+                        <button onclick="setSchoolConsoleStep(2)" id="school-highlight-step-2" class="relative flex items-center gap-3 p-3.5 w-full rounded-xl bg-transparent text-slate-400 hover:bg-[#111724] hover:text-slate-200 border-l-4 border-l-transparent transition-all duration-300 text-left">
+                            🛣️ Route Management
+                        </button>
+                        
+                        <!-- Highlight 4: Student Management -->
+                        <button onclick="setSchoolConsoleStep(3)" id="school-highlight-step-3" class="relative flex items-center gap-3 p-3.5 w-full rounded-xl bg-transparent text-slate-400 hover:bg-[#111724] hover:text-slate-200 border-l-4 border-l-transparent transition-all duration-300 text-left">
+                            🎓 Student Management
+                        </button>
+                        
+                        <!-- Highlight 5: Transport Reports -->
+                        <button onclick="setSchoolConsoleStep(4)" id="school-highlight-step-4" class="relative flex items-center gap-3 p-3.5 w-full rounded-xl bg-transparent text-slate-400 hover:bg-[#111724] hover:text-slate-200 border-l-4 border-l-transparent transition-all duration-300 text-left">
+                            📊 Transport Reports
+                        </button>
+                        
+                        <!-- Highlight 6: Live Vehicle Monitoring -->
+                        <button onclick="setSchoolConsoleStep(5)" id="school-highlight-step-5" class="relative flex items-center gap-3 p-3.5 w-full rounded-xl bg-transparent text-slate-400 hover:bg-[#111724] hover:text-slate-200 border-l-4 border-l-transparent transition-all duration-300 text-left">
+                            📡 Live Vehicle Monitoring
+                        </button>
+                        
+                        <!-- Highlight 7: Daily Trips -->
+                        <button onclick="setSchoolConsoleStep(6)" id="school-highlight-step-6" class="relative flex items-center gap-3 p-3.5 w-full rounded-xl bg-transparent text-slate-400 hover:bg-[#111724] hover:text-slate-200 border-l-4 border-l-transparent transition-all duration-300 text-left">
+                            📈 Daily Trips Log
+                        </button>
+                    </div>
+
+                    <!-- Right: Large Widescreen Browser Mockup (col-span-8) -->
+                    <div class="lg:col-span-8 flex justify-center bg-[#090D1A] rounded-[24px] border border-slate-800 shadow-2xl p-4 md:p-6 min-h-[460px] relative overflow-hidden">
+                        
+                        <!-- Grid pattern -->
+                        <div class="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:20px_20px] opacity-40 pointer-events-none"></div>
+
+                        <!-- Browser Chassis -->
+                        <div class="w-full rounded-xl bg-[#111625] border border-slate-800 shadow-xl flex flex-col overflow-hidden text-white relative z-10">
+                            <!-- Title Bar -->
+                            <div class="flex items-center justify-between pb-2 border-b border-slate-900 px-3 pt-2">
+                                <div class="flex gap-1.5">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-red-500/80"></span>
+                                    <span class="w-2.5 h-2.5 rounded-full bg-yellow-500/80"></span>
+                                    <span class="w-2.5 h-2.5 rounded-full bg-green-500/80"></span>
+                                </div>
+                                <span class="text-[8px] text-slate-500 font-mono">admin.wheelstracker.app/dashboard</span>
+                                <span class="text-[8px] bg-blue-600/20 text-blue-400 px-2 py-0.5 rounded font-extrabold scale-90 border border-blue-500/30">SCHOOL ADMIN</span>
+                            </div>
+                            <div class="bg-[#151D30] rounded-b-xl p-5 text-left min-h-[350px] flex flex-col justify-between">
+                                
+                                <!-- Step 0: Vehicle Management -->
+                                <div id="school-dashboard-view-0" class="school-dashboard-layer active flex-grow flex flex-col justify-between">
+                                    <div>
+                                        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                                            <h4 class="text-xs font-black">Vehicle Registry Fleet</h4>
+                                            <span class="text-[8px] bg-slate-800 text-slate-350 px-2 py-0.5 rounded border border-slate-700">Total: 12 Vehicles</span>
+                                        </div>
+                                        <div class="space-y-1.5 text-[8.5px] mt-3">
+                                            <div class="flex justify-between items-center bg-[#1C273E] p-2.5 rounded border border-slate-800">
+                                                <span>🚌 Bus #04 (Force Traveller)</span>
+                                                <div class="flex gap-3"><span class="text-emerald-400 font-bold">ONLINE</span><span class="text-slate-400">Fuel: 92%</span></div>
+                                            </div>
+                                            <div class="flex justify-between items-center bg-[#1C273E] p-2.5 rounded border border-slate-800">
+                                                <span>🚌 Bus #11 (Tata Starbus)</span>
+                                                <div class="flex gap-3"><span class="text-emerald-400 font-bold">ONLINE</span><span class="text-slate-400">Fuel: 68%</span></div>
+                                            </div>
+                                            <div class="flex justify-between items-center bg-[#1C273E] p-2.5 rounded border border-slate-800">
+                                                <span>🛺 Rickshaw #02 (Bajaj Maxima)</span>
+                                                <div class="flex gap-3"><span class="text-amber-400 font-bold">OFFLINE</span><span class="text-slate-400">Fuel: 15%</span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="p-2 bg-[#f97316]merald-950/20 border border-emerald-500/20 text-emerald-400 text-center rounded-xl text-[8.5px] mt-4">
+                                        ✓ Diagnostic systems normal. Fleet availability rate: 100%
+                                    </div>
+                                </div>
+
+                                <!-- Step 1: Driver Management -->
+                                <div id="school-dashboard-view-1" class="school-dashboard-layer hidden flex-grow flex flex-col justify-between">
+                                    <div>
+                                        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                                            <h4 class="text-xs font-black">Driver Roster Profiles</h4>
+                                            <span class="text-[8px] bg-slate-800 text-slate-350 px-2 py-0.5 rounded border border-slate-700">Total: 8 Drivers</span>
+                                        </div>
+                                        <div class="space-y-1.5 text-[8.5px] mt-3">
+                                            <div class="flex justify-between items-center bg-[#1C273E] p-2.5 rounded border border-slate-800">
+                                                <span>👨‍✈️ Ramesh Kumar (Route 04)</span>
+                                                <div class="flex gap-3"><span class="text-emerald-400">Active</span><span class="text-yellow-400">⭐ 4.9</span></div>
+                                            </div>
+                                            <div class="flex justify-between items-center bg-[#1C273E] p-2.5 rounded border border-slate-800">
+                                                <span>👨‍✈️ Amit Sen (Route 11)</span>
+                                                <div class="flex gap-3"><span class="text-emerald-400">Active</span><span class="text-yellow-400">⭐ 4.7</span></div>
+                                            </div>
+                                            <div class="flex justify-between items-center bg-[#1C273E] p-2.5 rounded border border-slate-800">
+                                                <span>👨‍✈️ K. Prasad (Route 02)</span>
+                                                <div class="flex gap-3"><span class="text-slate-500">Offline</span><span class="text-yellow-400">⭐ 4.8</span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Step 2: Route Management -->
+                                <div id="school-dashboard-view-2" class="school-dashboard-layer hidden flex-grow flex flex-col justify-between">
+                                    <div>
+                                        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                                            <h4 class="text-xs font-black">Active Route Network</h4>
+                                            <span class="text-[8px] bg-slate-800 text-slate-350 px-2 py-0.5 rounded border border-slate-700">Total: 6 Routes</span>
+                                        </div>
+                                        <div class="space-y-1.5 text-[8.5px] mt-3">
+                                            <div class="flex justify-between items-center bg-[#1C273E] p-2.5 rounded border border-slate-800">
+                                                <span>🛣️ Route 04 (Sector-B Path)</span>
+                                                <div class="flex gap-3"><span class="text-slate-350">6 stops</span><span class="text-blue-400 font-bold">Configured</span></div>
+                                            </div>
+                                            <div class="flex justify-between items-center bg-[#1C273E] p-2.5 rounded border border-slate-800">
+                                                <span>🛣️ Route 11 (South-End Path)</span>
+                                                <div class="flex gap-3"><span class="text-slate-350">8 stops</span><span class="text-blue-400 font-bold">Configured</span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Step 3: Student Management -->
+                                <div id="school-dashboard-view-3" class="school-dashboard-layer hidden flex-grow flex flex-col justify-between">
+                                    <div>
+                                        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                                            <h4 class="text-xs font-black">Student Database & RFID Tags</h4>
+                                            <span class="text-[8px] bg-slate-800 text-slate-350 px-2 py-0.5 rounded border border-slate-700">Total: 204 Students</span>
+                                        </div>
+                                        <div class="space-y-1.5 text-[8px] mt-3">
+                                            <div class="flex justify-between items-center bg-[#1C273E] p-2 rounded">
+                                                <span>Aarav Gupta (Grade 4)</span>
+                                                <div class="flex gap-3"><span class="text-slate-400">RFID: FF-403</span><span class="text-emerald-400 font-bold">Checked In</span></div>
+                                            </div>
+                                            <div class="flex justify-between items-center bg-[#1C273E] p-2 rounded">
+                                                <span>Ananya Sen (Grade 2)</span>
+                                                <div class="flex gap-3"><span class="text-slate-400">RFID: FF-208</span><span class="text-emerald-400 font-bold">Checked In</span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Step 4: Transport Reports -->
+                                <div id="school-dashboard-view-4" class="school-dashboard-layer hidden flex-grow flex flex-col justify-between">
+                                    <div>
+                                        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                                            <h4 class="text-xs font-black">Operational KPIs Summary</h4>
+                                            <span class="text-[8px] bg-slate-800 text-slate-350 px-2 py-0.5 rounded border border-slate-700">July Reports</span>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-3 mt-4">
+                                            <div class="bg-[#1C273E] p-3 rounded text-center border border-slate-800">
+                                                <span class="text-[7.5px] text-slate-400 uppercase font-extrabold">Avg Speed limit adherence</span>
+                                                <p class="text-base font-black text-emerald-400 mt-1">99.4%</p>
+                                            </div>
+                                            <div class="bg-[#1C273E] p-3 rounded text-center border border-slate-800">
+                                                <span class="text-[7.5px] text-slate-400 uppercase font-extrabold">Fuel Consumption reduction</span>
+                                                <p class="text-base font-black text-blue-400 mt-1">15.4% Saved</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Step 5: Live Vehicle Monitoring -->
+                                <div id="school-dashboard-view-5" class="school-dashboard-layer hidden flex-grow flex flex-col justify-between">
+                                    <div>
+                                        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                                            <h4 class="text-xs font-black">Live Fleet Tracking</h4>
+                                            <span class="text-[8px] bg-blue-600/20 text-blue-400 px-2 py-0.5 rounded font-extrabold border border-blue-500/30 animate-pulse">2 VEHICLES ACTIVE</span>
+                                        </div>
+                                        <div class="h-28 bg-[#1C273E] rounded-lg border border-slate-800 overflow-hidden mt-3 relative flex items-center justify-center">
+                                            <!-- SVG vector route nodes -->
+                                            <svg class="absolute inset-0 w-full h-full p-2" viewBox="0 0 200 100" fill="none">
+                                                <path d="M 10 30 L 190 30 M 70 10 L 70 90" stroke="#334155" stroke-width="6"/>
+                                                <!-- Bus icon 1 -->
+                                                <g transform="translate(45, 24)">
+                                                    <circle cx="6" cy="6" r="6" fill="#f97316" class="animate-ping"/>
+                                                    <rect width="10" height="6" rx="1.5" fill="#f97316"/>
+                                                </g>
+                                                <!-- Bus icon 2 -->
+                                                <g transform="translate(125, 24)">
+                                                    <circle cx="6" cy="6" r="6" fill="#fbbf24" class="animate-ping"/>
+                                                    <rect width="10" height="6" rx="1.5" fill="#fbbf24"/>
+                                                </g>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Step 6: Daily Trips -->
+                                <div id="school-dashboard-view-6" class="school-dashboard-layer hidden flex-grow flex flex-col justify-between">
+                                    <div>
+                                        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                                            <h4 class="text-xs font-black">Trips Feed Logs</h4>
+                                            <span class="text-[8px] bg-slate-800 text-slate-350 px-2 py-0.5 rounded border border-slate-700">Today</span>
+                                        </div>
+                                        <div class="space-y-1.5 text-[8px] mt-3">
+                                            <div class="bg-blue-950/40 p-2 rounded border border-blue-500/20 text-blue-350 flex justify-between">
+                                                <span>• Route 04 Morning Trip Started</span><span>07:30 AM</span>
+                                            </div>
+                                            <div class="bg-[#f97316]merald-950/40 p-2 rounded border border-emerald-500/20 text-emerald-400 flex justify-between">
+                                                <span>• Route 04 School Gate drop-off completed</span><span>08:12 AM</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
             </div>
         </section>
 
         <!-- ROI & Trust Statistics Section -->
-        <section id="roi" class="py-20 bg-indigo-900 text-white relative overflow-hidden">
+        <section id="roi" class="py-20 bg-blue-950 text-white relative overflow-hidden">
             <div class="absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:32px_32px] opacity-5 pointer-events-none"></div>
             
             <div class="mx-auto max-w-7xl px-6 relative z-10">
@@ -661,32 +2291,32 @@
                     
                     <!-- Text ROI pitch -->
                     <div class="lg:col-span-6 space-y-6">
-                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-indigo-200 text-xs font-semibold uppercase tracking-wider">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-blue-200 text-xs font-semibold uppercase tracking-wider">
                             Measurable Impact
                         </div>
                         <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">The Financial & Administrative Return on Investment</h2>
-                        <p class="text-indigo-200 text-base sm:text-lg leading-relaxed">
-                            Implementing FleetFind is not just about tracking; it pays for itself by optimizing your fleet operations, decreasing driver fuel waste, and relieving administrative staff from repetitive inquiries.
+                        <p class="text-blue-200 text-base sm:text-lg leading-relaxed">
+                            Implementing WheelsTracker is not just about tracking; it pays for itself by optimizing your fleet operations, decreasing driver fuel waste, and relieving administrative staff from repetitive inquiries.
                         </p>
                         
                         <div class="space-y-4 pt-4">
                             <div class="flex items-start gap-3">
-                                <div class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <div class="w-6 h-6 rounded-full bg-[#f97316]merald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0 mt-0.5">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                                 </div>
-                                <p class="text-sm text-indigo-100"><strong>90% fewer incoming transport inquiries</strong>, giving administrative staff hours back daily to focus on admissions and school tasks.</p>
+                                <p class="text-sm text-blue-100"><strong>90% fewer incoming transport inquiries</strong>, giving administrative staff hours back daily to focus on admissions and school tasks.</p>
                             </div>
                             <div class="flex items-start gap-3">
-                                <div class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <div class="w-6 h-6 rounded-full bg-[#f97316]merald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0 mt-0.5">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                                 </div>
-                                <p class="text-sm text-indigo-100"><strong>15-20% fuel cost savings</strong> by utilizing route optimizations and stopping driver vehicle misuse.</p>
+                                <p class="text-sm text-blue-100"><strong>15-20% fuel cost savings</strong> by utilizing route optimizations and stopping driver vehicle misuse.</p>
                             </div>
                             <div class="flex items-start gap-3">
-                                <div class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <div class="w-6 h-6 rounded-full bg-[#f97316]merald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0 mt-0.5">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                                 </div>
-                                <p class="text-sm text-indigo-100"><strong>Boost school enrollment appeal</strong>. Safety and real-time visibility are powerful marketing points for prospective parents.</p>
+                                <p class="text-sm text-blue-100"><strong>Boost school enrollment appeal</strong>. Safety and real-time visibility are powerful marketing points for prospective parents.</p>
                             </div>
                         </div>
                     </div>
@@ -695,26 +2325,26 @@
                     <div class="lg:col-span-6 grid grid-cols-2 gap-6">
                         <div class="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 text-center">
                             <p class="text-4xl sm:text-5xl font-black text-cyan-400">90%</p>
-                            <p class="text-xs uppercase tracking-wider font-extrabold text-indigo-200 mt-2">Query Reduction</p>
-                            <p class="text-[11px] text-indigo-300 mt-1">Parents track independently</p>
+                            <p class="text-xs uppercase tracking-wider font-extrabold text-blue-200 mt-2">Query Reduction</p>
+                            <p class="text-[11px] text-blue-300 mt-1">Parents track independently</p>
                         </div>
 
                         <div class="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 text-center">
                             <p class="text-4xl sm:text-5xl font-black text-emerald-400">20%</p>
-                            <p class="text-xs uppercase tracking-wider font-extrabold text-indigo-200 mt-2">Fuel Cost Savings</p>
-                            <p class="text-[11px] text-indigo-300 mt-1">Due to AI optimized paths</p>
+                            <p class="text-xs uppercase tracking-wider font-extrabold text-blue-200 mt-2">Fuel Cost Savings</p>
+                            <p class="text-[11px] text-blue-300 mt-1">Due to AI optimized paths</p>
                         </div>
 
                         <div class="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 text-center">
                             <p class="text-4xl sm:text-5xl font-black text-yellow-400">100%</p>
-                            <p class="text-xs uppercase tracking-wider font-extrabold text-indigo-200 mt-2">Parent Adoption</p>
-                            <p class="text-[11px] text-indigo-300 mt-1">Instant, code-based access</p>
+                            <p class="text-xs uppercase tracking-wider font-extrabold text-blue-200 mt-2">Parent Adoption</p>
+                            <p class="text-[11px] text-blue-300 mt-1">Instant, code-based access</p>
                         </div>
 
                         <div class="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 text-center">
-                            <p class="text-4xl sm:text-5xl font-black text-indigo-300">15m</p>
-                            <p class="text-xs uppercase tracking-wider font-extrabold text-indigo-200 mt-2">Saved Per Trip</p>
-                            <p class="text-[11px] text-indigo-300 mt-1">By avoiding traffic bottlenecks</p>
+                            <p class="text-4xl sm:text-5xl font-black text-blue-300">15m</p>
+                            <p class="text-xs uppercase tracking-wider font-extrabold text-blue-200 mt-2">Saved Per Trip</p>
+                            <p class="text-[11px] text-blue-300 mt-1">By avoiding traffic bottlenecks</p>
                         </div>
                     </div>
 
@@ -723,40 +2353,40 @@
         </section>
 
         <!-- Testimonial Slider Section -->
-        <section id="testimonials" class="py-20 bg-white">
+        <section id="testimonials" class="py-20 bg-[#080B11] text-white border-t border-slate-900/60">
             <div class="mx-auto max-w-7xl px-6">
                 <div class="text-center max-w-3xl mx-auto space-y-4 mb-16">
-                    <h2 class="text-xs uppercase font-extrabold tracking-wider text-indigo-600">Client Reviews</h2>
-                    <p class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Trusted by School Administrators</p>
+                    <h2 class="text-xs uppercase font-extrabold tracking-wider text-lime-400">Client Reviews</h2>
+                    <p class="text-3xl sm:text-4xl font-extrabold text-slate-200 tracking-tight">Trusted by School Administrators</p>
                     <p class="text-slate-500">
-                        Here is how schools and transport operations have streamlined their daily student tracking and communication using FleetFind.
+                        Here is how schools and transport operations have streamlined their daily student tracking and communication using WheelsTracker.
                     </p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
                     <!-- Testimonial 1 -->
-                    <div class="bg-slate-50 rounded-2xl p-8 border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-6">
+                    <div class="bg-[#121824] rounded-2xl p-8 border border-slate-800 shadow-sm flex flex-col justify-between space-y-6">
                         <p class="text-slate-600 text-sm leading-relaxed italic">
-                            "Before FleetFind, our reception area was pure chaos between 7:30 AM and 8:30 AM, with dozens of parents calling to ask why buses were running late. Now, our staff can focus on actual administrative duties because parents check the bus ETA directly on their phones. Our parents are happier, and our office is peaceful."
+                            "Before WheelsTracker, our reception area was pure chaos between 7:30 AM and 8:30 AM, with dozens of parents calling to ask why buses were running late. Now, our staff can focus on actual administrative duties because parents check the bus ETA directly on their phones. Our parents are happier, and our office is peaceful."
                         </p>
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-indigo-600/10 flex items-center justify-center font-bold text-indigo-600">SM</div>
+                            <div class="w-10 h-10 rounded-full bg-blue-600/10 flex items-center justify-center font-bold text-lime-400">SM</div>
                             <div>
-                                <h4 class="text-sm font-bold text-slate-800">Sister Mary D'Souza</h4>
+                                <h4 class="text-sm font-bold text-slate-300">Sister Mary D'Souza</h4>
                                 <p class="text-[11px] text-slate-500">Principal, St. Jude's Secondary School</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Testimonial 2 -->
-                    <div class="bg-slate-50 rounded-2xl p-8 border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-6">
+                    <div class="bg-[#121824] rounded-2xl p-8 border border-slate-800 shadow-sm flex flex-col justify-between space-y-6">
                         <p class="text-slate-600 text-sm leading-relaxed italic">
-                            "We operate a fleet of 25 vans and buses across the city. Monitoring routes and driver behaviors was near impossible. FleetFind gave us route-deviation history and speeding logs in 24 hours. We reduced our monthly fuel invoice by 18% and improved student safety on day one."
+                            "We operate a fleet of 25 vans and buses across the city. Monitoring routes and driver behaviors was near impossible. WheelsTracker gave us route-deviation history and speeding logs in 24 hours. We reduced our monthly fuel invoice by 18% and improved student safety on day one."
                         </p>
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-full bg-cyan-600/10 flex items-center justify-center font-bold text-cyan-600">VK</div>
                             <div>
-                                <h4 class="text-sm font-bold text-slate-800">Vikram Khanna</h4>
+                                <h4 class="text-sm font-bold text-slate-300">Vikram Khanna</h4>
                                 <p class="text-[11px] text-slate-500">Director, Khanna Kids Transport Services</p>
                             </div>
                         </div>
@@ -766,19 +2396,19 @@
         </section>
 
         <!-- Final Call to Action -->
-        <section class="py-20 bg-gradient-to-t from-indigo-50/50 to-white border-t border-slate-100">
+        <section class="py-20 bg-gradient-to-t from-blue-50/50 to-white border-t border-slate-900/80">
             <div class="mx-auto max-w-4xl px-6 text-center space-y-8">
-                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-200 tracking-tight">
                     Ready to build a smarter, safer school transport network?
                 </h2>
                 <p class="text-slate-500 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-                    Set up your routes, map your stops, and invite parents. Start tracking with FleetFind in less than 24 hours. No hardware obligations.
+                    Set up your routes, map your stops, and invite parents. Start tracking with WheelsTracker in less than 24 hours. No hardware obligations.
                 </p>
                 <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
-                    <button onclick="openDemoModal()" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold shadow-xl shadow-indigo-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all-300">
+                    <button onclick="openDemoModal()" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-lime-400 hover:bg-lime-300 text-slate-950 font-black font-bold shadow-xl shadow-lime-500/10 hover:scale-[1.02] active:scale-[0.98] transition-all-300">
                         Schedule a Free Demo
                     </button>
-                    <button onclick="openVideoModal()" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-bold border border-slate-200/80 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all-300">
+                    <button onclick="openVideoModal()" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-transparent hover:bg-[#121824] text-slate-300 font-bold border border-slate-800 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all-300">
                         Explore Platform
                     </button>
                 </div>
@@ -787,48 +2417,48 @@
     </main>
 
     <!-- Footer -->
-    <footer class="w-full border-t border-slate-200 bg-white py-12">
+    <footer class="w-full border-t border-slate-950 bg-[#05070A] py-12 text-slate-400">
         <div class="mx-auto max-w-7xl px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
             <div class="space-y-4">
                 <div class="flex items-center gap-3">
-                    <div class="relative flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 shadow-md shadow-indigo-600/10">
-                        <img src="{{ asset('logo.png') }}" class="h-5 w-auto" alt="FleetFind Logo">
+                    <div class="relative flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 shadow-md shadow-blue-600/10">
+                        <img src="{{ asset('logo.png') }}" class="h-5 w-auto" alt="WheelsTracker Logo">
                     </div>
-                    <span class="text-lg font-bold tracking-tight text-slate-900">FleetFind</span>
+                    <span class="text-lg font-bold tracking-tight text-slate-200">WheelsTracker</span>
                 </div>
                 <p class="text-slate-400 text-xs leading-relaxed">
                     A clean, professional real-time GPS tracking and logistics solution designed specifically for schools and transport operators.
                 </p>
             </div>
             <div>
-                <h4 class="text-xs uppercase font-extrabold tracking-wider text-slate-900 mb-4">Product</h4>
+                <h4 class="text-xs uppercase font-extrabold tracking-wider text-slate-200 mb-4">Product</h4>
                 <ul class="space-y-2 text-xs text-slate-500">
-                    <li><a href="#features" class="hover:text-indigo-600">Features</a></li>
-                    <li><a href="#simulator" class="hover:text-indigo-600">Live Simulator</a></li>
-                    <li><a href="#roi" class="hover:text-indigo-600">Administrative ROI</a></li>
+                    <li><a href="#features" class="hover:text-lime-400">Features</a></li>
+                    <li><a href="#simulator" class="hover:text-lime-400">Live Simulator</a></li>
+                    <li><a href="#roi" class="hover:text-lime-400">Administrative ROI</a></li>
                 </ul>
             </div>
             <div>
-                <h4 class="text-xs uppercase font-extrabold tracking-wider text-slate-900 mb-4">Company</h4>
+                <h4 class="text-xs uppercase font-extrabold tracking-wider text-slate-200 mb-4">Company</h4>
                 <ul class="space-y-2 text-xs text-slate-500">
-                    <li><a href="#" class="hover:text-indigo-600">Privacy Policy</a></li>
-                    <li><a href="#" class="hover:text-indigo-600">Terms of Service</a></li>
-                    <li><a href="#" class="hover:text-indigo-600">Contact Sales</a></li>
+                    <li><a href="#" class="hover:text-lime-400">Privacy Policy</a></li>
+                    <li><a href="#" class="hover:text-lime-400">Terms of Service</a></li>
+                    <li><a href="#" class="hover:text-lime-400">Contact Sales</a></li>
                 </ul>
             </div>
             <div class="space-y-3">
-                <h4 class="text-xs uppercase font-extrabold tracking-wider text-slate-900 mb-4">Receive Updates</h4>
+                <h4 class="text-xs uppercase font-extrabold tracking-wider text-slate-200 mb-4">Receive Updates</h4>
                 <form onsubmit="event.preventDefault(); alert('Subscribed!')" class="flex gap-2">
-                    <input type="email" placeholder="Work email" required class="min-w-0 flex-grow rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-indigo-500 focus:outline-none">
-                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-4 py-2 rounded-lg transition-colors">
+                    <input type="email" placeholder="Work email" required class="min-w-0 flex-grow rounded-lg border border-slate-900/80 px-3 py-2 text-xs focus:border-blue-500 focus:outline-none">
+                    <button type="submit" class="bg-lime-400 hover:bg-lime-300 text-slate-950 font-black font-semibold text-xs px-4 py-2 rounded-lg transition-colors">
                         Join
                     </button>
                 </form>
             </div>
         </div>
-        <div class="mx-auto max-w-7xl px-6 mt-12 pt-6 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center text-slate-400 text-xs gap-4">
-            <p>&copy; {{ date('Y') }} FleetFind. All rights reserved.</p>
-            <p>Designed for schools and transport management authorities. <span class="block sm:inline sm:ml-1">(Designed & developed by <a href="https://leenaitsolutions.in/" target="_blank" rel="noopener" class="text-indigo-500 hover:text-indigo-600 font-semibold underline transition-colors">Leena IT Solutions</a>)</span></p>
+        <div class="mx-auto max-w-7xl px-6 mt-12 pt-6 border-t border-slate-900/80 flex flex-col sm:flex-row justify-between items-center text-slate-400 text-xs gap-4">
+            <p>&copy; {{ date('Y') }} WheelsTracker. All rights reserved.</p>
+            <p>Designed for schools and transport management authorities. <span class="block sm:inline sm:ml-1">(Designed & developed by <a href="https://leenaitsolutions.in/" target="_blank" rel="noopener" class="text-blue-500 hover:text-lime-400 font-semibold underline transition-colors">Leena IT Solutions</a>)</span></p>
         </div>
     </footer>
 
@@ -839,7 +2469,7 @@
 
         <!-- Modal Content Container -->
         <div class="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
-            <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-slate-100">
+            <div class="relative transform overflow-hidden rounded-2xl bg-[#0C101A] text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-slate-850 text-slate-200">
                 <!-- Close Button -->
                 <button onclick="closeDemoModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 focus:outline-none">
                     <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -852,7 +2482,7 @@
                     <div class="space-y-2">
                         <h3 class="text-xl font-extrabold text-slate-950" id="modal-title">Book a Free 15-Min Demo</h3>
                         <p class="text-xs text-slate-500">
-                            See how FleetFind solves parent queries and driver management for your specific fleet size.
+                            See how WheelsTracker solves parent queries and driver management for your specific fleet size.
                         </p>
                     </div>
 
@@ -860,27 +2490,27 @@
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-semibold text-slate-700 mb-1.5">Your Name *</label>
-                                <input type="text" required class="w-full rounded-lg border border-slate-200 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <input type="text" required class="w-full rounded-lg border border-slate-900/80 px-3.5 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-slate-700 mb-1.5">School/Company Name *</label>
-                                <input type="text" required class="w-full rounded-lg border border-slate-200 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <input type="text" required class="w-full rounded-lg border border-slate-900/80 px-3.5 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                             </div>
                         </div>
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1.5">Work Email *</label>
-                            <input type="email" required class="w-full rounded-lg border border-slate-200 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            <input type="email" required class="w-full rounded-lg border border-slate-900/80 px-3.5 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                         </div>
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1.5">Contact Number *</label>
-                            <input type="tel" required class="w-full rounded-lg border border-slate-200 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            <input type="tel" required class="w-full rounded-lg border border-slate-900/80 px-3.5 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                         </div>
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1.5">Approximate Fleet Size *</label>
-                            <select required class="w-full rounded-lg border border-slate-200 px-3.5 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            <select required class="w-full rounded-lg border border-slate-900/80 px-3.5 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                                 <option value="">Select Option</option>
                                 <option value="1-5">1 - 5 vehicles (Buses/Vans/Rickshaws)</option>
                                 <option value="6-20">6 - 20 vehicles</option>
@@ -889,7 +2519,7 @@
                             </select>
                         </div>
 
-                        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-lg text-sm shadow-md transition-all-300">
+                        <button type="submit" class="w-full bg-lime-400 hover:bg-lime-300 text-slate-950 font-black font-bold py-3 rounded-lg text-sm shadow-md transition-all-300">
                             Confirm Demo Request
                         </button>
                     </form>
@@ -897,7 +2527,7 @@
 
                 <!-- 2. Success View -->
                 <div id="demo-success-view" class="hidden px-6 py-12 text-center space-y-6">
-                    <div class="w-16 h-16 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center mx-auto shadow-md">
+                    <div class="w-16 h-16 rounded-full bg-[#f97316]merald-50 text-emerald-500 flex items-center justify-center mx-auto shadow-md">
                         <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
@@ -908,7 +2538,7 @@
                             We have received your demo request details. Our school logistics expert will contact you shortly at your provided email.
                         </p>
                     </div>
-                    <button onclick="closeDemoModal()" class="w-32 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-2 rounded-lg text-sm transition-all-300 mx-auto">
+                    <button onclick="closeDemoModal()" class="w-32 bg-[#111724] hover:bg-slate-200 text-slate-300 font-bold py-2 rounded-lg text-sm transition-all-300 mx-auto">
                         Close
                     </button>
                 </div>
@@ -926,7 +2556,7 @@
         <div class="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
             <div class="relative transform overflow-hidden rounded-2xl bg-slate-950 text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-3xl border border-slate-800 p-1">
                 <!-- Close Button -->
-                <button onclick="closeVideoModal()" class="absolute -top-10 right-0 md:-top-3 md:-right-8 text-white hover:text-indigo-400 focus:outline-none text-2xl font-bold">
+                <button onclick="closeVideoModal()" class="absolute -top-10 right-0 md:-top-3 md:-right-8 text-white hover:text-blue-400 focus:outline-none text-2xl font-bold">
                     &times;
                 </button>
 
@@ -934,13 +2564,13 @@
                 <div class="aspect-video w-full rounded-xl bg-slate-900 overflow-hidden relative flex flex-col justify-between">
                     <!-- Top header -->
                     <div class="p-3 bg-gradient-to-b from-slate-950/80 to-transparent flex justify-between items-center text-xs text-white z-10">
-                        <span>FleetFind - System Walkthrough</span>
-                        <span class="bg-indigo-600 px-2 py-0.5 rounded font-bold">B2B DEMO</span>
+                        <span>WheelsTracker - System Walkthrough</span>
+                        <span class="bg-blue-600 px-2 py-0.5 rounded font-bold">B2B DEMO</span>
                     </div>
 
                     <!-- Center Play button mockup -->
                     <div class="absolute inset-0 flex items-center justify-center">
-                        <div class="w-20 h-20 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center shadow-2xl cursor-pointer hover:scale-105 active:scale-95 transition-all-300 pulse-indigo" onclick="alert('Simulation: Playing walk-through video...')">
+                        <div class="w-20 h-20 rounded-full bg-lime-400 hover:bg-lime-300 text-slate-950 font-black flex items-center justify-center shadow-2xl cursor-pointer hover:scale-105 active:scale-95 transition-all-300 pulse-lime" onclick="alert('Simulation: Playing walk-through video...')">
                             <svg class="w-10 h-10 ml-1.5" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
                             </svg>
@@ -951,7 +2581,7 @@
                     <div class="p-4 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent flex flex-col gap-2.5 z-10 text-white">
                         <!-- Progress bar -->
                         <div class="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
-                            <div class="w-1/3 h-full bg-indigo-500 rounded-full"></div>
+                            <div class="w-1/3 h-full bg-lime-950/20 rounded-full"></div>
                         </div>
                         <div class="flex justify-between items-center text-xs">
                             <div class="flex items-center gap-3">
@@ -959,7 +2589,7 @@
                                 <span>|</span>
                                 <span>Volume: 80%</span>
                             </div>
-                            <span class="text-indigo-400 font-bold">Dashboard & Driver App Overview</span>
+                            <span class="text-blue-400 font-bold">Dashboard & Driver App Overview</span>
                         </div>
                     </div>
                 </div>
@@ -995,13 +2625,13 @@
             const parentSim = document.getElementById('sim-parent-app');
 
             if (tabName === 'admin-panel') {
-                adminTab.className = 'px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-800 bg-white shadow-sm transition-all-300';
-                parentTab.className = 'px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-500 hover:text-slate-900 transition-all-300';
+                adminTab.className = 'px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-300 bg-[#121824] border border-slate-800 shadow-sm transition-all-300';
+                parentTab.className = 'px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-500 hover:text-slate-200 transition-all-300';
                 adminSim.style.display = 'block';
                 parentSim.style.display = 'none';
             } else {
-                parentTab.className = 'px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-800 bg-white shadow-sm transition-all-300';
-                adminTab.className = 'px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-500 hover:text-slate-900 transition-all-300';
+                parentTab.className = 'px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-300 bg-[#121824] border border-slate-800 shadow-sm transition-all-300';
+                adminTab.className = 'px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-500 hover:text-slate-200 transition-all-300';
                 adminSim.style.display = 'none';
                 parentSim.style.display = 'block';
                 startParentAppAnimation();
@@ -1080,5 +2710,320 @@
             modal.classList.add('hidden');
             document.body.style.overflow = '';
         }
+
+        // Cycling App Showcase (Hero Right Column)
+        let activeShowcaseTab = 'parent';
+        let showcaseInterval;
+        const tabs = ['parent', 'driver', 'admin'];
+
+        function setTabShowcase(tabName) {
+            clearInterval(showcaseInterval);
+            
+            tabs.forEach(t => {
+                const btn = document.getElementById(`btn-showcase-${t}`);
+                const screen = document.getElementById(`showcase-screen-${t}`);
+                if (btn) btn.className = 'flex-grow py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-300 transition-all-300';
+                if (screen) screen.classList.remove('active');
+            });
+
+            const activeBtn = document.getElementById(`btn-showcase-${tabName}`);
+            const activeScreen = document.getElementById(`showcase-screen-${tabName}`);
+            if (activeBtn) activeBtn.className = 'flex-grow py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-300 transition-all-300 showcase-tab-active';
+            if (activeScreen) activeScreen.classList.add('active');
+            
+            activeShowcaseTab = tabName;
+            startShowcaseAutoplay();
+        }
+
+        function startShowcaseAutoplay() {
+            showcaseInterval = setInterval(() => {
+                let currentIndex = tabs.indexOf(activeShowcaseTab);
+                let nextIndex = (currentIndex + 1) % tabs.length;
+                
+                let currentTab = tabs[currentIndex];
+                let nextTab = tabs[nextIndex];
+                
+                const curBtn = document.getElementById(`btn-showcase-${currentTab}`);
+                const curScreen = document.getElementById(`showcase-screen-${currentTab}`);
+                if (curBtn) {
+                    curBtn.classList.remove('showcase-tab-active');
+                    curBtn.className = 'flex-grow py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-300 transition-all-300';
+                }
+                if (curScreen) curScreen.classList.remove('active');
+
+                const nextBtn = document.getElementById(`btn-showcase-${nextTab}`);
+                const nextScreen = document.getElementById(`showcase-screen-${nextTab}`);
+                if (nextBtn) nextBtn.className = 'flex-grow py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-300 transition-all-300 showcase-tab-active';
+                if (nextScreen) nextScreen.classList.add('active');
+
+                activeShowcaseTab = nextTab;
+            }, 4000);
+        }
+
+        // Timeline Flow Animation (Hero Left Column)
+        let timelineState = 0;
+        const timelineBus = document.getElementById('hero-timeline-bus');
+        const timelineFlow = document.getElementById('hero-timeline-flow');
+
+        function startTimelineAnimation() {
+            setInterval(() => {
+                timelineState = (timelineState + 1) % 4;
+                updateTimelineUI(timelineState);
+            }, 4000);
+        }
+
+        function updateTimelineUI(state) {
+            const positions = ['12.5%', '37.5%', '62.5%', '87.5%'];
+            const flowWidths = ['0%', '33.3%', '66.6%', '100%'];
+            
+            if (timelineBus) {
+                timelineBus.style.left = positions[state];
+            }
+            if (timelineFlow) {
+                timelineFlow.setAttribute('x2', flowWidths[state]);
+            }
+
+            for (let i = 0; i < 4; i++) {
+                const node = document.getElementById(`hero-node-${i}`);
+                const text = document.getElementById(`hero-text-${i}`);
+                
+                if (i <= state) {
+                    if (node) {
+                        node.className = 'w-9 h-9 rounded-full bg-[#121824] border-2 border-lime-400 text-lime-400 flex items-center justify-center shadow-md transition-all duration-500';
+                    }
+                    if (text) {
+                        text.className = 'text-[9px] sm:text-xxs font-extrabold text-lime-400 uppercase tracking-wider mt-2.5';
+                    }
+                } else {
+                    if (node) {
+                        node.className = 'w-9 h-9 rounded-full bg-[#121824] border border-slate-800 text-slate-400 flex items-center justify-center shadow transition-all duration-500';
+                    }
+                    if (text) {
+                        text.className = 'text-[9px] sm:text-xxs font-extrabold text-slate-450 uppercase tracking-wider mt-2.5';
+                    }
+                }
+            }
+        }
+
+        // Story Timeline Redesign (Meet Wheels Tracker)
+        let activeStoryStep = 0;
+        let storyInterval;
+        const totalStorySteps = 4;
+
+        function setStoryStep(stepIdx) {
+            clearInterval(storyInterval);
+            
+            // Toggle active classes on left side steps
+            for (let i = 0; i < totalStorySteps; i++) {
+                const stepPanel = document.getElementById(`story-step-${i}`);
+                const screenViewport = document.getElementById(`story-screen-${i}`);
+                const nodeMarker = document.getElementById(`story-node-${i}`);
+                
+                if (i === stepIdx) {
+                    if (stepPanel) {
+                        stepPanel.className = 'relative p-6 rounded-2xl border border-slate-900/80 bg-[#121824] border border-slate-800 shadow-xl shadow-black/20 cursor-pointer transition-all duration-300 transform -translate-y-0.5 border-l-4 border-l-lime-400';
+                        stepPanel.querySelector('h3').className = 'text-lg font-extrabold text-slate-200 mt-1';
+                    }
+                    if (nodeMarker) {
+                        nodeMarker.className = 'absolute -left-[42px] top-6 w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold text-xs ring-4 ring-amber-500/20 shadow-md shadow-amber-600/30 scale-110 border-2 border-amber-500 transition-all duration-300 z-10';
+                    }
+                    if (screenViewport) {
+                        screenViewport.classList.remove('hidden');
+                        screenViewport.classList.add('active');
+                    }
+                } else {
+                    if (stepPanel) {
+                        stepPanel.className = 'relative p-6 rounded-2xl border border-transparent bg-transparent cursor-pointer transition-all duration-300 opacity-60 hover:opacity-90';
+                        stepPanel.querySelector('h3').className = 'text-lg font-extrabold text-slate-300/80 mt-1';
+                    }
+                    if (nodeMarker) {
+                        nodeMarker.className = 'absolute -left-[42px] top-6 w-8 h-8 rounded-full bg-white text-slate-400 flex items-center justify-center font-bold text-xs border-2 border-slate-900/80 transition-all duration-300 z-10';
+                    }
+                    if (screenViewport) {
+                        screenViewport.classList.add('hidden');
+                        screenViewport.classList.remove('active');
+                    }
+                }
+            }
+
+            // Update vertical tracking height
+            const fillTrack = document.getElementById('story-track-fill');
+            if (fillTrack) {
+                const percentages = ['0%', '33.3%', '66.6%', '100%'];
+                fillTrack.style.height = percentages[stepIdx];
+            }
+
+            activeStoryStep = stepIdx;
+            startStoryAutoplay();
+        }
+
+        function startStoryAutoplay() {
+            storyInterval = setInterval(() => {
+                let nextStep = (activeStoryStep + 1) % totalStorySteps;
+                setStoryStep(nextStep);
+            }, 5000);
+        }
+
+        // Interactive Product Demo Controller
+        let activeDemoTab = 'parent';
+        let activeDemoSubTab = {
+            parent: 'parent-live-map',
+            driver: 'driver-start-trip',
+            school: 'school-vehicle-list'
+        };
+
+        function switchDemoTab(tabName) {
+            activeDemoTab = tabName;
+            
+            const tabs = ['parent', 'driver', 'school'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`demo-tab-${t}`);
+                if (btn) {
+                    if (t === tabName) {
+                        btn.className = 'px-6 py-3 rounded-xl text-sm font-bold text-lime-400 bg-[#121824] text-lime-400 shadow-md border border-lime-500/20 transition-all duration-300';
+                    } else {
+                        btn.className = 'px-6 py-3 rounded-xl text-sm font-bold text-slate-500 hover:text-slate-200 transition-all duration-300';
+                    }
+                }
+                
+                const menu = document.getElementById(`demo-menu-${t}`);
+                if (menu) {
+                    if (t === tabName) {
+                        menu.classList.remove('hidden');
+                    } else {
+                        menu.classList.add('hidden');
+                    }
+                }
+            });
+
+            // Toggle device mockups
+            const phoneShell = document.getElementById('demo-phone-shell');
+            const browserShell = document.getElementById('demo-browser-shell');
+            if (tabName === 'school') {
+                if (phoneShell) phoneShell.classList.add('hidden');
+                if (browserShell) browserShell.classList.remove('hidden');
+            } else {
+                if (phoneShell) phoneShell.classList.remove('hidden');
+                if (browserShell) browserShell.classList.add('hidden');
+            }
+
+            switchDemoSubTab(activeDemoSubTab[tabName]);
+        }
+
+        function switchDemoSubTab(subTabId) {
+            const primary = activeDemoTab;
+            activeDemoSubTab[primary] = subTabId;
+
+            let menuItems = [];
+            if (primary === 'parent') {
+                menuItems = ['parent-live-map', 'parent-vehicle-details', 'parent-driver-info', 'parent-eta', 'parent-notifications', 'parent-trip-history'];
+            } else if (primary === 'driver') {
+                menuItems = ['driver-start-trip', 'driver-share-location', 'driver-student-pickup', 'driver-student-drop', 'driver-stop-trip'];
+            } else if (primary === 'school') {
+                menuItems = ['school-vehicle-list', 'school-drivers', 'school-students', 'school-routes', 'school-trips', 'school-reports'];
+            }
+
+            menuItems.forEach(item => {
+                const link = document.getElementById(`link-${item}`);
+                const screen = document.getElementById(`screen-${item}`);
+                
+                if (link) {
+                    if (item === subTabId) {
+                        link.className = 'relative flex items-center gap-3 p-3.5 w-full rounded-xl bg-lime-950/20 text-lime-400 border-l-4 border-l-lime-400 font-bold transition-all duration-300 text-left';
+                    } else {
+                        link.className = 'relative flex items-center gap-3 p-3.5 w-full rounded-xl bg-transparent text-slate-400 hover:bg-[#111724] hover:text-slate-200 border-l-4 border-l-transparent transition-all duration-300 text-left';
+                    }
+                }
+
+                if (screen) {
+                    if (item === subTabId) {
+                        screen.classList.remove('hidden');
+                        screen.classList.add('active');
+                    } else {
+                        screen.classList.add('hidden');
+                        screen.classList.remove('active');
+                    }
+                }
+            });
+        }
+
+        // Driver Experience Interactive Controller
+        let activeDriverExpStep = 0;
+        const totalDriverExpSteps = 5;
+
+        function setDriverExpStep(stepIdx) {
+            for (let i = 0; i < totalDriverExpSteps; i++) {
+                const stepPanel = document.getElementById(`driver-exp-step-${i}`);
+                const screenViewport = document.getElementById(`driver-exp-screen-${i}`);
+                const nodeMarker = document.getElementById(`driver-exp-node-${i}`);
+                
+                if (i === stepIdx) {
+                    if (stepPanel) {
+                        stepPanel.classList.remove('opacity-60');
+                        stepPanel.classList.add('opacity-100');
+                    }
+                    if (nodeMarker) {
+                        nodeMarker.className = 'absolute left-2.5 top-2.5 w-7 h-7 rounded-full bg-[#f97316]merald-500 text-slate-950 font-black text-xs flex items-center justify-center ring-4 ring-emerald-500/20 transition-all duration-300';
+                    }
+                    if (screenViewport) {
+                        screenViewport.classList.remove('hidden');
+                        screenViewport.classList.add('active');
+                    }
+                } else {
+                    if (stepPanel) {
+                        stepPanel.classList.add('opacity-60');
+                        stepPanel.classList.remove('opacity-100');
+                    }
+                    if (nodeMarker) {
+                        nodeMarker.className = 'absolute left-2.5 top-2.5 w-7 h-7 rounded-full bg-slate-800 text-slate-400 font-bold text-xs flex items-center justify-center transition-all duration-300';
+                    }
+                    if (screenViewport) {
+                        screenViewport.classList.add('hidden');
+                        screenViewport.classList.remove('active');
+                    }
+                }
+            }
+            activeDriverExpStep = stepIdx;
+        }
+
+        // School Dashboard Console Interactive Controller
+        let activeSchoolConsoleStep = 0;
+        const totalSchoolConsoleSteps = 7;
+
+        function setSchoolConsoleStep(stepIdx) {
+            for (let i = 0; i < totalSchoolConsoleSteps; i++) {
+                const stepBtn = document.getElementById(`school-highlight-step-${i}`);
+                const viewPane = document.getElementById(`school-dashboard-view-${i}`);
+                
+                if (i === stepIdx) {
+                    if (stepBtn) {
+                        stepBtn.className = 'relative flex items-center gap-3 p-3.5 w-full rounded-xl bg-lime-950/20 text-lime-400 border-l-4 border-l-lime-400 font-bold transition-all duration-300 text-left';
+                    }
+                    if (viewPane) {
+                        viewPane.classList.remove('hidden');
+                        viewPane.classList.add('active');
+                    }
+                } else {
+                    if (stepBtn) {
+                        stepBtn.className = 'relative flex items-center gap-3 p-3.5 w-full rounded-xl bg-transparent text-slate-400 hover:bg-[#111724] hover:text-slate-200 border-l-4 border-l-transparent transition-all duration-300 text-left';
+                    }
+                    if (viewPane) {
+                        viewPane.classList.add('hidden');
+                        viewPane.classList.remove('active');
+                    }
+                }
+            }
+            activeSchoolConsoleStep = stepIdx;
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            startShowcaseAutoplay();
+            startTimelineAnimation();
+            startStoryAutoplay();
+            // Initialize sub-tabs switcher states
+            switchDemoTab('parent');
+            setDriverExpStep(0);
+            setSchoolConsoleStep(0);
+        });
     </script>
 </x-guest-layout>

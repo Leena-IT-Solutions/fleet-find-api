@@ -3,6 +3,28 @@
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
+Route::get('/parent-app', function() {
+    return view('features', ['activeTab' => 'parent']);
+})->name('parent-app');
+
+Route::get('/driver-app', function() {
+    return view('features', ['activeTab' => 'driver']);
+})->name('driver-app');
+
+Route::redirect('/features', '/features/school-dashboard')->name('features');
+Route::view('/features/parent-app', 'features.parent-app')->name('features.parent-app');
+Route::view('/features/driver-app', 'features.driver-app')->name('features.driver-app');
+Route::view('/features/school-dashboard', 'features.school-dashboard')->name('features.school-dashboard');
+Route::view('/features/live-gps-tracking', 'features.live-gps-tracking')->name('features.live-gps-tracking');
+Route::view('/features/notifications', 'features.notifications')->name('features.notifications');
+Route::view('/features/reports', 'features.reports')->name('features.reports');
+Route::view('/solutions', 'solutions')->name('solutions');
+Route::view('/pricing', 'pricing')->name('pricing');
+Route::view('/case-studies', 'case-studies')->name('case-studies');
+Route::view('/blog', 'blog')->name('blog');
+Route::view('/about', 'about')->name('about');
+Route::view('/contact', 'contact')->name('contact');
+Route::view('/book-demo', 'book-demo')->name('book-demo');
 
 use Livewire\Volt\Volt;
 

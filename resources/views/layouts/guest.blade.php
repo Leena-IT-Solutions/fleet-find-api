@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'FleetFind') }}</title>
+        <title>{{ config('app.name', 'WheelsTracker') }}</title>
 
         <!-- Favicon -->
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
@@ -41,7 +41,7 @@
                     <div class="flex flex-col items-center">
                         <a href="/" wire:navigate class="flex flex-col items-center gap-2">
                             <x-application-logo class="w-16 h-16 object-contain" />
-                            <span class="text-2xl font-bold tracking-tight text-slate-900">FleetFind</span>
+                            <span class="text-2xl font-bold tracking-tight text-slate-900">WheelsTracker</span>
                         </a>
                     </div>
 
