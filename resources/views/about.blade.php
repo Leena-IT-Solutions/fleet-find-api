@@ -6,6 +6,8 @@
             0%, 100% { box-shadow: 0 0 0 0 rgba(163, 230, 53, 0.4); }
             50% { box-shadow: 0 0 0 10px rgba(163, 230, 53, 0); }
         }
+        .scrollbar-none::-webkit-scrollbar { display: none; }
+        .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 
     <div class="min-h-screen bg-[#080B11] text-slate-100 flex flex-col justify-between">
@@ -38,30 +40,143 @@
         <!-- Main Content -->
         <main class="flex-grow">
             <!-- Hero -->
-            <section class="py-20 bg-gradient-to-b from-[#0B0F17] to-[#080B11] border-b border-slate-900/60 text-center">
-                <div class="mx-auto max-w-4xl px-6 space-y-6">
+            <section class="relative py-24 sm:py-32 bg-gradient-to-b from-[#0F1420] via-[#080B11] to-[#080B11] border-b border-slate-900/60 text-center relative overflow-hidden">
+                <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(163,230,53,0.08),rgba(0,0,0,0))]"></div>
+                <div class="mx-auto max-w-4xl px-6 space-y-6 relative z-10">
                     <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-lime-950/20 border border-lime-500/20 text-lime-400 text-xs font-semibold uppercase tracking-wider">
-                        🚀 Company Profile
+                        🚀 MEET WHEELSTRACKER
                     </div>
                     <h1 class="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-tight">
-                        Our Mission is to Secure <br>
-                        <span class="bg-gradient-to-r from-lime-450 via-emerald-400 to-cyan-400 bg-clip-text text-transparent">Every Student Transit.</span>
+                        Modernizing Transit Safety <br>
+                        <span class="bg-gradient-to-r from-lime-400 via-emerald-400 to-cyan-400 bg-clip-text text-transparent">For The Next Generation.</span>
                     </h1>
-                    <p class="text-slate-400 text-lg max-w-2xl mx-auto leading-relaxed">
-                        WheelsTracker was founded by logistics and safety professionals who realized school transport was lagging behind modern technological solutions.
+                    <p class="text-slate-400 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
+                        The story behind WheelsTracker, our core values, and the team engineering absolute safety for student commutes.
                     </p>
                 </div>
             </section>
 
-            <!-- Company details -->
-            <section class="py-20 bg-[#080B11]">
-                <div class="mx-auto max-w-3xl px-6 space-y-8 text-left leading-relaxed text-slate-300">
-                    <p>
-                        We build high-reliability tracking software specifically targeted at schools, transporter fleet operators, and student caretakers. We believe that tracking is not merely about finding coordinates on a grid; it is about providing families with absolute peace of mind and administrative operations with financial return on investment.
+            <!-- Mission & Vision Section -->
+            <section class="py-16 bg-[#080B11]">
+                <div class="mx-auto max-w-7xl px-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Mission Card -->
+                    <div class="bg-[#121824] p-8 rounded-3xl border border-slate-850 space-y-4 text-left">
+                        <div class="w-12 h-12 rounded-2xl bg-lime-950/20 border border-lime-500/20 flex items-center justify-center text-2xl">🎯</div>
+                        <h3 class="text-xl font-bold text-white">Our Mission</h3>
+                        <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                            To eliminate parent transit anxiety globally. We empower school managers and fleet operators with low-latency coordinates tracking systems that build guardian confidence.
+                        </p>
+                    </div>
+                    <!-- Vision Card -->
+                    <div class="bg-[#121824] p-8 rounded-3xl border border-slate-850 space-y-4 text-left">
+                        <div class="w-12 h-12 rounded-2xl bg-lime-950/20 border border-lime-500/20 flex items-center justify-center text-2xl">👁️</div>
+                        <h3 class="text-xl font-bold text-white">Our Vision</h3>
+                        <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                            To establish the global gold standard for school transit routing automation, replacing outdated paper roster timelines with simple background smartphone telemetry logs.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Company Story -->
+            <section class="py-16 bg-[#0B0F17] border-y border-slate-900/60 text-left">
+                <div class="mx-auto max-w-4xl px-6 space-y-6">
+                    <span class="text-lime-400 font-extrabold text-xs uppercase tracking-wider">Company Story</span>
+                    <h2 class="text-3xl font-black text-white tracking-tight">How It All Started</h2>
+                    <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
+                        WheelsTracker was founded after identifying a massive communication delay in local school operations. When school buses ran late due to traffic or weather conditions, front offices faced hundreds of incoming calls from anxious parents checking coordinates. 
                     </p>
-                    <p>
-                        Our platform integrates custom browser-based consoles, high-contrast driver coordination timelines, and real-time parent self-service maps to cover all aspects of school transport logistics.
+                    <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
+                        We realized that tracking coordinates wasn't just a technical challenge—it was an empathy challenge. By introducing automated geofenced proximity updates and self-service passenger portals, we replaced administrative chaos with clean operational visibility. Today, we scale telemetry tools for daycares, bus fleet contractors, and large-scale school boards.
                     </p>
+                </div>
+            </section>
+
+            <!-- Why WheelsTracker -->
+            <section class="py-16 bg-[#080B11]">
+                <div class="mx-auto max-w-7xl px-6 space-y-12">
+                    <div class="text-center max-w-2xl mx-auto space-y-4">
+                        <span class="text-lime-400 font-extrabold text-xs uppercase tracking-wider">Core Strengths</span>
+                        <h2 class="text-3xl font-bold text-white">Why WheelsTracker?</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        <div class="bg-[#121824] p-6 rounded-2xl border border-slate-850 space-y-2 text-left">
+                            <span class="text-lime-400 font-bold text-lg font-mono block">01.</span>
+                            <h4 class="text-sm font-bold text-white">2s Latency GPS</h4>
+                            <p class="text-slate-450 text-[11px] leading-relaxed">Low-latency tracking updates streams coordinate routes accurately.</p>
+                        </div>
+                        <div class="bg-[#121824] p-6 rounded-2xl border border-slate-850 space-y-2 text-left">
+                            <span class="text-lime-400 font-bold text-lg font-mono block">02.</span>
+                            <h4 class="text-sm font-bold text-white">Zero Hardware Required</h4>
+                            <p class="text-slate-455 text-[11px] leading-relaxed">Runs directly on standard drivers mobile devices, saving setup costs.</p>
+                        </div>
+                        <div class="bg-[#121824] p-6 rounded-2xl border border-slate-850 space-y-2 text-left">
+                            <span class="text-lime-400 font-bold text-lg font-mono block">03.</span>
+                            <h4 class="text-sm font-bold text-white">White-label Tools</h4>
+                            <p class="text-slate-450 text-[11px] leading-relaxed">B2B contractors customize client interfaces under private domains.</p>
+                        </div>
+                        <div class="bg-[#121824] p-6 rounded-2xl border border-slate-850 space-y-2 text-left">
+                            <span class="text-lime-400 font-bold text-lg font-mono block">04.</span>
+                            <h4 class="text-sm font-bold text-white">Route Optimization</h4>
+                            <p class="text-slate-450 text-[11px] leading-relaxed">AI route layouts save diesel consumption and dispatch overheads.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Our Team -->
+            <section class="py-16 bg-[#0B0F17] border-y border-slate-900/60">
+                <div class="mx-auto max-w-7xl px-6 space-y-12">
+                    <div class="text-center max-w-2xl mx-auto space-y-4">
+                        <span class="text-lime-400 font-extrabold text-xs uppercase tracking-wider">Leadership</span>
+                        <h2 class="text-3xl font-bold text-white">Meet Our Team</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <!-- Member 1 -->
+                        <div class="bg-[#121824] p-6 rounded-3xl border border-slate-850 text-center space-y-4 shadow-lg">
+                            <div class="w-20 h-20 bg-[#1C273E] rounded-full mx-auto flex items-center justify-center text-3xl">👩‍💼</div>
+                            <div>
+                                <h4 class="text-base font-bold text-white">Dr. Amanda K. Ross</h4>
+                                <span class="text-[10px] text-lime-400 uppercase tracking-widest font-mono">Co-Founder & CEO</span>
+                            </div>
+                            <p class="text-slate-400 text-xs leading-relaxed">Logistics research specialist with 12+ years optimizing institutional fleet channels.</p>
+                        </div>
+                        <!-- Member 2 -->
+                        <div class="bg-[#121824] p-6 rounded-3xl border border-slate-850 text-center space-y-4 shadow-lg">
+                            <div class="w-20 h-20 bg-[#1C273E] rounded-full mx-auto flex items-center justify-center text-3xl">👨‍💻</div>
+                            <div>
+                                <h4 class="text-base font-bold text-white">Keith Bennett</h4>
+                                <span class="text-[10px] text-lime-400 uppercase tracking-widest font-mono">Lead Telemetry Engineer</span>
+                            </div>
+                            <p class="text-slate-400 text-xs leading-relaxed">Core developer of the 2s low-latency GPS streaming pipelines.</p>
+                        </div>
+                        <!-- Member 3 -->
+                        <div class="bg-[#121824] p-6 rounded-3xl border border-slate-850 text-center space-y-4 shadow-lg">
+                            <div class="w-20 h-20 bg-[#1C273E] rounded-full mx-auto flex items-center justify-center text-3xl">👩‍💻</div>
+                            <div>
+                                <h4 class="text-base font-bold text-white">Elena Rostova</h4>
+                                <span class="text-[10px] text-lime-400 uppercase tracking-widest font-mono">Customer Success Lead</span>
+                            </div>
+                            <p class="text-slate-400 text-xs leading-relaxed">Dedicated manager coordinates district support and billing SLA audits.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Contact / CTA -->
+            <section class="py-24 bg-[#080B11]">
+                <div class="mx-auto max-w-4xl px-6 text-center space-y-8">
+                    <h2 class="text-3xl sm:text-5xl font-black text-white tracking-tight">Ready to Connect?</h2>
+                    <p class="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
+                        Have questions about our technology or team? Reach out and we will respond within 24 hours.
+                    </p>
+                    <div class="pt-4">
+                        <a href="/contact" class="pulse-lime px-8 py-4 rounded-xl bg-lime-400 hover:bg-lime-300 text-slate-950 font-black text-sm uppercase tracking-wider transition-all-300 inline-block">
+                            Contact Us
+                        </a>
+                    </div>
                 </div>
             </section>
         </main>

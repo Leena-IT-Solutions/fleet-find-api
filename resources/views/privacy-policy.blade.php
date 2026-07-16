@@ -22,7 +22,7 @@
                     <span class="text-xl font-bold tracking-tight text-slate-200">WheelsTracker</span>
                 </a>
                 <nav class="hidden md:flex items-center gap-6 text-sm">
-                    <a href="/features" class="font-semibold text-lime-400">Features</a>
+                    <a href="/features" class="text-slate-300 hover:text-lime-400 transition-colors">Features</a>
                     <a href="/solutions" class="text-slate-300 hover:text-lime-400 transition-colors">Solutions</a>
                     <a href="/pricing" class="text-slate-300 hover:text-lime-400 transition-colors">Pricing</a>
                     <a href="/case-studies" class="text-slate-300 hover:text-lime-400 transition-colors">Case Studies</a>
@@ -39,55 +39,50 @@
 
         <!-- Main Content -->
         <main class="flex-grow">
-            <!-- Sub Navigation Header -->
-            <section class="bg-gradient-to-b from-[#0B0F17] to-[#080B11] border-b border-slate-900/60 pt-12 pb-4 text-center">
+            <!-- Hero -->
+            <section class="py-20 bg-gradient-to-b from-[#0B0F17] to-[#080B11] border-b border-slate-900/60 text-center">
                 <div class="mx-auto max-w-4xl px-6 space-y-4">
-                    <h1 class="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">Parent App Capabilities</h1>
-                    
-                    <!-- Horizontal Switches -->
-                    <div class="flex justify-start md:justify-center gap-4 border-b border-slate-900/60 pt-8 text-xs sm:text-sm overflow-x-auto whitespace-nowrap scrollbar-none pb-1">
-                        <a href="/features/parent-app" class="pb-3 text-lime-400 border-b-2 border-lime-400 font-bold px-2 flex-shrink-0">
-                            👶 Parent App
-                        </a>
-                        <a href="/features/driver-app" class="pb-3 text-slate-400 hover:text-white transition-colors font-bold px-2 flex-shrink-0">
-                            👨&zwj;✈️ Driver App
-                        </a>
-                        <a href="/features/school-dashboard" class="pb-3 text-slate-400 hover:text-white transition-colors font-bold px-2 flex-shrink-0">
-                            🏫 School Dashboard
-                        </a>
-                        <a href="/features/live-gps-tracking" class="pb-3 text-slate-400 hover:text-white transition-colors font-bold px-2 flex-shrink-0">
-                            📡 Live GPS Tracking
-                        </a>
-                        <a href="/features/notifications" class="pb-3 text-slate-400 hover:text-white transition-colors font-bold px-2 flex-shrink-0">
-                            🔔 Notifications
-                        </a>
-                        <a href="/features/reports" class="pb-3 text-slate-400 hover:text-white transition-colors font-bold px-2 flex-shrink-0">
-                            📊 Reports
-                        </a>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-lime-950/20 border border-lime-500/20 text-lime-400 text-xs font-semibold uppercase tracking-wider">
+                        🔒 Trust & Security
                     </div>
+                    <h1 class="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                        Privacy Policy
+                    </h1>
+                    <p class="text-slate-400 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+                        Last updated: July 16, 2026. Learn how we manage, protect, and process GPS coordinates and passenger telemetry.
+                    </p>
                 </div>
             </section>
 
-            <!-- Detailed Content Block -->
+            <!-- Content -->
             <section class="py-16 bg-[#080B11]">
-                <div class="mx-auto max-w-7xl px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-                    <div class="lg:col-span-7 space-y-6 text-left">
-                        <span class="text-lime-400 font-extrabold text-xs uppercase tracking-wider">Parent Tracking Portal</span>
-                        <h2 class="text-2xl sm:text-4xl font-extrabold text-white leading-tight">Child Transit Status In Real-Time</h2>
-                        <p class="text-slate-400 text-sm leading-relaxed">
-                            Provide parents with live self-service maps displaying vehicle coordinates directly in their smartphone web browsers or dedicated mobile app downloads.
+                <div class="mx-auto max-w-3xl px-6 text-left space-y-10 leading-relaxed text-slate-300">
+                    <div class="space-y-4">
+                        <h2 class="text-xl font-bold text-white border-b border-slate-900 pb-2">1. Data Collection & Processing</h2>
+                        <p class="text-xs sm:text-sm">
+                            WheelsTracker collects GPS coordinates, speed parameters, and direction details generated by active driver applications. This data is processed solely to calculate arrival times (ETAs) and notify school guardians. We do not sell location telemetry to marketing agencies.
                         </p>
-                        <div class="space-y-3.5 text-xs text-slate-300">
-                            <div class="flex gap-3"><span class="text-lime-400">✓</span><span>ETA updates recalculated every 2 seconds</span></div>
-                            <div class="flex gap-3"><span class="text-lime-400">✓</span><span>Push alerts when the vehicle is 1 km from pickup stops</span></div>
-                            <div class="flex gap-3"><span class="text-lime-400">✓</span><span>Instant RFID scan boarding confirmations</span></div>
-                        </div>
                     </div>
-                    <!-- Right Column: High-Fidelity App Screenshot -->
-                    <div class="lg:col-span-5 flex justify-center">
-                        <div class="max-w-[320px] w-full hover:scale-[1.02] duration-300 transition-all-300 drop-shadow-[0_25px_30px_rgba(0,0,0,0.65)]">
-                            <img src="{{ asset('images/parent_app_preview.png') }}" class="w-full h-auto block" alt="WheelsTracker Parent App Live Tracking Interface Screenshot">
-                        </div>
+
+                    <div class="space-y-4">
+                        <h2 class="text-xl font-bold text-white border-b border-slate-900 pb-2">2. Geofence & Proximity Alerts</h2>
+                        <p class="text-xs sm:text-sm">
+                            To trigger automated push notifications when a bus or van is near a student boarding zone, our servers compute proximity check boundaries. Location streams are encrypted in transit using industry-standard TLS protocols.
+                        </p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h2 class="text-xl font-bold text-white border-b border-slate-900 pb-2">3. Storage & Retention</h2>
+                        <p class="text-xs sm:text-sm">
+                            Historical path traces are retained for 30 days to facilitate route compliance auditing, after which they are systematically deleted or anonymized unless requested otherwise by a school board agreement.
+                        </p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h2 class="text-xl font-bold text-white border-b border-slate-900 pb-2">4. Your Compliance Rights</h2>
+                        <p class="text-xs sm:text-sm">
+                            transporters can request immediate deletion of driver shift logs. Guardians can check active parent account settings with their respective school system admin.
+                        </p>
                     </div>
                 </div>
             </section>
@@ -101,6 +96,8 @@
                     <a href="/features" class="hover:text-lime-400">Features</a>
                     <a href="/solutions" class="hover:text-lime-400">Solutions</a>
                     <a href="/pricing" class="hover:text-lime-400">Pricing</a>
+                    <a href="/privacy-policy" class="hover:text-lime-400">Privacy Policy</a>
+                    <a href="/terms-conditions" class="hover:text-lime-400">Terms & Conditions</a>
                     <a href="/contact" class="hover:text-lime-400">Contact</a>
                 </div>
             </div>

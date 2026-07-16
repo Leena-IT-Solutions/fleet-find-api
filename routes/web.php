@@ -11,13 +11,14 @@ Route::get('/driver-app', function() {
     return view('features', ['activeTab' => 'driver']);
 })->name('driver-app');
 
-Route::redirect('/features', '/features/school-dashboard')->name('features');
+Route::view('/features', 'features')->name('features');
 Route::view('/features/parent-app', 'features.parent-app')->name('features.parent-app');
 Route::view('/features/driver-app', 'features.driver-app')->name('features.driver-app');
 Route::view('/features/school-dashboard', 'features.school-dashboard')->name('features.school-dashboard');
 Route::view('/features/live-gps-tracking', 'features.live-gps-tracking')->name('features.live-gps-tracking');
 Route::view('/features/notifications', 'features.notifications')->name('features.notifications');
 Route::view('/features/reports', 'features.reports')->name('features.reports');
+Route::view('/school-bus-tracking-software', 'landing.school-bus-tracking-software')->name('landing.school-bus-tracking-software');
 Route::view('/solutions', 'solutions')->name('solutions');
 Route::view('/solutions/schools', 'solutions.schools')->name('solutions.schools');
 Route::view('/solutions/school-bus-operators', 'solutions.school-bus-operators')->name('solutions.school-bus-operators');
@@ -30,6 +31,8 @@ Route::view('/blog', 'blog')->name('blog');
 Route::view('/about', 'about')->name('about');
 Route::view('/contact', 'contact')->name('contact');
 Route::view('/book-demo', 'book-demo')->name('book-demo');
+Route::view('/privacy-policy', 'privacy-policy')->name('privacy-policy');
+Route::view('/terms-conditions', 'terms-conditions')->name('terms-conditions');
 
 use Livewire\Volt\Volt;
 

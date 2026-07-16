@@ -42,7 +42,7 @@
             <!-- Sub Navigation Header -->
             <section class="bg-gradient-to-b from-[#0B0F17] to-[#080B11] border-b border-slate-900/60 pt-12 pb-4 text-center">
                 <div class="mx-auto max-w-4xl px-6 space-y-4">
-                    <h1 class="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">Notifications</h1>
+                    <h1 class="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">Notifications Hub</h1>
                     
                     <!-- Horizontal Switches -->
                     <div class="flex justify-start md:justify-center gap-4 border-b border-slate-900/60 pt-8 text-xs sm:text-sm overflow-x-auto whitespace-nowrap scrollbar-none pb-1">
@@ -50,7 +50,7 @@
                             👶 Parent App
                         </a>
                         <a href="/features/driver-app" class="pb-3 text-slate-400 hover:text-white transition-colors font-bold px-2 flex-shrink-0">
-                            👨&zwj;✈️ Driver App
+                            👨‍✈️ Driver App
                         </a>
                         <a href="/features/school-dashboard" class="pb-3 text-slate-400 hover:text-white transition-colors font-bold px-2 flex-shrink-0">
                             🏫 School Dashboard
@@ -71,32 +71,43 @@
             <!-- Detailed Content Block -->
             <section class="py-16 bg-[#080B11]">
                 <div class="mx-auto max-w-7xl px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-                    <div class="lg:col-span-7 space-y-6 text-left">
-                        <span class="text-lime-400 font-extrabold text-xs uppercase tracking-wider">Automated Alerts Hub</span>
-                        <h2 class="text-2xl sm:text-4xl font-extrabold text-white leading-tight">Instant Pickup & Arrival Alerts</h2>
+                    
+                    <!-- Text Info Column -->
+                    <div class="lg:col-span-5 space-y-6 text-left">
+                        <span class="text-lime-400 font-extrabold text-xs uppercase tracking-wider">Multi-Channel Alerts</span>
+                        <h2 class="text-2xl sm:text-4xl font-extrabold text-white leading-tight">Instant Updates at Every Stage</h2>
                         <p class="text-slate-400 text-sm leading-relaxed">
-                            Silence parent phone lines completely. The system auto-calculates distance thresholds and triggers notifications straight to parent mobile screens.
+                            Keep parents, school operators, and drivers completely aligned. Our geofence processors trigger instant events sent through their chosen communication channels.
                         </p>
-                        <div class="space-y-3.5 text-xs text-slate-300">
-                            <div class="flex gap-3"><span class="text-lime-400">✓</span><span>Geofence pickup trigger alerts</span></div>
-                            <div class="flex gap-3"><span class="text-lime-400">✓</span><span>School reached success notifications</span></div>
-                            <div class="flex gap-3"><span class="text-lime-400">✓</span><span>Emergency delays announcement broadcasts</span></div>
+                        <div class="space-y-4 pt-4 border-t border-slate-900">
+                            <div class="flex items-start gap-3 text-left">
+                                <span class="text-xl">📲</span>
+                                <div>
+                                    <h4 class="text-sm font-bold text-white">Push Notifications</h4>
+                                    <p class="text-slate-400 text-xs leading-relaxed">Sub-second native mobile screen popups for parents and admins.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3 text-left">
+                                <span class="text-xl">💬</span>
+                                <div>
+                                    <h4 class="text-sm font-bold text-white">SMS Gateways</h4>
+                                    <p class="text-slate-400 text-xs leading-relaxed">Fallback cellular text messages for parents without active mobile internet.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3 text-left">
+                                <span class="text-xl">🟢</span>
+                                <div>
+                                    <h4 class="text-sm font-bold text-white">WhatsApp Integration</h4>
+                                    <p class="text-slate-400 text-xs leading-relaxed">Direct message alerts for drop-off summaries and attendance checks.</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="lg:col-span-5 space-y-3">
-                        <div class="bg-[#1C273E] p-4 rounded-xl border border-slate-800 text-left flex items-center gap-3">
-                            <span class="text-2xl">🔔</span>
-                            <div>
-                                <h5 class="text-[10px] font-bold text-white">WheelsTracker Alert</h5>
-                                <p class="text-[9px] text-slate-400">Bus #04 is 800m away. Please proceed to Stop #3.</p>
-                            </div>
-                        </div>
-                        <div class="bg-[#1C273E] p-4 rounded-xl border border-slate-800 text-left flex items-center gap-3">
-                            <span class="text-2xl">🎓</span>
-                            <div>
-                                <h5 class="text-[10px] font-bold text-white">WheelsTracker Arrival</h5>
-                                <p class="text-[9px] text-slate-400">Aarav has checked in at St. Jude's Academy.</p>
-                            </div>
+
+                    <!-- Right Column: High-Fidelity App Screenshot -->
+                    <div class="lg:col-span-7 flex justify-center">
+                        <div class="max-w-[360px] w-full hover:scale-[1.02] duration-300 transition-all-300 drop-shadow-[0_25px_30px_rgba(0,0,0,0.65)]">
+                            <img src="{{ asset('images/notifications_preview.png') }}" class="w-full h-auto block" alt="WheelsTracker Parent App Notifications Interface Screenshot">
                         </div>
                     </div>
                 </div>
@@ -111,6 +122,8 @@
                     <a href="/features" class="hover:text-lime-400">Features</a>
                     <a href="/solutions" class="hover:text-lime-400">Solutions</a>
                     <a href="/pricing" class="hover:text-lime-400">Pricing</a>
+                    <a href="/privacy-policy" class="hover:text-lime-400">Privacy Policy</a>
+                    <a href="/terms-conditions" class="hover:text-lime-400">Terms & Conditions</a>
                     <a href="/contact" class="hover:text-lime-400">Contact</a>
                 </div>
             </div>

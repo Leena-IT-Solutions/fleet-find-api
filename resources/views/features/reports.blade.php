@@ -50,7 +50,7 @@
                             👶 Parent App
                         </a>
                         <a href="/features/driver-app" class="pb-3 text-slate-400 hover:text-white transition-colors font-bold px-2 flex-shrink-0">
-                            👨&zwj;✈️ Driver App
+                            👨‍✈️ Driver App
                         </a>
                         <a href="/features/school-dashboard" class="pb-3 text-slate-400 hover:text-white transition-colors font-bold px-2 flex-shrink-0">
                             🏫 School Dashboard
@@ -68,39 +68,143 @@
                 </div>
             </section>
 
-            <!-- Detailed Content Block -->
+            <!-- Interactive Console Mockup -->
             <section class="py-16 bg-[#080B11]">
                 <div class="mx-auto max-w-7xl px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-                    <div class="lg:col-span-7 space-y-6 text-left">
-                        <span class="text-lime-400 font-extrabold text-xs uppercase tracking-wider">B2B Analytics Panel</span>
-                        <h2 class="text-2xl sm:text-4xl font-extrabold text-white leading-tight">Actionable Operational Reports</h2>
+                    
+                    <!-- Text support details -->
+                    <div class="lg:col-span-5 space-y-6 text-left">
+                        <span class="text-lime-400 font-extrabold text-xs uppercase tracking-wider">Reports Console Mockup</span>
+                        <h2 class="text-2xl sm:text-4xl font-extrabold text-white leading-tight">Total Transit Analytics at Your Fingertips.</h2>
                         <p class="text-slate-400 text-sm leading-relaxed">
-                            Review detailed driver checklists, compliance grades, speed violations records, and generate fuel optimization plans.
+                            Generate high-fidelity daily logs, check driver shift records, inspect distance mileage metrics, and filter trip history data points.
                         </p>
-                        <div class="space-y-3.5 text-xs text-slate-300">
-                            <div class="flex gap-3"><span class="text-lime-400">✓</span><span>Fuel consumption savings analytics graphs</span></div>
-                            <div class="flex gap-3"><span class="text-lime-400">✓</span><span>Driver attendance & check-in compliance logs</span></div>
-                            <div class="flex gap-3"><span class="text-lime-400">✓</span><span>Exportable CSV safety audit sheets</span></div>
+                        <div class="pt-4 flex flex-wrap gap-3">
+                            <button onclick="alert('Exporting PDF...')" class="px-5 py-2.5 rounded-xl border border-lime-500/20 bg-lime-950/10 text-lime-400 hover:bg-lime-400 hover:text-slate-950 text-xs font-bold transition-all-300">
+                                🖨️ Export PDF
+                            </button>
+                            <button onclick="alert('Exporting Excel...')" class="px-5 py-2.5 rounded-xl border border-slate-800 bg-slate-900 text-slate-350 hover:bg-slate-800 hover:text-white text-xs font-bold transition-all-300">
+                                📊 Export Excel
+                            </button>
                         </div>
                     </div>
-                    <div class="lg:col-span-5 flex justify-center">
-                        <div class="w-full max-w-sm bg-[#121824] border border-slate-850 p-6 rounded-3xl space-y-6 text-left">
-                            <span class="text-[9px] text-slate-450 uppercase font-black font-mono">Weekly Diagnostics</span>
-                            <div class="space-y-4">
-                                <div class="space-y-1">
-                                    <div class="flex justify-between text-[9px] text-slate-300"><span>Fuel Cost Savings</span><span class="text-lime-400 font-bold">+15.4%</span></div>
-                                    <div class="h-2 w-full bg-slate-900 rounded-full overflow-hidden">
-                                        <div class="h-full bg-gradient-to-r from-lime-400 to-emerald-400 rounded-full" style="width: 78%"></div>
-                                    </div>
-                                </div>
-                                <div class="space-y-1">
-                                    <div class="flex justify-between text-[9px] text-slate-300"><span>Idle Time Reduction</span><span class="text-lime-400 font-bold">-32 mins</span></div>
-                                    <div class="h-2 w-full bg-slate-900 rounded-full overflow-hidden">
-                                        <div class="h-full bg-gradient-to-r from-lime-400 to-emerald-400 rounded-full" style="width: 62%"></div>
-                                    </div>
-                                </div>
-                            </div>
+
+                    <!-- Right Column: Interactive Report Panel Mockup -->
+                    <div class="lg:col-span-7 bg-[#121824] p-6 rounded-3xl border border-slate-850 shadow-2xl space-y-6">
+                        <div class="flex flex-wrap gap-2 pb-4 border-b border-slate-850 text-[10px]">
+                            <button class="px-3 py-1.5 rounded-lg bg-lime-400 text-slate-950 font-bold">Daily</button>
+                            <button class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 font-medium">Monthly</button>
+                            <button class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 font-medium">Vehicle</button>
+                            <button class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 font-medium">Attendance</button>
+                            <button class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 font-medium">Route</button>
+                            <button class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 font-medium">Driver</button>
                         </div>
+
+                        <!-- Data table -->
+                        <div class="overflow-x-auto text-left">
+                            <table class="w-full text-[10px] sm:text-xs">
+                                <thead>
+                                    <tr class="border-b border-slate-800 text-slate-400">
+                                        <th class="py-2">Vehicle ID</th>
+                                        <th class="py-2">Route Name</th>
+                                        <th class="py-2">Mileage</th>
+                                        <th class="py-2">Trip History</th>
+                                        <th class="py-2 text-right">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-850 text-slate-300">
+                                    <tr>
+                                        <td class="py-3 font-semibold text-white">Bus #04</td>
+                                        <td class="py-3">Oakwood North Loop</td>
+                                        <td class="py-3 font-mono">112.4 km</td>
+                                        <td class="py-3 text-slate-400">AM / PM Completed</td>
+                                        <td class="py-3 text-right text-lime-400 font-bold">✓ Clean</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-3 font-semibold text-white">Van #11</td>
+                                        <td class="py-3">St. Jude's Express</td>
+                                        <td class="py-3 font-mono">48.2 km</td>
+                                        <td class="py-3 text-slate-400">AM Completed</td>
+                                        <td class="py-3 text-right text-lime-400 font-bold">✓ Clean</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-3 font-semibold text-white">Rickshaw #03</td>
+                                        <td class="py-3">Shanti Bazaar Pool</td>
+                                        <td class="py-3 font-mono">22.1 km</td>
+                                        <td class="py-3 text-slate-400">AM Completed</td>
+                                        <td class="py-3 text-right text-lime-400 font-bold">✓ Clean</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Detailed Grid of Report Capabilities -->
+            <section class="py-16 bg-[#0B0F17] border-y border-slate-900/60">
+                <div class="mx-auto max-w-7xl px-6 space-y-12">
+                    <div class="text-center max-w-2xl mx-auto space-y-4">
+                        <span class="text-lime-400 font-extrabold text-xs uppercase tracking-wider">Report Suite Modules</span>
+                        <h2 class="text-3xl font-bold text-white">Comprehensive Diagnostic Options</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        
+                        <!-- Daily Reports -->
+                        <div class="bg-[#121824] p-6 rounded-2xl border border-slate-850 space-y-3 text-left">
+                            <span class="text-xl">📅</span>
+                            <h4 class="text-base font-bold text-white">Daily Reports</h4>
+                            <p class="text-slate-400 text-xs leading-relaxed">
+                                Review individual daily shift durations, completed checkpoints timestamps, and speed limit violations checklists.
+                            </p>
+                        </div>
+
+                        <!-- Monthly Reports -->
+                        <div class="bg-[#121824] p-6 rounded-2xl border border-slate-850 space-y-3 text-left">
+                            <span class="text-xl">📆</span>
+                            <h4 class="text-base font-bold text-white">Monthly Reports</h4>
+                            <p class="text-slate-400 text-xs leading-relaxed">
+                                Aggregate monthly fleet performance grades, total operational mileage summaries, and driver compliance ratings.
+                            </p>
+                        </div>
+
+                        <!-- Vehicle Reports -->
+                        <div class="bg-[#121824] p-6 rounded-2xl border border-slate-850 space-y-3 text-left">
+                            <span class="text-xl">🚌</span>
+                            <h4 class="text-base font-bold text-white">Vehicle Reports</h4>
+                            <p class="text-slate-400 text-xs leading-relaxed">
+                                Track diesel consumption stats, vehicle idle times, geofencing counts, and scheduled mechanic maintenance warnings.
+                            </p>
+                        </div>
+
+                        <!-- Attendance Reports -->
+                        <div class="bg-[#121824] p-6 rounded-2xl border border-slate-850 space-y-3 text-left">
+                            <span class="text-xl">📇</span>
+                            <h4 class="text-base font-bold text-white">Attendance Reports</h4>
+                            <p class="text-slate-400 text-xs leading-relaxed">
+                                Inspect student boarding scan logs, absent list timelines, and check-in confirmation logs for parents audits.
+                            </p>
+                        </div>
+
+                        <!-- Route Reports -->
+                        <div class="bg-[#121824] p-6 rounded-2xl border border-slate-850 space-y-3 text-left">
+                            <span class="text-xl">🗺️</span>
+                            <h4 class="text-base font-bold text-white">Route Reports</h4>
+                            <p class="text-slate-400 text-xs leading-relaxed">
+                                Audit path deviations notifications, stop timing records, and coordinates accuracy metrics per assigned route.
+                            </p>
+                        </div>
+
+                        <!-- Driver Reports -->
+                        <div class="bg-[#121824] p-6 rounded-2xl border border-slate-850 space-y-3 text-left">
+                            <span class="text-xl">👨‍✈️</span>
+                            <h4 class="text-base font-bold text-white">Driver Reports</h4>
+                            <p class="text-slate-400 text-xs leading-relaxed">
+                                Measure acceleration levels, harsh braking telemetry records, shift on-time grades, and parent feedback ratings.
+                            </p>
+                        </div>
+
                     </div>
                 </div>
             </section>
@@ -114,6 +218,8 @@
                     <a href="/features" class="hover:text-lime-400">Features</a>
                     <a href="/solutions" class="hover:text-lime-400">Solutions</a>
                     <a href="/pricing" class="hover:text-lime-400">Pricing</a>
+                    <a href="/privacy-policy" class="hover:text-lime-400">Privacy Policy</a>
+                    <a href="/terms-conditions" class="hover:text-lime-400">Terms & Conditions</a>
                     <a href="/contact" class="hover:text-lime-400">Contact</a>
                 </div>
             </div>

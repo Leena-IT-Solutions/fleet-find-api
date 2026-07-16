@@ -602,74 +602,6 @@
             </div>
         </section>
 
-        <!-- Problem / Pain Points comparison (B2B focused) -->
-        <section class="py-20 bg-[#121824] border-y border-slate-900/80">
-            <div class="mx-auto max-w-7xl px-6">
-                <div class="text-center max-w-3xl mx-auto space-y-4 mb-16">
-                    <h2 class="text-xs uppercase font-extrabold tracking-wider text-lime-400">The Operations Headache</h2>
-                    <p class="text-3xl sm:text-4xl font-extrabold text-slate-200 tracking-tight">Why Traditional School Transport Fails</p>
-                    <p class="text-slate-500 text-base sm:text-lg">
-                        Managing school transport manually is stressful, expensive, and leads to angry parents. Here is how WheelsTracker transforms your administration.
-                    </p>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <!-- Card 1 -->
-                    <div class="bg-[#121824] rounded-2xl p-8 border border-slate-850 shadow-md text-slate-200 flex flex-col justify-between">
-                        <div class="space-y-4">
-                            <div class="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center text-red-500 font-bold text-lg mb-2">01</div>
-                            <h3 class="text-lg font-bold text-slate-300">Endless Anxious Phone Calls</h3>
-                            <div class="space-y-3.5 pt-2">
-                                <div class="flex gap-2.5 text-sm text-slate-400 line-through">
-                                    <svg class="w-5 h-5 flex-shrink-0 text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                                    Parents calling the office asking "Where is the bus?" and "Why is it late?" during your busiest morning hours.
-                                </div>
-                                <div class="flex gap-2.5 text-sm text-slate-600 font-medium">
-                                    <svg class="w-5 h-5 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                                    <span><strong>The WheelsTracker Way:</strong> Live link and push notifications alert parents automatically as the bus nears their home.</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Card 2 -->
-                    <div class="bg-[#121824] rounded-2xl p-8 border border-slate-850 shadow-md text-slate-200 flex flex-col justify-between">
-                        <div class="space-y-4">
-                            <div class="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center text-red-500 font-bold text-lg mb-2">02</div>
-                            <h3 class="text-lg font-bold text-slate-300">Zero Driver Accountability</h3>
-                            <div class="space-y-3.5 pt-2">
-                                <div class="flex gap-2.5 text-sm text-slate-400 line-through">
-                                    <svg class="w-5 h-5 flex-shrink-0 text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                                    No way to monitor speeding, unauthorized driver detours, long stops, or rough driving.
-                                </div>
-                                <div class="flex gap-2.5 text-sm text-slate-600 font-medium">
-                                    <svg class="w-5 h-5 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                                    <span><strong>The WheelsTracker Way:</strong> Automated speed alert logs, path deviations, and real-time mapping keep drivers responsible.</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Card 3 -->
-                    <div class="bg-[#121824] rounded-2xl p-8 border border-slate-850 shadow-md text-slate-200 flex flex-col justify-between">
-                        <div class="space-y-4">
-                            <div class="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center text-red-500 font-bold text-lg mb-2">03</div>
-                            <h3 class="text-lg font-bold text-slate-300">Unknown Student Boarding</h3>
-                            <div class="space-y-3.5 pt-2">
-                                <div class="flex gap-2.5 text-sm text-slate-400 line-through">
-                                    <svg class="w-5 h-5 flex-shrink-0 text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                                    Manually tracking attendance or guessing if a child boarded the correct vehicle or reached the school.
-                                </div>
-                                <div class="flex gap-2.5 text-sm text-slate-600 font-medium">
-                                    <svg class="w-5 h-5 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                                    <span><strong>The WheelsTracker Way:</strong> Optional QR/RFID card scans verify who is on board. Parents receive confirmation immediately.</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
 
         <!-- Interactive Product Simulator (B2B Showcase) -->
         <section id="simulator" class="py-20 bg-[#080B11] text-slate-200 border-t border-slate-900/60">
@@ -1679,30 +1611,28 @@
                                             </div>
                                         </div>
                                     </div>
-
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- Parent Experience Section -->
-        <section id="parent-experience" class="py-24 bg-gradient-to-b from-white to-slate-50 border-t border-slate-900/80 overflow-hidden relative">
+        <section id="parent-experience" class="py-24 bg-[#080B11] border-y border-slate-900/60 overflow-hidden relative">
             <!-- Background floating ambient bubbles -->
             <div class="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-rose-500/5 blur-[120px] pointer-events-none"></div>
-            <div class="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-lime-950/20/5 blur-[120px] pointer-events-none"></div>
+            <div class="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-lime-950/20 blur-[120px] pointer-events-none"></div>
             
             <div class="mx-auto max-w-7xl px-6 relative z-10">
                 <!-- Title Header -->
                 <div class="text-center max-w-3xl mx-auto space-y-4 mb-20">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-lime-950/20 text-lime-400 text-xs font-semibold uppercase tracking-wider border border-lime-500/20/50">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-lime-950/25 text-lime-400 text-xs font-semibold uppercase tracking-wider border border-lime-500/20">
                         Parent Experience
                     </div>
-                    <h2 class="text-3xl sm:text-5xl font-extrabold text-slate-200 tracking-tight animate-fade-in">Parents Always Know</h2>
-                    <p class="text-slate-500 text-sm sm:text-base leading-relaxed">
+                    <h2 class="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">Parents Always Know</h2>
+                    <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
                         No guesswork, no curb-side waiting in the rain, no frantic phone calls. Walk through the morning journey of absolute peace of mind.
                     </p>
                 </div>
@@ -1711,16 +1641,9 @@
                 <div class="relative">
                     
                     <!-- SVG Connecting Flow Line (Visible on Desktop) -->
-                    <div class="absolute top-1/2 left-0 w-full h-1 transform -translate-y-1/2 hidden md:block z-0 opacity-40">
+                    <div class="absolute top-1/2 left-0 w-full h-1 transform -translate-y-1/2 hidden md:block z-0 opacity-20">
                         <svg class="w-full h-4" fill="none" viewBox="0 0 1200 16" preserveAspectRatio="none">
-                            <path d="M 0 8 Q 150 0, 300 8 T 600 8 T 900 8 T 1200 8" stroke="url(#transport-flow-gradient)" stroke-width="3" stroke-dasharray="8 6" stroke-linecap="round"/>
-                            <defs>
-                                <linearGradient id="flow-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                    <stop offset="0%" stop-color="#4f46e5" />
-                                    <stop offset="50%" stop-color="#ec4899" />
-                                    <stop offset="100%" stop-color="#10b981" />
-                                </linearGradient>
-                            </defs>
+                            <path d="M 0 8 Q 150 0, 300 8 T 600 8 T 900 8 T 1200 8" stroke="#10b981" stroke-width="2" stroke-dasharray="8 6" stroke-linecap="round"/>
                         </svg>
                     </div>
 
@@ -1728,17 +1651,17 @@
                         
                         <!-- Step 1: Child leaves home -->
                         <div class="bg-[#121824] border border-slate-850 rounded-3xl p-6 shadow-xl shadow-black/40 text-slate-200 hover:-translate-y-1.5 duration-300 relative overflow-hidden flex flex-col justify-between items-center text-center group">
-                            <span class="absolute top-3 right-3 text-[9px] font-black px-2 py-0.5 rounded-full bg-lime-950/20 text-lime-400">STEP 1</span>
+                            <span class="absolute top-3 right-3 text-[9px] font-black px-2 py-0.5 rounded-full bg-lime-950/40 text-lime-400">STEP 1</span>
                             
                             <!-- Custom visual graphic -->
-                            <div class="w-20 h-20 rounded-2xl bg-lime-950/20 flex items-center justify-center text-4xl mb-6 relative group-hover:scale-105 duration-300">
+                            <div class="w-20 h-20 rounded-2xl bg-lime-950/30 border border-lime-500/20 flex items-center justify-center text-4xl mb-6 relative group-hover:scale-105 duration-300">
                                 <span class="relative z-10">🏡</span>
-                                <div class="absolute inset-0 bg-blue-200/20 rounded-2xl blur group-hover:scale-110 duration-300"></div>
+                                <div class="absolute inset-0 bg-lime-500/5 rounded-2xl blur group-hover:scale-110 duration-300"></div>
                             </div>
                             
                             <div class="space-y-2 flex-grow flex flex-col justify-center">
-                                <h3 class="text-base font-extrabold text-slate-200 group-hover:text-blue-650 duration-350">Child Leaves Home</h3>
-                                <p class="text-xs text-slate-550 leading-relaxed">
+                                <h3 class="text-base font-extrabold text-white group-hover:text-lime-400 duration-350">Child Leaves Home</h3>
+                                <p class="text-xs text-slate-400 leading-relaxed">
                                     Your child steps out the door with backpack ready. You wave goodbye knowing transport is perfectly synced.
                                 </p>
                             </div>
@@ -1746,18 +1669,18 @@
 
                         <!-- Step 2: Vehicle Approaching -->
                         <div class="bg-[#121824] border border-slate-850 rounded-3xl p-6 shadow-xl shadow-black/40 text-slate-200 hover:-translate-y-1.5 duration-300 relative overflow-hidden flex flex-col justify-between items-center text-center group">
-                            <span class="absolute top-3 right-3 text-[9px] font-black px-2 py-0.5 rounded-full bg-rose-50 text-rose-600">STEP 2</span>
+                            <span class="absolute top-3 right-3 text-[9px] font-black px-2 py-0.5 rounded-full bg-rose-950/40 text-rose-400">STEP 2</span>
                             
                             <!-- Custom visual graphic -->
-                            <div class="w-20 h-20 rounded-2xl bg-rose-50 flex items-center justify-center text-4xl mb-6 relative group-hover:scale-105 duration-300">
+                            <div class="w-20 h-20 rounded-2xl bg-rose-950/30 border border-rose-500/20 flex items-center justify-center text-4xl mb-6 relative group-hover:scale-105 duration-300">
                                 <span class="relative z-10">📲</span>
                                 <div class="absolute -top-1 -right-1 w-4.5 h-4.5 bg-rose-500 rounded-full text-white text-[8px] font-black flex items-center justify-center animate-bounce">1</div>
-                                <div class="absolute inset-0 bg-rose-200/20 rounded-2xl blur group-hover:scale-110 duration-300"></div>
+                                <div class="absolute inset-0 bg-rose-500/5 rounded-2xl blur group-hover:scale-110 duration-300"></div>
                             </div>
                             
                             <div class="space-y-2 flex-grow flex flex-col justify-center">
-                                <h3 class="text-base font-extrabold text-slate-200 group-hover:text-rose-600 duration-350">Vehicle Approaching</h3>
-                                <p class="text-xs text-slate-550 leading-relaxed">
+                                <h3 class="text-base font-extrabold text-white group-hover:text-rose-400 duration-350">Vehicle Approaching</h3>
+                                <p class="text-xs text-slate-400 leading-relaxed">
                                     App alerts you when the bus is exactly 5 minutes away. No waiting outside in scorching heat or cold rain.
                                 </p>
                             </div>
@@ -1765,18 +1688,18 @@
 
                         <!-- Step 3: Pickup Alert -->
                         <div class="bg-[#121824] border border-slate-850 rounded-3xl p-6 shadow-xl shadow-black/40 text-slate-200 hover:-translate-y-1.5 duration-300 relative overflow-hidden flex flex-col justify-between items-center text-center group">
-                            <span class="absolute top-3 right-3 text-[9px] font-black px-2 py-0.5 rounded-full bg-amber-50 text-amber-600">STEP 3</span>
+                            <span class="absolute top-3 right-3 text-[9px] font-black px-2 py-0.5 rounded-full bg-amber-950/40 text-amber-400">STEP 3</span>
                             
                             <!-- Custom visual graphic -->
-                            <div class="w-20 h-20 rounded-2xl bg-amber-50 flex items-center justify-center text-4xl mb-6 relative group-hover:scale-105 duration-300">
+                            <div class="w-20 h-20 rounded-2xl bg-amber-950/30 border border-amber-500/20 flex items-center justify-center text-4xl mb-6 relative group-hover:scale-105 duration-300">
                                 <span class="relative z-10">🚌</span>
-                                <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-[#f97316]merald-500 rounded-full text-white text-xs font-black flex items-center justify-center">✓</div>
-                                <div class="absolute inset-0 bg-amber-200/20 rounded-2xl blur group-hover:scale-110 duration-300"></div>
+                                <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full text-white text-xs font-black flex items-center justify-center">✓</div>
+                                <div class="absolute inset-0 bg-amber-500/5 rounded-2xl blur group-hover:scale-110 duration-300"></div>
                             </div>
                             
                             <div class="space-y-2 flex-grow flex flex-col justify-center">
-                                <h3 class="text-base font-extrabold text-slate-200 group-hover:text-amber-600 duration-350">Pickup Confirmation</h3>
-                                <p class="text-xs text-slate-550 leading-relaxed">
+                                <h3 class="text-base font-extrabold text-white group-hover:text-amber-400 duration-350">Pickup Confirmation</h3>
+                                <p class="text-xs text-slate-400 leading-relaxed">
                                     Get an instant push notification the split-second your child boards and the vehicle starts rolling.
                                 </p>
                             </div>
@@ -1784,17 +1707,17 @@
 
                         <!-- Step 4: Live Tracking -->
                         <div class="bg-[#121824] border border-slate-850 rounded-3xl p-6 shadow-xl shadow-black/40 text-slate-200 hover:-translate-y-1.5 duration-300 relative overflow-hidden flex flex-col justify-between items-center text-center group">
-                            <span class="absolute top-3 right-3 text-[9px] font-black px-2 py-0.5 rounded-full bg-amber-50 text-amber-600">STEP 4</span>
+                            <span class="absolute top-3 right-3 text-[9px] font-black px-2 py-0.5 rounded-full bg-violet-950/40 text-violet-400">STEP 4</span>
                             
                             <!-- Custom visual graphic -->
-                            <div class="w-20 h-20 rounded-2xl bg-amber-50 flex items-center justify-center text-4xl mb-6 relative group-hover:scale-105 duration-300">
+                            <div class="w-20 h-20 rounded-2xl bg-violet-950/30 border border-violet-500/20 flex items-center justify-center text-4xl mb-6 relative group-hover:scale-105 duration-300">
                                 <span class="relative z-10">📍</span>
-                                <div class="absolute inset-0 bg-violet-200/20 rounded-2xl blur group-hover:scale-110 duration-300"></div>
+                                <div class="absolute inset-0 bg-violet-500/5 rounded-2xl blur group-hover:scale-110 duration-300"></div>
                             </div>
                             
                             <div class="space-y-2 flex-grow flex flex-col justify-center">
-                                <h3 class="text-base font-extrabold text-slate-200 group-hover:text-violet-600 duration-350">Live Path Tracking</h3>
-                                <p class="text-xs text-slate-550 leading-relaxed">
+                                <h3 class="text-base font-extrabold text-white group-hover:text-violet-400 duration-350">Live Path Tracking</h3>
+                                <p class="text-xs text-slate-400 leading-relaxed">
                                     Watch the bus progress dynamically on the map. Know speed, location, and delay updates instantly.
                                 </p>
                             </div>
@@ -1802,17 +1725,17 @@
 
                         <!-- Step 5: Reached School Notification -->
                         <div class="bg-[#121824] border border-slate-850 rounded-3xl p-6 shadow-xl shadow-black/40 text-slate-200 hover:-translate-y-1.5 duration-300 relative overflow-hidden flex flex-col justify-between items-center text-center group">
-                            <span class="absolute top-3 right-3 text-[9px] font-black px-2 py-0.5 rounded-full bg-[#f97316]merald-50 text-emerald-600">STEP 5</span>
+                            <span class="absolute top-3 right-3 text-[9px] font-black px-2 py-0.5 rounded-full bg-emerald-950/40 text-emerald-400">STEP 5</span>
                             
                             <!-- Custom visual graphic -->
-                            <div class="w-20 h-20 rounded-2xl bg-[#f97316]merald-50 flex items-center justify-center text-4xl mb-6 relative group-hover:scale-105 duration-300">
+                            <div class="w-20 h-20 rounded-2xl bg-emerald-950/30 border border-emerald-500/20 flex items-center justify-center text-4xl mb-6 relative group-hover:scale-105 duration-300">
                                 <span class="relative z-10">🏫</span>
-                                <div class="absolute inset-0 bg-[#f97316]merald-200/20 rounded-2xl blur group-hover:scale-110 duration-300"></div>
+                                <div class="absolute inset-0 bg-emerald-500/5 rounded-2xl blur group-hover:scale-110 duration-300"></div>
                             </div>
                             
                             <div class="space-y-2 flex-grow flex flex-col justify-center">
-                                <h3 class="text-base font-extrabold text-slate-200 group-hover:text-emerald-600 duration-350">Classroom Arrival</h3>
-                                <p class="text-xs text-slate-550 leading-relaxed">
+                                <h3 class="text-base font-extrabold text-white group-hover:text-emerald-400 duration-350">Classroom Arrival</h3>
+                                <p class="text-xs text-slate-400 leading-relaxed">
                                     "Aarav reached St. Jude's School." Sit back and start your day knowing they have arrived safely.
                                 </p>
                             </div>
@@ -1838,8 +1761,8 @@
         <!-- Driver Experience Section -->
         <section id="driver-experience" class="py-24 bg-slate-900 text-white relative overflow-hidden">
             <!-- Glowing background accents -->
-            <div class="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-[#f97316]merald-500/10 blur-[120px] pointer-events-none"></div>
-            <div class="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-lime-950/20/10 blur-[120px] pointer-events-none"></div>
+            <div class="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-emerald-500/10 blur-[120px] pointer-events-none"></div>
+            <div class="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-lime-950/20 blur-[120px] pointer-events-none"></div>
 
             <div class="mx-auto max-w-7xl px-6 relative z-10">
                 <!-- Section Header -->
