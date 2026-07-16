@@ -53,39 +53,83 @@
                 </div>
             </section>
 
-            <!-- Solutions Segments -->
+            <!-- Solutions Grid -->
             <section class="py-20 bg-[#080B11]">
-                <div class="mx-auto max-w-7xl px-6 space-y-12">
-                    <!-- Segment 1: Schools & Owners -->
-                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-[#121824] p-8 sm:p-12 rounded-3xl border border-slate-850">
-                        <div class="lg:col-span-7 space-y-4">
-                            <span class="text-sm text-lime-400 font-extrabold uppercase tracking-wider">For Administrators</span>
-                            <h2 class="text-2xl sm:text-3xl font-bold text-white">Consolidated Administration & Control</h2>
+                <div class="mx-auto max-w-7xl px-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        
+                        <!-- Schools Card -->
+                        <a href="/solutions/schools" class="block bg-[#121824] p-8 rounded-2xl border border-slate-850 hover:border-lime-400 transition-all duration-300 transform hover:-translate-y-1 space-y-4 group">
+                            <div class="flex justify-between items-start">
+                                <span class="text-3xl">🏫</span>
+                                <span class="text-[10px] text-lime-400 font-bold tracking-widest uppercase bg-lime-950/20 px-2 py-0.5 rounded border border-lime-500/20">Active</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white group-hover:text-lime-400 transition-colors">Schools</h3>
                             <p class="text-slate-400 text-sm leading-relaxed">
-                                Reduce parent inquiry calls by up to 85% by providing live self-service maps. Automate routing networks, audit vehicle diagnostics, generate fuel savings reports, and control check-in data.
+                                Complete tracking portals for individual schools, trace ETA updates, handle driver logs, and share live location maps with parents.
                             </p>
-                        </div>
-                        <div class="lg:col-span-5 text-left bg-slate-900/60 p-6 rounded-2xl border border-slate-800 space-y-3">
-                            <div class="flex gap-2.5 text-xs"><span class="text-lime-400">✓</span><span>85% decrease in phone inquiries</span></div>
-                            <div class="flex gap-2.5 text-xs"><span class="text-lime-400">✓</span><span>Fuel consumption reduced by 15.4%</span></div>
-                            <div class="flex gap-2.5 text-xs"><span class="text-lime-400">✓</span><span>100% digital check-in logs audit trail</span></div>
-                        </div>
-                    </div>
+                        </a>
 
-                    <!-- Segment 2: Fleet Transporters -->
-                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-[#121824] p-8 sm:p-12 rounded-3xl border border-slate-850">
-                        <div class="lg:col-span-7 space-y-4">
-                            <span class="text-sm text-lime-400 font-extrabold uppercase tracking-wider">For Transport Managers</span>
-                            <h2 class="text-2xl sm:text-3xl font-bold text-white">Route Optimization & Crew Coordination</h2>
+                        <!-- School Groups Card -->
+                        <a href="/solutions/schools" class="block bg-[#121824] p-8 rounded-2xl border border-slate-850 hover:border-lime-400 transition-all duration-300 transform hover:-translate-y-1 space-y-4 group">
+                            <div class="flex justify-between items-start">
+                                <span class="text-3xl">🏢</span>
+                                <span class="text-[10px] text-lime-400 font-bold tracking-widest uppercase bg-lime-950/20 px-2 py-0.5 rounded border border-lime-500/20">Group SKU</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white group-hover:text-lime-400 transition-colors">School Groups</h3>
                             <p class="text-slate-400 text-sm leading-relaxed">
-                                Streamline driver rosters, assign route lists, configure safety constraints, and check vehicle telemetry data. WheelsTracker provides operations controllers with real-time speed monitoring and deviation alerts.
+                                Consolidated panels designed for multi-branch school networks. Manage all campuses, fleets, and administrative roles under a single dashboard.
                             </p>
-                        </div>
-                        <div class="lg:col-span-5 text-left bg-slate-900/60 p-6 rounded-2xl border border-slate-800 space-y-3">
-                            <div class="flex gap-2.5 text-xs"><span class="text-lime-400">✓</span><span>Automated traffic rerouting engines</span></div>
-                            <div class="flex gap-2.5 text-xs"><span class="text-lime-400">✓</span><span>Immediate over-speed audio alerts</span></div>
-                            <div class="flex gap-2.5 text-xs"><span class="text-lime-400">✓</span><span>Central vehicle registry telemetry logs</span></div>
-                        </div>
+                        </a>
+
+                        <!-- Bus Operators Card -->
+                        <a href="/solutions/school-bus-operators" class="block bg-[#121824] p-8 rounded-2xl border border-slate-850 hover:border-lime-400 transition-all duration-300 transform hover:-translate-y-1 space-y-4 group">
+                            <div class="flex justify-between items-start">
+                                <span class="text-3xl">🚌</span>
+                                <span class="text-[10px] text-lime-400 font-bold tracking-widest uppercase bg-lime-950/20 px-2 py-0.5 rounded border border-lime-500/20">Operator</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white group-hover:text-lime-400 transition-colors">Bus Operators</h3>
+                            <p class="text-slate-400 text-sm leading-relaxed">
+                                Robust scheduling tools, trace fuel logs, prevent idle overheads, and streamline driver shifts for school bus fleet operators.
+                            </p>
+                        </a>
+
+                        <!-- Van Operators Card -->
+                        <a href="/solutions/van-operators" class="block bg-[#121824] p-8 rounded-2xl border border-slate-850 hover:border-lime-400 transition-all duration-300 transform hover:-translate-y-1 space-y-4 group">
+                            <div class="flex justify-between items-start">
+                                <span class="text-3xl">🚐</span>
+                                <span class="text-[10px] text-lime-400 font-bold tracking-widest uppercase bg-lime-950/20 px-2 py-0.5 rounded border border-lime-500/20">Micro Fleet</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white group-hover:text-lime-400 transition-colors">Van Operators</h3>
+                            <p class="text-slate-400 text-sm leading-relaxed">
+                                Compact fleet tracker systems built for private school vans. Satisfy parent demands with automated boarding notification triggers.
+                            </p>
+                        </a>
+
+                        <!-- Rickshaw Operators Card -->
+                        <a href="/solutions/auto-rickshaw-operators" class="block bg-[#121824] p-8 rounded-2xl border border-slate-850 hover:border-lime-400 transition-all duration-300 transform hover:-translate-y-1 space-y-4 group">
+                            <div class="flex justify-between items-start">
+                                <span class="text-3xl">🛺</span>
+                                <span class="text-[10px] text-lime-400 font-bold tracking-widest uppercase bg-lime-950/20 px-2 py-0.5 rounded border border-lime-500/20">Local Pool</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white group-hover:text-lime-400 transition-colors">Rickshaw Operators</h3>
+                            <p class="text-slate-400 text-sm leading-relaxed">
+                                Lightweight B2C tracking interfaces for local rickshaw pools. Reassure parents with simple location broadcasts and check-ins.
+                            </p>
+                        </a>
+
+                        <!-- Transport Agencies Card -->
+                        <a href="/solutions/transport-contractors" class="block bg-[#121824] p-8 rounded-2xl border border-slate-850 hover:border-lime-400 transition-all duration-300 transform hover:-translate-y-1 space-y-4 group">
+                            <div class="flex justify-between items-start">
+                                <span class="text-3xl">💼</span>
+                                <span class="text-[10px] text-lime-400 font-bold tracking-widest uppercase bg-lime-950/20 px-2 py-0.5 rounded border border-lime-500/20">Enterprise</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white group-hover:text-lime-400 transition-colors">Transport Agencies</h3>
+                            <p class="text-slate-400 text-sm leading-relaxed">
+                                Enterprise-grade tracking APIs, automated safety audits checklists, and contractor compliance registries for large transport agencies.
+                            </p>
+                        </a>
+
                     </div>
                 </div>
             </section>

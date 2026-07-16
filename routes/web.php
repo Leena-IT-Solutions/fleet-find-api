@@ -19,6 +19,11 @@ Route::view('/features/live-gps-tracking', 'features.live-gps-tracking')->name('
 Route::view('/features/notifications', 'features.notifications')->name('features.notifications');
 Route::view('/features/reports', 'features.reports')->name('features.reports');
 Route::view('/solutions', 'solutions')->name('solutions');
+Route::view('/solutions/schools', 'solutions.schools')->name('solutions.schools');
+Route::view('/solutions/school-bus-operators', 'solutions.school-bus-operators')->name('solutions.school-bus-operators');
+Route::view('/solutions/van-operators', 'solutions.van-operators')->name('solutions.van-operators');
+Route::view('/solutions/auto-rickshaw-operators', 'solutions.auto-rickshaw-operators')->name('solutions.auto-rickshaw-operators');
+Route::view('/solutions/transport-contractors', 'solutions.transport-contractors')->name('solutions.transport-contractors');
 Route::view('/pricing', 'pricing')->name('pricing');
 Route::view('/case-studies', 'case-studies')->name('case-studies');
 Route::view('/blog', 'blog')->name('blog');
