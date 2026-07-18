@@ -79,63 +79,35 @@
                         <p class="text-slate-400 text-sm leading-relaxed">
                             Generate high-fidelity daily logs, check driver shift records, inspect distance mileage metrics, and filter trip history data points.
                         </p>
-                        <div class="pt-4 flex flex-wrap gap-3">
-                            <button onclick="alert('Exporting PDF...')" class="px-5 py-2.5 rounded-xl border border-lime-500/20 bg-lime-950/10 text-lime-400 hover:bg-lime-400 hover:text-slate-950 text-xs font-bold transition-all-300">
+                        <div class="pt-4 flex flex-wrap gap-3 select-none">
+                            <div class="px-5 py-2.5 rounded-xl border border-lime-500/20 bg-lime-950/10 text-lime-400 text-xs font-bold">
                                 🖨️ Export PDF
-                            </button>
-                            <button onclick="alert('Exporting Excel...')" class="px-5 py-2.5 rounded-xl border border-slate-800 bg-slate-900 text-slate-350 hover:bg-slate-800 hover:text-white text-xs font-bold transition-all-300">
+                            </div>
+                            <div class="px-5 py-2.5 rounded-xl border border-slate-800 bg-slate-900/50 text-slate-400 text-xs font-bold">
                                 📊 Export Excel
-                            </button>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Right Column: Interactive Report Panel Mockup -->
-                    <div class="lg:col-span-7 bg-[#121824] p-6 rounded-3xl border border-slate-850 shadow-2xl space-y-6">
-                        <div class="flex flex-wrap gap-2 pb-4 border-b border-slate-850 text-[10px]">
-                            <button class="px-3 py-1.5 rounded-lg bg-lime-400 text-slate-950 font-bold">Daily</button>
-                            <button class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 font-medium">Monthly</button>
-                            <button class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 font-medium">Vehicle</button>
-                            <button class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 font-medium">Attendance</button>
-                            <button class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 font-medium">Route</button>
-                            <button class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 font-medium">Driver</button>
-                        </div>
-
-                        <!-- Data table -->
-                        <div class="overflow-x-auto text-left">
-                            <table class="w-full text-[10px] sm:text-xs">
-                                <thead>
-                                    <tr class="border-b border-slate-800 text-slate-400">
-                                        <th class="py-2">Vehicle ID</th>
-                                        <th class="py-2">Route Name</th>
-                                        <th class="py-2">Mileage</th>
-                                        <th class="py-2">Trip History</th>
-                                        <th class="py-2 text-right">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-850 text-slate-300">
-                                    <tr>
-                                        <td class="py-3 font-semibold text-white">Bus #04</td>
-                                        <td class="py-3">Oakwood North Loop</td>
-                                        <td class="py-3 font-mono">112.4 km</td>
-                                        <td class="py-3 text-slate-400">AM / PM Completed</td>
-                                        <td class="py-3 text-right text-lime-400 font-bold">✓ Clean</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="py-3 font-semibold text-white">Van #11</td>
-                                        <td class="py-3">St. Jude's Express</td>
-                                        <td class="py-3 font-mono">48.2 km</td>
-                                        <td class="py-3 text-slate-400">AM Completed</td>
-                                        <td class="py-3 text-right text-lime-400 font-bold">✓ Clean</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="py-3 font-semibold text-white">Rickshaw #03</td>
-                                        <td class="py-3">Shanti Bazaar Pool</td>
-                                        <td class="py-3 font-mono">22.1 km</td>
-                                        <td class="py-3 text-slate-400">AM Completed</td>
-                                        <td class="py-3 text-right text-lime-400 font-bold">✓ Clean</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                    <!-- Right Column: High-Fidelity Reports Dashboard Preview -->
+                    <div class="lg:col-span-7 relative group">
+                        <!-- Glowing accent behind image -->
+                        <div class="absolute -inset-1 rounded-3xl bg-gradient-to-r from-lime-500/20 to-blue-500/20 opacity-40 blur-xl group-hover:opacity-60 transition duration-1000"></div>
+                        
+                        <div class="relative rounded-2xl border border-slate-800 bg-[#0C101A] overflow-hidden shadow-2xl transition duration-300 transform group-hover:scale-[1.01]">
+                            <!-- Browser/App Header controls -->
+                            <div class="bg-slate-950 px-4 py-3 border-b border-slate-900 flex items-center gap-2">
+                                <div class="flex gap-1.5">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-rose-500/40"></span>
+                                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500/40"></span>
+                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/40"></span>
+                                </div>
+                                <div class="bg-slate-900/60 rounded-md text-[9px] text-slate-500 px-3 py-0.5 mx-auto font-mono">
+                                    admin.wheelstracker.com/reports
+                                </div>
+                            </div>
+                            <!-- Image display -->
+                            <img src="{{ asset('images/reports_dashboard_preview.png') }}" class="w-full h-auto object-cover animate-fade-in" alt="WheelsTracker Reports Dashboard Interface">
                         </div>
                     </div>
                 </div>
@@ -211,19 +183,7 @@
         </main>
 
         <!-- Footer -->
-        <footer class="bg-[#05070A] text-slate-400 py-12 border-t border-slate-950">
-            <div class="mx-auto max-w-7xl px-6 text-center space-y-4">
-                <p class="text-sm font-medium">&copy; {{ date('Y') }} WheelsTracker. All rights reserved.</p>
-                <div class="flex justify-center gap-6 text-xs">
-                    <a href="/features" class="hover:text-lime-400">Features</a>
-                    <a href="/solutions" class="hover:text-lime-400">Solutions</a>
-                    <a href="/pricing" class="hover:text-lime-400">Pricing</a>
-                    <a href="/privacy-policy" class="hover:text-lime-400">Privacy Policy</a>
-                    <a href="/terms-conditions" class="hover:text-lime-400">Terms & Conditions</a>
-                    <a href="/contact" class="hover:text-lime-400">Contact</a>
-                </div>
-            </div>
-        </footer>
+        <x-footer />
 
     </div>
 </x-guest-layout>

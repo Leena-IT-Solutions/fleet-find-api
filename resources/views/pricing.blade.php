@@ -194,17 +194,7 @@
         </main>
 
         <!-- Footer -->
-        <footer class="bg-[#05070A] text-slate-400 py-12 border-t border-slate-950">
-            <div class="mx-auto max-w-7xl px-6 text-center space-y-4">
-                <p class="text-sm font-medium">&copy; {{ date('Y') }} WheelsTracker. All rights reserved.</p>
-                <div class="flex justify-center gap-6 text-xs">
-                    <a href="/features" class="hover:text-lime-400">Features</a>
-                    <a href="/solutions" class="hover:text-lime-400">Solutions</a>
-                    <a href="/pricing" class="hover:text-lime-400">Pricing</a>
-                    <a href="/contact" class="hover:text-lime-400">Contact</a>
-                </div>
-            </div>
-        </footer>
+        <x-footer />
 
     </div>
 </x-guest-layout>

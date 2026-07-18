@@ -19,6 +19,12 @@ Route::view('/features/live-gps-tracking', 'features.live-gps-tracking')->name('
 Route::view('/features/notifications', 'features.notifications')->name('features.notifications');
 Route::view('/features/reports', 'features.reports')->name('features.reports');
 Route::view('/school-bus-tracking-software', 'landing.school-bus-tracking-software')->name('landing.school-bus-tracking-software');
+Route::view('/school-van-tracking-software', 'landing.school-van-tracking')->name('landing.school-van-tracking');
+Route::view('/gps-tracking-system-for-schools', 'landing.school-gps-tracking-system')->name('landing.school-gps-tracking-system');
+Route::view('/school-bus-gps-india', 'landing.school-bus-gps-india')->name('landing.school-bus-gps-india');
+Route::view('/auto-rickshaw-tracking-for-schools', 'landing.school-rickshaw-tracking')->name('landing.school-rickshaw-tracking');
+Route::view('/school-fleet-management', 'landing.school-fleet-management')->name('landing.school-fleet-management');
+Route::view('/school-transport-management-software', 'landing.school-transport-management')->name('landing.school-transport-management');
 Route::view('/solutions', 'solutions')->name('solutions');
 Route::view('/solutions/schools', 'solutions.schools')->name('solutions.schools');
 Route::view('/solutions/school-bus-operators', 'solutions.school-bus-operators')->name('solutions.school-bus-operators');
