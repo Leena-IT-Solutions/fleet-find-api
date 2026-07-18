@@ -25,9 +25,7 @@
                     <a href="/features" class="text-slate-300 hover:text-lime-400 transition-colors">Features</a>
                     <a href="/solutions" class="text-slate-300 hover:text-lime-400 transition-colors">Solutions</a>
                     <a href="/pricing" class="text-slate-300 hover:text-lime-400 transition-colors">Pricing</a>
-                    <a href="/case-studies" class="text-slate-300 hover:text-lime-400 transition-colors">Case Studies</a>
                     <a href="/blog" class="text-slate-300 hover:text-lime-400 transition-colors">Blog</a>
-                    <a href="/about" class="text-slate-300 hover:text-lime-400 transition-colors">About</a>
                     <a href="/contact" class="text-slate-300 hover:text-lime-400 transition-colors">Contact</a>
                 </nav>
                 <div class="flex items-center gap-4">
@@ -52,56 +50,98 @@
                         Last updated: July 16, 2026. Review rules, SLAs, and usage limitations of our tracking platform.
                     </p>
                 </div>
-            </section>
-
-            <!-- Content -->
+            </sectio            <!-- Content -->
             <section class="py-16 bg-[#080B11]">
-                <div class="mx-auto max-w-3xl px-6 text-left space-y-10 leading-relaxed text-slate-300">
+                <div class="mx-auto max-w-4xl px-6 text-left space-y-12 leading-relaxed text-slate-355 text-sm sm:text-base">
+                    
                     <div class="space-y-4">
-                        <h2 class="text-xl font-bold text-white border-b border-slate-900 pb-2">1. Terms of Service Usage</h2>
-                        <p class="text-xs sm:text-sm">
-                            By deploying WheelsTracker, school districts, bus contractors, and van operators agree to provide accurate vehicle diagnostics data. The driver application must only be active during scheduled transit hours.
+                        <h2 class="text-2xl font-black text-white border-b border-slate-900 pb-3 flex items-center gap-3">
+                            <span class="text-lime-400">01.</span> Acceptance of Terms
+                        </h2>
+                        <p class="leading-relaxed text-slate-400 text-sm">
+                            By subscribing to, installing, or accessing the WheelsTracker web dashboard, administrator console, or mobile applications, you agree to be bound by these Terms & Conditions. If you are registering on behalf of a school district, educational institution, bus contractor, or van transport company, you represent that you possess the legal authority to bind such entity to this framework.
                         </p>
                     </div>
 
                     <div class="space-y-4">
-                        <h2 class="text-xl font-bold text-white border-b border-slate-900 pb-2">2. Accounts & Operations Responsibility</h2>
-                        <p class="text-xs sm:text-sm">
-                            Subscribers must secure authorization credentials for administrators, drivers, and parents. WheelsTracker holds no liability for routing delays arising from cellular network connectivity drops or device-side location setting blocks.
+                        <h2 class="text-2xl font-black text-white border-b border-slate-900 pb-3 flex items-center gap-3">
+                            <span class="text-lime-400">02.</span> Scope of Service & GPS Compliance
+                        </h2>
+                        <p class="leading-relaxed text-slate-400 text-sm">
+                            WheelsTracker provides real-time geolocation tracking software-as-a-service (SaaS) to monitor school vehicles during transit. Subscribing organizations are responsible for ensuring that:
+                        </p>
+                        <ul class="list-disc pl-6 space-y-2 text-slate-400 text-sm">
+                            <li>All active vehicle operators (drivers and attendants) have consented to the transmission of location parameters and telemetry during shift hours.</li>
+                            <li>No tracking devices or active driver applications remain enabled outside of verified school transit hours.</li>
+                            <li>The GPS hardware or smartphones running our telemetry service meet the minimum cellular signal bandwidth requirements.</li>
+                        </ul>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h2 class="text-2xl font-black text-white border-b border-slate-900 pb-3 flex items-center gap-3">
+                            <span class="text-lime-400">03.</span> Account Credentials & Access Control
+                        </h2>
+                        <p class="leading-relaxed text-slate-400 text-sm">
+                            Schools and transport contractors must maintain strict confidentiality of administrative, operator, and parent-guardian login credentials. WheelsTracker is not responsible for unauthorized system modifications, student route alterations, or data leaks resulting from weak password security or compromised credentials.
                         </p>
                     </div>
 
                     <div class="space-y-4">
-                        <h2 class="text-xl font-bold text-white border-b border-slate-900 pb-2">3. Subscription Tiers & Billing</h2>
-                        <p class="text-xs sm:text-sm">
-                            Plans are billed per active vehicle monthly. Upgrades, downgrades, and cancellations apply immediately at the start of the next billing cycle. Payments processed are non-refundable.
+                        <h2 class="text-2xl font-black text-white border-b border-slate-900 pb-3 flex items-center gap-3">
+                            <span class="text-lime-400">04.</span> Subscription Billing, Tiers, & Cancellations
+                        </h2>
+                        <p class="leading-relaxed text-slate-400 text-sm">
+                            WheelsTracker services are billed in advance on a recurring monthly or annual schedule based on the active vehicle fleet size.
+                        </p>
+                        <ul class="list-disc pl-6 space-y-2 text-slate-400 text-sm">
+                            <li><strong>Billing Unit:</strong> Fees are calculated based on the count of active vehicles registered within your portal.</li>
+                            <li><strong>Upgrades/Downgrades:</strong> Adding vehicles triggers a prorated invoice for the remainder of the billing cycle. Vehicle count reductions apply to the subsequent billing cycle.</li>
+                            <li><strong>Cancellations:</strong> Subscribers can cancel their plans through their portal. Payments made are non-refundable, and no partial credits will be issued.</li>
+                        </ul>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h2 class="text-2xl font-black text-white border-b border-slate-900 pb-3 flex items-center gap-3">
+                            <span class="text-lime-400">05.</span> Limitations of Liability & Routing
+                        </h2>
+                        <p class="leading-relaxed text-slate-400 text-sm">
+                            While WheelsTracker maintains advanced telemetry processing nodes to provide exact ETAs, we hold no liability for routing delays, missed drop-offs, or traffic deviations caused by GPS signal drops, local cellular outages, street closure blocks, or operator scheduling errors. Geolocation accuracy is subject to device limitations and environmental parameters.
                         </p>
                     </div>
 
                     <div class="space-y-4">
-                        <h2 class="text-xl font-bold text-white border-b border-slate-900 pb-2">4. Service Availability & Support SLA</h2>
-                        <p class="text-xs sm:text-sm">
-                            Professional and Enterprise plans include system uptime guarantees. For emergency support or API failures, contact our ticketing channel at support@wheelstracker.com.
+                        <h2 class="text-2xl font-black text-white border-b border-slate-900 pb-3 flex items-center gap-3">
+                            <span class="text-lime-400">06.</span> Service Level Agreements & Maintenance
+                        </h2>
+                        <p class="leading-relaxed text-slate-400 text-sm">
+                            We aim to maintain a 99.9% server uptime rating for active tracking feeds. Scheduled maintenance is conducted during low-usage windows (weekends/midnight lines) and will be announced via system dashboards 48 hours in advance. Emergency hotfixes resolving data transmission or security alerts are deployed immediately without prior notice.
                         </p>
                     </div>
+
+                    <div class="space-y-4">
+                        <h2 class="text-2xl font-black text-white border-b border-slate-900 pb-3 flex items-center gap-3">
+                            <span class="text-lime-400">07.</span> Governing Law & Disputes
+                        </h2>
+                        <p class="leading-relaxed text-slate-400 text-sm">
+                            These Terms & Conditions are governed by the laws of the jurisdiction where the primary educational institution holds its licensing. Any formal disputes or billing claims arising from service usage must be submitted to our administrative compliance board before legal resolution is sought.
+                        </p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h2 class="text-2xl font-black text-white border-b border-slate-900 pb-3 flex items-center gap-3">
+                            <span class="text-lime-400">08.</span> Contact Legal Department
+                        </h2>
+                        <p class="leading-relaxed text-slate-400 text-sm">
+                            If you have questions regarding SLA limits, billing agreements, enterprise terms, or liability limits, please reach out to our team at <a href="mailto:leenaitsolutions@gmail.com" class="text-lime-400 hover:underline">leenaitsolutions@gmail.com</a>.
+                        </p>
+                    </div>
+
                 </div>
             </section>
         </main>
 
         <!-- Footer -->
-        <footer class="bg-[#05070A] text-slate-400 py-12 border-t border-slate-950">
-            <div class="mx-auto max-w-7xl px-6 text-center space-y-4">
-                <p class="text-sm font-medium">&copy; {{ date('Y') }} WheelsTracker. All rights reserved.</p>
-                <div class="flex justify-center gap-6 text-xs">
-                    <a href="/features" class="hover:text-lime-400">Features</a>
-                    <a href="/solutions" class="hover:text-lime-400">Solutions</a>
-                    <a href="/pricing" class="hover:text-lime-400">Pricing</a>
-                    <a href="/privacy-policy" class="hover:text-lime-400">Privacy Policy</a>
-                    <a href="/terms-conditions" class="hover:text-lime-400">Terms & Conditions</a>
-                    <a href="/contact" class="hover:text-lime-400">Contact</a>
-                </div>
-            </div>
-        </footer>
+        <x-footer />
 
     </div>
 </x-guest-layout>

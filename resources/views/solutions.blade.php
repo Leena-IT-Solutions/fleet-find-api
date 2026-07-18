@@ -23,9 +23,7 @@
                     <a href="/features" class="text-slate-300 hover:text-lime-400 transition-colors">Features</a>
                     <a href="/solutions" class="font-semibold text-lime-400">Solutions</a>
                     <a href="/pricing" class="text-slate-300 hover:text-lime-400 transition-colors">Pricing</a>
-                    <a href="/case-studies" class="text-slate-300 hover:text-lime-400 transition-colors">Case Studies</a>
                     <a href="/blog" class="text-slate-300 hover:text-lime-400 transition-colors">Blog</a>
-                    <a href="/about" class="text-slate-300 hover:text-lime-400 transition-colors">About</a>
                     <a href="/contact" class="text-slate-300 hover:text-lime-400 transition-colors">Contact</a>
                 </nav>
                 <div class="flex items-center gap-4">

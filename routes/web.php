@@ -32,9 +32,7 @@ Route::view('/solutions/van-operators', 'solutions.van-operators')->name('soluti
 Route::view('/solutions/auto-rickshaw-operators', 'solutions.auto-rickshaw-operators')->name('solutions.auto-rickshaw-operators');
 Route::view('/solutions/transport-contractors', 'solutions.transport-contractors')->name('solutions.transport-contractors');
 Route::view('/pricing', 'pricing')->name('pricing');
-Route::view('/case-studies', 'case-studies')->name('case-studies');
 Route::view('/blog', 'blog')->name('blog');
-Route::view('/about', 'about')->name('about');
 Route::view('/contact', 'contact')->name('contact');
 Route::view('/book-demo', 'book-demo')->name('book-demo');
 Route::view('/privacy-policy', 'privacy-policy')->name('privacy-policy');

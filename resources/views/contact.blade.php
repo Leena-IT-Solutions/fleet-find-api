@@ -30,9 +30,7 @@
                     <a href="/features" class="text-slate-300 hover:text-lime-400 transition-colors">Features</a>
                     <a href="/solutions" class="text-slate-300 hover:text-lime-400 transition-colors">Solutions</a>
                     <a href="/pricing" class="text-slate-300 hover:text-lime-400 transition-colors">Pricing</a>
-                    <a href="/case-studies" class="text-slate-300 hover:text-lime-400 transition-colors">Case Studies</a>
                     <a href="/blog" class="text-slate-300 hover:text-lime-400 transition-colors">Blog</a>
-                    <a href="/about" class="text-slate-300 hover:text-lime-400 transition-colors">About</a>
                     <a href="/contact" class="font-semibold text-lime-400">Contact</a>
                 </nav>
                 <div class="flex items-center gap-4">
@@ -78,7 +76,7 @@
                                         <span class="text-lime-400 text-lg">✉</span>
                                         <div>
                                             <span class="text-slate-500 block text-[9px] uppercase font-bold">Email Address</span>
-                                            <span class="text-white font-semibold">support@wheelstracker.com</span>
+                                            <span class="text-white font-semibold">leenaitsolutions@gmail.com</span>
                                         </div>
                                     </div>
                                     <div class="flex items-center gap-3">
@@ -86,13 +84,6 @@
                                         <div>
                                             <span class="text-slate-500 block text-[9px] uppercase font-bold">Phone Number</span>
                                             <span class="text-white font-semibold">+91 90961 89183</span>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <span class="text-lime-400 text-lg">🏢</span>
-                                        <div>
-                                            <span class="text-slate-500 block text-[9px] uppercase font-bold">Corporate Office Address</span>
-                                            <span class="text-slate-350">Leena IT Solutions Center, Suite 404, Tech Park</span>
                                         </div>
                                     </div>
                                 </div>
