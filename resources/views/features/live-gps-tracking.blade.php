@@ -115,52 +115,10 @@
                         </div>
                     </div>
 
-                    <!-- Right Column: Interactive Animated Map Mockup -->
-                    <div class="lg:col-span-6 flex justify-center">
-                        <div class="w-full max-w-md bg-[#121824] rounded-[32px] border border-slate-850 p-5 shadow-2xl space-y-4 text-left">
-                            <div class="flex justify-between items-center pb-2 border-b border-slate-850">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-lime-400 animate-pulse"></span>
-                                    <span class="text-[9px] font-mono text-slate-350">Active Vehicle: Bus #04</span>
-                                </div>
-                                <span class="text-[8px] bg-lime-950/20 text-lime-400 border border-lime-500/20 px-2 py-0.5 rounded font-mono font-bold">STREAMING LIVE</span>
-                            </div>
-
-                            <!-- Animated Vector Map Widget -->
-                            <div class="h-48 bg-[#0B0F17] rounded-2xl border border-slate-850 relative overflow-hidden flex items-center justify-center">
-                                <svg class="absolute inset-0 w-full h-full p-4" viewBox="0 0 200 120" fill="none">
-                                    <!-- Map Roads Layout -->
-                                    <path d="M10 20 H190 M10 60 H190 M10 100 H190 M50 10 V110 M150 10 V110" stroke="#162235" stroke-width="2"/>
-                                    
-                                    <!-- Animated Route Trail -->
-                                    <path d="M50 20 H150 V100 H190" stroke="#3b82f6" stroke-dasharray="4 4" stroke-width="2" class="animated-trail"/>
-                                    
-                                    <!-- Geofence Circle -->
-                                    <circle cx="150" cy="100" r="16" fill="rgba(163, 230, 53, 0.08)" stroke="rgba(163, 230, 53, 0.2)" stroke-width="1" stroke-dasharray="2 2"/>
-                                    <text x="142" y="80" fill="#a3e635" font-size="6" font-family="monospace">Stop #3 Zone</text>
-
-                                    <!-- Blinking Vehicle Marker -->
-                                    <g transform="translate(110, 20)">
-                                        <circle cx="0" cy="0" r="6" fill="#a3e635" opacity="0.3" class="ping-glow"/>
-                                        <circle cx="0" cy="0" r="3.5" fill="#a3e635"/>
-                                    </g>
-                                </svg>
-                            </div>
-
-                            <div class="grid grid-cols-3 gap-2 text-[9px] sm:text-xs">
-                                <div class="bg-[#0B0F17] p-2 rounded-xl border border-slate-850">
-                                    <span class="text-slate-500 block text-[7px] uppercase font-bold">Active Speed</span>
-                                    <span class="text-white font-bold">42 km/h</span>
-                                </div>
-                                <div class="bg-[#0B0F17] p-2 rounded-xl border border-slate-850">
-                                    <span class="text-slate-500 block text-[7px] uppercase font-bold">Route Deviation</span>
-                                    <span class="text-emerald-400 font-bold">0% Match</span>
-                                </div>
-                                <div class="bg-[#0B0F17] p-2 rounded-xl border border-slate-850">
-                                    <span class="text-slate-500 block text-[7px] uppercase font-bold">Next STOP ETA</span>
-                                    <span class="text-lime-400 font-bold">2.5 Mins</span>
-                                </div>
-                            </div>
+                    <!-- Right Column: High-Fidelity Smartphone Live Tracking Mockup -->
+                    <div class="lg:col-span-6 flex justify-center items-center">
+                        <div class="relative max-w-[340px] sm:max-w-[385px] w-full transform hover:scale-[1.02] transition duration-500">
+                            <img src="{{ asset('images/live_gps_tracking_preview.png') }}" class="w-full h-auto drop-shadow-[0_25px_50px_rgba(0,0,0,0.55)] animate-fade-in" alt="WheelsTracker Live GPS Tracking Smartphone Mockup">
                         </div>
                     </div>
 
@@ -246,19 +204,7 @@
         </main>
 
         <!-- Footer -->
-        <footer class="bg-[#05070A] text-slate-400 py-12 border-t border-slate-950">
-            <div class="mx-auto max-w-7xl px-6 text-center space-y-4">
-                <p class="text-sm font-medium">&copy; {{ date('Y') }} WheelsTracker. All rights reserved.</p>
-                <div class="flex justify-center gap-6 text-xs">
-                    <a href="/features" class="hover:text-lime-400">Features</a>
-                    <a href="/solutions" class="hover:text-lime-400">Solutions</a>
-                    <a href="/pricing" class="hover:text-lime-400">Pricing</a>
-                    <a href="/privacy-policy" class="hover:text-lime-400">Privacy Policy</a>
-                    <a href="/terms-conditions" class="hover:text-lime-400">Terms & Conditions</a>
-                    <a href="/contact" class="hover:text-lime-400">Contact</a>
-                </div>
-            </div>
-        </footer>
+        <x-footer />
 
     </div>
 </x-guest-layout>
