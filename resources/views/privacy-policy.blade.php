@@ -147,9 +147,9 @@
                             In accordance with Section 5 of the IT Rules, 2011 and DPDP Act provisions, we have appointed a Grievance Redressal Officer. Any concerns, data access requests, or complaints should be directed to:
                         </p>
                         <div class="bg-[#121824] p-6 rounded-2xl border border-slate-850 text-xs sm:text-sm space-y-2">
-                            <p class="text-white"><strong class="text-slate-400 block text-[9px] uppercase font-bold tracking-wider">Grievance Officer:</strong> Aarav Sharma</p>
+                            <p class="text-white"><strong class="text-slate-400 block text-[9px] uppercase font-bold tracking-wider">Grievance Officer:</strong> Sandeep Rathod</p>
                             <p class="text-white"><strong class="text-slate-400 block text-[9px] uppercase font-bold tracking-wider">Designated Email:</strong> <a href="mailto:leenaitsolutions@gmail.com" class="text-lime-400 hover:underline">leenaitsolutions@gmail.com</a></p>
-                            <p class="text-white"><strong class="text-slate-400 block text-[9px] uppercase font-bold tracking-wider">Office Address:</strong> Leena IT Solutions Center, Suite 404, Tech Park, Pune, Maharashtra - 411001, India</p>
+                            <p class="text-white"><strong class="text-slate-400 block text-[9px] uppercase font-bold tracking-wider">Contact Number:</strong> <a href="tel:9096189183" class="text-lime-400 hover:underline">9096189183</a></p>
                         </div>
                     </div>
 
