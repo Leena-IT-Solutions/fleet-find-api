@@ -1,2 +1,7 @@
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /administrator
+Disallow: /organization
+Disallow: /org/
+
+Sitemap: https://wheelstracker.infoleena.com/sitemap.xml

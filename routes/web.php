@@ -3,7 +3,39 @@
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
+Route::get('/parent-app', function() {
+    return view('features', ['activeTab' => 'parent']);
+})->name('parent-app');
+
+Route::get('/driver-app', function() {
+    return view('features', ['activeTab' => 'driver']);
+})->name('driver-app');
+
+Route::view('/features', 'features')->name('features');
+Route::view('/features/parent-app', 'features.parent-app')->name('features.parent-app');
+Route::view('/features/driver-app', 'features.driver-app')->name('features.driver-app');
+Route::view('/features/school-dashboard', 'features.school-dashboard')->name('features.school-dashboard');
+Route::view('/features/live-gps-tracking', 'features.live-gps-tracking')->name('features.live-gps-tracking');
+Route::view('/features/notifications', 'features.notifications')->name('features.notifications');
+Route::view('/features/reports', 'features.reports')->name('features.reports');
+Route::view('/school-bus-tracking-software', 'landing.school-bus-tracking-software')->name('landing.school-bus-tracking-software');
+Route::view('/school-van-tracking-software', 'landing.school-van-tracking')->name('landing.school-van-tracking');
+Route::view('/gps-tracking-system-for-schools', 'landing.school-gps-tracking-system')->name('landing.school-gps-tracking-system');
+Route::view('/school-bus-gps-india', 'landing.school-bus-gps-india')->name('landing.school-bus-gps-india');
+Route::view('/auto-rickshaw-tracking-for-schools', 'landing.school-rickshaw-tracking')->name('landing.school-rickshaw-tracking');
+Route::view('/school-fleet-management', 'landing.school-fleet-management')->name('landing.school-fleet-management');
+Route::view('/school-transport-management-software', 'landing.school-transport-management')->name('landing.school-transport-management');
+Route::view('/solutions', 'solutions')->name('solutions');
+Route::view('/solutions/schools', 'solutions.schools')->name('solutions.schools');
+Route::view('/solutions/school-bus-operators', 'solutions.school-bus-operators')->name('solutions.school-bus-operators');
+Route::view('/solutions/van-operators', 'solutions.van-operators')->name('solutions.van-operators');
+Route::view('/solutions/auto-rickshaw-operators', 'solutions.auto-rickshaw-operators')->name('solutions.auto-rickshaw-operators');
+Route::view('/solutions/transport-contractors', 'solutions.transport-contractors')->name('solutions.transport-contractors');
+Route::view('/pricing', 'pricing')->name('pricing');
+Route::view('/contact', 'contact')->name('contact');
+Route::view('/book-demo', 'book-demo')->name('book-demo');
 Route::view('/privacy-policy', 'privacy-policy')->name('privacy-policy');
+Route::view('/terms-conditions', 'terms-conditions')->name('terms-conditions');
 
 use Livewire\Volt\Volt;
 
