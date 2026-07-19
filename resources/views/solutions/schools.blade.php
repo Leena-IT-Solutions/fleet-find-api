@@ -25,7 +25,6 @@
                     <a href="/features" class="text-slate-300 hover:text-lime-400 transition-colors">Features</a>
                     <a href="/solutions" class="font-semibold text-lime-400">Solutions</a>
                     <a href="/pricing" class="text-slate-300 hover:text-lime-400 transition-colors">Pricing</a>
-                    <a href="/blog" class="text-slate-300 hover:text-lime-400 transition-colors">Blog</a>
                     <a href="/contact" class="text-slate-300 hover:text-lime-400 transition-colors">Contact</a>
                 </nav>
                 <div class="flex items-center gap-4">
@@ -268,39 +267,10 @@
                     </div>
                 </div>
             </section>
-
-            <!-- Case Study Spotlight -->
-            <section class="py-24 bg-[#080B11]">
-                <div class="mx-auto max-w-4xl px-6 bg-[#121824] p-8 sm:p-12 rounded-3xl border border-slate-850 space-y-6 text-left shadow-2xl">
-                    <span class="text-lime-400 font-extrabold text-xs uppercase tracking-wider">Case Study Spotlight</span>
-                    <h3 class="text-2xl sm:text-4xl font-black text-white leading-tight">St. Jude's Academy Case Study</h3>
-                    <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
-                        "WheelsTracker transformed our morning chaos. We reduced route fuel costs by 18%, saved 32 minutes per driver daily routing check, and resolved parent telephone line congestion by 92%."
-                    </p>
-                    <div class="flex justify-between items-center pt-4 border-t border-slate-800 text-xs">
-                        <div>
-                            <p class="text-white font-bold">Dr. Amanda K. Ross</p>
-                            <p class="text-slate-500">Director of Operations, St. Jude's Academy</p>
-                        </div>
-                        <span class="text-2xl font-black text-lime-400">92% relief</span>
-                    </div>
-                </div>
-            </section>
-
         </main>
 
         <!-- Footer -->
-        <footer class="bg-[#05070A] text-slate-400 py-12 border-t border-slate-950">
-            <div class="mx-auto max-w-7xl px-6 text-center space-y-4">
-                <p class="text-sm font-medium">&copy; {{ date('Y') }} WheelsTracker. All rights reserved.</p>
-                <div class="flex justify-center gap-6 text-xs">
-                    <a href="/features" class="hover:text-lime-400">Features</a>
-                    <a href="/solutions" class="hover:text-lime-400">Solutions</a>
-                    <a href="/pricing" class="hover:text-lime-400">Pricing</a>
-                    <a href="/contact" class="hover:text-lime-400">Contact</a>
-                </div>
-            </div>
-        </footer>
+        <x-footer />
 
     </div>
 </x-guest-layout>

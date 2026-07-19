@@ -23,7 +23,6 @@
                     <a href="/features" class="text-slate-300 hover:text-lime-400 transition-colors">Features</a>
                     <a href="/solutions" class="text-slate-300 hover:text-lime-400 transition-colors">Solutions</a>
                     <a href="/pricing" class="text-slate-300 hover:text-lime-400 transition-colors">Pricing</a>
-                    <a href="/blog" class="text-slate-300 hover:text-lime-400 transition-colors">Blog</a>
                     <a href="/contact" class="text-slate-300 hover:text-lime-400 transition-colors">Contact</a>
                 </nav>
                 <div class="flex items-center gap-4">
@@ -49,8 +48,8 @@
                     <form onsubmit="event.preventDefault(); alert('Demo request submitted! We will send calendar invitations shortly.'); this.reset();" class="space-y-6 text-left">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-xs text-slate-400 font-bold uppercase mb-2">First Name</label>
-                                <input type="text" required class="w-full bg-[#1A2333] border border-slate-800 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-lime-400 transition-colors" placeholder="Aarav">
+                                <label class="block text-xs text-slate-400 font-bold uppercase mb-2">Name</label>
+                                <input type="text" required class="w-full bg-[#1A2333] border border-slate-800 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-lime-400 transition-colors" placeholder="Aarav Sharma">
                             </div>
                             <div>
                                 <label class="block text-xs text-slate-400 font-bold uppercase mb-2">School Email</label>
@@ -58,6 +57,10 @@
                             </div>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-xs text-slate-400 font-bold uppercase mb-2">Contact Number</label>
+                                <input type="tel" required class="w-full bg-[#1A2333] border border-slate-800 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-lime-400 transition-colors" placeholder="+91 98765 43210">
+                            </div>
                             <div>
                                 <label class="block text-xs text-slate-400 font-bold uppercase mb-2">Fleet Size (Buses/Vans)</label>
                                 <select required class="w-full bg-[#1A2333] border border-slate-800 rounded-xl px-4 py-3 text-slate-300 text-sm focus:outline-none focus:border-lime-400 transition-colors">
@@ -67,10 +70,10 @@
                                     <option value="50+">50+ vehicles</option>
                                 </select>
                             </div>
-                            <div>
-                                <label class="block text-xs text-slate-400 font-bold uppercase mb-2">Preferred Date</label>
-                                <input type="date" required class="w-full bg-[#1A2333] border border-slate-800 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-lime-400 transition-colors">
-                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 font-bold uppercase mb-2">Preferred Date</label>
+                            <input type="date" required class="w-full bg-[#1A2333] border border-slate-800 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-lime-400 transition-colors">
                         </div>
                         <button type="submit" class="w-full py-3.5 rounded-xl bg-lime-400 hover:bg-lime-300 text-slate-950 font-black text-sm uppercase tracking-wider transition-colors shadow-lg shadow-lime-500/10">
                             Confirm Demo Booking

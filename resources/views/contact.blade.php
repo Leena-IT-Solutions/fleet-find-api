@@ -30,7 +30,6 @@
                     <a href="/features" class="text-slate-300 hover:text-lime-400 transition-colors">Features</a>
                     <a href="/solutions" class="text-slate-300 hover:text-lime-400 transition-colors">Solutions</a>
                     <a href="/pricing" class="text-slate-300 hover:text-lime-400 transition-colors">Pricing</a>
-                    <a href="/blog" class="text-slate-300 hover:text-lime-400 transition-colors">Blog</a>
                     <a href="/contact" class="font-semibold text-lime-400">Contact</a>
                 </nav>
                 <div class="flex items-center gap-4">

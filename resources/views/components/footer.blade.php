@@ -40,7 +40,6 @@
             <h4 class="text-xs uppercase font-extrabold tracking-wider text-slate-200 mb-4">Company</h4>
             <ul class="space-y-2.5">
                 <li><a href="/pricing" class="hover:text-lime-400 text-slate-500 hover:underline transition-colors">Pricing Plans</a></li>
-                <li><a href="/blog" class="hover:text-lime-400 text-slate-500 hover:underline transition-colors">Read Blog</a></li>
                 <li><a href="/contact" class="hover:text-lime-400 text-slate-500 hover:underline transition-colors">Contact Support</a></li>
                 <li><a href="/privacy-policy" class="hover:text-lime-400 text-slate-500 hover:underline transition-colors">Privacy Policy</a></li>
                 <li><a href="/terms-conditions" class="hover:text-lime-400 text-slate-500 hover:underline transition-colors">Terms & Conditions</a></li>
